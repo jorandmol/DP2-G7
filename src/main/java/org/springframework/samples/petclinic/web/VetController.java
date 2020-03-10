@@ -25,8 +25,10 @@ import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Collection;
 import java.util.Map;
@@ -91,7 +93,14 @@ public class VetController {
 		}
 		else {
 			this.vetService.saveVet(vet);
-            return showVetList(model);
+            return "redirect:/vets/" + vet.getId();
 		}
+	}
+	
+	@GetMapping("/vets/{vetId}")
+	public ModelAndView showVet(@PathVariable("vetId") int vetId) {
+		ModelAndView mav = new ModelAndView("vets/vetDetails");
+		mav.addObject(this.vetService.findVetById(vetId));
+		return mav;
 	}
 }

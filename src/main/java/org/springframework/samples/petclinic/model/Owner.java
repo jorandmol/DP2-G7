@@ -68,10 +68,6 @@ public class Owner extends Person {
     @JoinColumn(name = "username", referencedColumnName = "username")
 	private User user;
 	//
-	
-	public String getAddress() {
-		return this.address;
-	}
 
 	public User getUser() {
 		return user;
@@ -79,6 +75,10 @@ public class Owner extends Person {
 
 	public void setUser(User user) {
 		this.user = user;
+	}
+	
+	public String getAddress() {
+		return this.address;
 	}
 
 	public void setAddress(String address) {

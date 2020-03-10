@@ -47,4 +47,6 @@ public interface VetRepository {
 
 	void save(Vet vet) throws DataAccessException;
 
+	Vet findById(int vetId) throws DataAccessException;
+
 }

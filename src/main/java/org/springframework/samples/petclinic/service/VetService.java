@@ -37,7 +37,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class VetService {
 
 	private VetRepository vetRepository;
-
+	
+	@Autowired
+	private UserService userService;
+	
+	@Autowired
+	private AuthoritiesService authoritiesService;
 
 	@Autowired
 	public VetService(VetRepository vetRepository) {
@@ -55,8 +60,18 @@ public class VetService {
 	}
 
 	@Transactional
-	public void saveVet(Vet vet) {
-		vetRepository.save(vet);
-	}	
+	public void saveVet(Vet vet) throws DataAccessException {
+		//creating owner
+		vetRepository.save(vet);		
+		//creating user
+		userService.saveUser(vet.getUser());
+		//creating authorities
+		authoritiesService.saveAuthorities(vet.getUser().getUsername(), "vet");
+	}
+
+	@Transactional(readOnly = true)
+	public Vet findVetById(int vetId) {
+		return vetRepository.findById(vetId);
+	}
 
 }
