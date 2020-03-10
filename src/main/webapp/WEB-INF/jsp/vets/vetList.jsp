@@ -32,10 +32,15 @@
     </table>
 
     <table class="table-buttons">
-        <tr>
+    	<tr>
             <td>
-                <a href="<spring:url value="/vets.xml" htmlEscape="true" />">View as XML</a>
-            </td>            
+				<a class="btn btn-default" href='<spring:url value="/vets/new" htmlEscape="true"/>'>Add Vet</a>
+            </td>
         </tr>
+        <tr>           
+        	<td>
+                <a href="<spring:url value="/vets.xml" htmlEscape="true" />">View as XML</a>
+        	</td> 
+        </tr>																																							           
     </table>
 </petclinic:layout>
