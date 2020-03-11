@@ -85,7 +85,7 @@
                                     <spring:param name="petId" value="${pet.id}"/>
                                 </spring:url>
                                 <a href="${fn:escapeXml(visitUrl)}">Add Visit</a>
-                            </td>
+                            </td>                         
                         </tr>
                     </table>
                 </td>

@@ -16,6 +16,7 @@
 package org.springframework.samples.petclinic.service;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -40,8 +41,7 @@ public class PetService {
 
 	private PetRepository petRepository;
 	
-	private VisitRepository visitRepository;
-	
+	private VisitRepository visitRepository;	
 
 	@Autowired
 	public PetService(PetRepository petRepository,
@@ -78,5 +78,4 @@ public class PetService {
 	public Collection<Visit> findVisitsByPetId(int petId) {
 		return visitRepository.findByPetId(petId);
 	}
-
 }

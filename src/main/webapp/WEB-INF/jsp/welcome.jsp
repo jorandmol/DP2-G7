@@ -11,5 +11,13 @@
             <spring:url value="/resources/images/pets.png" htmlEscape="true" var="petsImage"/>
             <img class="img-responsive" src="${petsImage}"/>
         </div>
+    <sec:authorize access="hasAuthority('admin')">
+        <div>
+        <h4>Pet types</h4>
+        <form action="/pet-type">
+        <button type="submit" class="btn btn-default">Go</button>
+        </form>
+        </div>
+     </sec:authorize>
     </div>
 </petclinic:layout>
