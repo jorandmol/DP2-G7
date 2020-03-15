@@ -20,6 +20,7 @@ import org.springframework.samples.petclinic.model.Specialty;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.model.Vets;
 import org.springframework.samples.petclinic.service.VetService;
+import org.springframework.samples.petclinic.service.exceptions.DuplicatedPetNameException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -45,7 +46,7 @@ import javax.validation.Valid;
 public class VetController {
 
 	private final VetService vetService;
-	private static final String VIEWS_VETS_CREATE_OR_UPDATE_FORM = "vets/createOrUpdateVetForm";
+	private static final String VIEWS_VET_CREATE_OR_UPDATE_FORM = "vets/createOrUpdateVetForm";
 
 	@Autowired
 	public VetController(VetService clinicService) {
@@ -82,17 +83,22 @@ public class VetController {
 	public String initCreationForm(ModelMap model) {
 		Vet vet = new Vet();
 		model.put("vet", vet);
-		return VIEWS_VETS_CREATE_OR_UPDATE_FORM;
+		return VIEWS_VET_CREATE_OR_UPDATE_FORM;
 	}
 
 	@PostMapping(value = "/vets/new")
 	public String processCreationForm(@Valid Vet vet, BindingResult result, ModelMap model) {		
 		if (result.hasErrors()) {
 			model.put("vet", vet);
-			return VIEWS_VETS_CREATE_OR_UPDATE_FORM;
+			return VIEWS_VET_CREATE_OR_UPDATE_FORM;
 		}
 		else {
-			this.vetService.saveVet(vet);
+            try{
+            	this.vetService.saveVet(vet);
+            }catch(Exception ex){
+                result.rejectValue("user.username", "duplicate", "already exists");
+                return VIEWS_VET_CREATE_OR_UPDATE_FORM;
+            }
             return "redirect:/vets/" + vet.getId();
 		}
 	}
