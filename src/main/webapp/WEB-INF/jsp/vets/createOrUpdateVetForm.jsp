@@ -18,19 +18,21 @@
             <petclinic:inputField label="City" name="city"/>
             <petclinic:inputField label="Telephone" name="telephone"/>
             <petclinic:selectField label="Specialties" name="specialties" names="${specialties}" size="3"/>
-            <petclinic:inputField label="Username" name="user.username"/>
-            <petclinic:inputField label="Password" name="user.password"/>
+            <c:if test="${!vet['new']}">
+            	<petclinic:inputField label="Username" name="user.username"/>
+            	<petclinic:inputField label="Password" name="user.password"/>
+            </c:if>	
         </div>
         <div class="form-group">
             <div class="col-sm-offset-2 col-sm-10">
-      <%--           <c:choose>
-                    <c:when test="${vet['new']}"> --%>
-                        <button class="btn btn-default" type="submit">Add Vet</button>
-           <%--          </c:when>
+            	<c:choose>
+                	<c:when test="${vet['new']}">
+                    	<button class="btn btn-default" type="submit">Add Vet</button>
+                    </c:when>
                     <c:otherwise>
-                        <button class="btn btn-default" type="submit">Update Vet</button>
+                    	<button class="btn btn-default" type="submit">Update Vet</button>
                     </c:otherwise>
-                </c:choose> --%>
+                </c:choose> 
             </div>
         </div>
     </form:form>
