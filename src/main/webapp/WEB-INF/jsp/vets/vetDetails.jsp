@@ -27,6 +27,10 @@
             <td><c:out value="${vet.telephone}"/></td>
         </tr>
         <tr>
+            <th>Username</th>
+            <td><c:out value="${vet.user.username}"/></td>
+        </tr>
+        <tr>
         	<th>Specialties</th>
         	<td>
         	<c:forEach var="specialty" items="${vet.specialties}">

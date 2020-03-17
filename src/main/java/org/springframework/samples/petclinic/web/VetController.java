@@ -16,12 +16,11 @@
 package org.springframework.samples.petclinic.web;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Specialty;
+import org.springframework.samples.petclinic.model.User;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.model.Vets;
 import org.springframework.samples.petclinic.service.VetService;
-import org.springframework.samples.petclinic.service.exceptions.DuplicatedPetNameException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -108,17 +107,30 @@ public class VetController {
 	@GetMapping(value = "/vets/{vetId}/edit")
 	public String initUpdateVetForm(@PathVariable("vetId") int vetId, Model model) {
 		Vet vet = this.vetService.findVetById(vetId);
+		model.addAttribute("username", vet.getUser().getUsername());
 		model.addAttribute(vet);
+		model.addAttribute("edit", true);
 		return VIEWS_VET_CREATE_OR_UPDATE_FORM;
+		
 	}
 
 	@PostMapping(value = "/vets/{vetId}/edit")
-	public String processUpdateVetForm(@Valid Vet vet, BindingResult result,
-			@PathVariable("vetId") int vetId) {
+	public String processUpdateVetForm(@PathVariable("vetId") int vetId, @Valid Vet vet,
+			BindingResult result, ModelMap model) {
+		Vet vet1 = this.vetService.findVetById(vetId);
+		String username= vet1.getUser().getUsername();
 		if (result.hasErrors()) {
+			model.addAttribute("edit", true);
+			model.addAttribute("username", username);
+			model.put("vet", vet);
 			return VIEWS_VET_CREATE_OR_UPDATE_FORM;
 		} else {
+			model.addAttribute("username", username);
+			model.addAttribute("edit", true);
 			vet.setId(vetId);
+			User user= vet1.getUser();
+			user.setPassword(vet.getUser().getPassword());
+			vet.setUser(user);
 			this.vetService.saveVet(vet);
 			return "redirect:/vets/{vetId}";
 		}
