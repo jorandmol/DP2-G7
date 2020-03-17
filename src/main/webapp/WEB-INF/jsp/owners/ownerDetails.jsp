@@ -41,7 +41,7 @@
     <br/>
     <br/>
     <br/>
-    <h2>Pets and Visits</h2>
+    <h2>Pets</h2>
 
     <table class="table table-striped">
         <c:forEach var="pet" items="${owner.pets}">
@@ -69,6 +69,26 @@
                             <tr>
                                 <td><petclinic:localDate date="${visit.date}" pattern="yyyy-MM-dd"/></td>
                                 <td><c:out value="${visit.description}"/></td>
+                            </tr>
+                        </c:forEach>
+                        <thead>
+                        <tr>
+                            <th>Appointment Date</th>
+                            <th>Description</th>
+                        </tr>
+                        </thead>
+                        <c:forEach var="appointment" items="${pet.appointments}">
+                            <tr>
+                                <td><petclinic:localDate date="${appointment.appointmentDate}" pattern="dd-MM-yyyy"/></td>
+                                <td><c:out value="${appointment.description}"/></td>
+                                <td>
+                                	<spring:url value="/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete" var="deleteAppointmentUrl">
+        								<spring:param name="ownerId" value="${owner.id}"/>
+        								<spring:param name="petId" value="${pet.id}"></spring:param>
+        								<spring:param name="appointmentId" value="${appointment.id}"></spring:param>
+    								</spring:url>
+    								<a href="${fn:escapeXml(deleteAppointmentUrl)}" class="btn btn-default">Delete Appointment</a>
+                                </td>
                             </tr>
                         </c:forEach>
                         <tr>

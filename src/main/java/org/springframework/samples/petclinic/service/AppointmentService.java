@@ -19,4 +19,12 @@ public class AppointmentService {
 	public void saveAppointment(final Appointment appointment) throws DataAccessException {
 		this.appointmentRepository.save(appointment);
 	}
+	
+	public void deleteAppointment(final Appointment appointment) throws DataAccessException {
+		this.appointmentRepository.delete(appointment);
+	}
+	
+	public Appointment findAppointmentById(int appointmentId) throws DataAccessException {
+		return this.appointmentRepository.findById(appointmentId);
+	}
 }

@@ -49,4 +49,14 @@ public class AppointmentController {
 			return "redirect:/owners/{ownerId}";
 		}
 	}
+	
+	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete")
+	public String deleteAppointment(@PathVariable("appointmentId") int appointmentId, @PathVariable("petId") int petId) {
+		Appointment appointment = this.appointmentService.findAppointmentById(appointmentId);
+        Pet pet =  this.petService.findPetById(petId);
+        pet.deleteAppointments(appointment);
+        this.appointmentService.deleteAppointment(appointment);
+        
+        return "redirect:/owners/{ownerId}";
+	}
 }
