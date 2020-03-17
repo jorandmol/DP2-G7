@@ -6,7 +6,7 @@
 
 <petclinic:layout pageName="medicines">
 
-    <h2>Owner Information</h2>
+    <h2>Medicine Information</h2>
 
 
     <table class="table table-striped">

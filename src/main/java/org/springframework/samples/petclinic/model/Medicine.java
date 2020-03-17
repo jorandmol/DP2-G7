@@ -17,7 +17,6 @@ import lombok.Data;
 public class Medicine extends BaseEntity  {
 	
 	@Column(name = "expiration_date")    
-	@NotEmpty
 	@DateTimeFormat(pattern = "yyyy/MM/dd")
 	private LocalDate expirationDate;
 	
