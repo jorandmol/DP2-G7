@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Pattern;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -14,7 +15,7 @@ import lombok.Data;
 @Entity
 @Data
 @Table(name = "medicines")
-public class Medicine extends BaseEntity  {
+public class Medicine extends NamedEntity  {
 	
 	@Column(name = "expiration_date")    
 	@DateTimeFormat(pattern = "yyyy/MM/dd")
@@ -23,12 +24,11 @@ public class Medicine extends BaseEntity  {
 	@NotEmpty
 	@Column(name = "description")
 	private String description;
-	
-	
 
 	@NotEmpty
-	@Column(name = "identificator")
-	private String identificator;
+	@Pattern(regexp = "^[A-Z]{3}\\-\\d{3,9}$")
+	@Column(name = "code")
+	private String code;
 	
 	
 	

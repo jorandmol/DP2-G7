@@ -2,6 +2,8 @@ package org.springframework.samples.petclinic.service;
 
 
 
+import java.time.LocalDate;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Medicine;
@@ -37,7 +39,25 @@ public class MedicineService {
 
 	@Transactional(readOnly = true)
 	public Medicine findMedicineById(int id) throws DataAccessException {
-		return medicineRepository.findById(id);
+		return medicineRepository.findById(id).get();
+	}
+
+
+
+	public Iterable<Medicine> findAll() {
+		return this.medicineRepository.findAll();
+	}
+
+
+
+	public Boolean codeAlreadyExists(String code) {
+		return this.medicineRepository.codeAlreadyExists(code).size()>0;
+	}
+
+
+
+	public Boolean pastDate(LocalDate expirationDate) {
+		return expirationDate.isBefore(LocalDate.now());
 	}
 
 
