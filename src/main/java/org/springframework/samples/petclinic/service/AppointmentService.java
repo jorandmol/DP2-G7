@@ -1,6 +1,8 @@
 
 package org.springframework.samples.petclinic.service;
 
+import java.time.LocalDate;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Appointment;
@@ -17,6 +19,9 @@ public class AppointmentService {
 
 	@Transactional
 	public void saveAppointment(final Appointment appointment) throws DataAccessException {
-		this.appointmentRepository.save(appointment);
+		LocalDate localDateNow = LocalDate.now();
+		if (appointment.getAppointmentDate().isAfter(localDateNow)) {
+			this.appointmentRepository.save(appointment);
+		}
 	}
 }

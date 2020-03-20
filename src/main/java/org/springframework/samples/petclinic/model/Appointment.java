@@ -36,6 +36,9 @@ public class Appointment extends BaseEntity {
 	@ManyToOne
 	private Pet			pet;
 
+	@ManyToOne
+	private Vet			vet;
+
 
 	public void addPet(final Pet pet) {
 		this.setPet(pet);
