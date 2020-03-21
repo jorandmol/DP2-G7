@@ -1,6 +1,7 @@
 
 package org.springframework.samples.petclinic.web;
 
+import java.util.Collection;
 import java.util.Map;
 
 import javax.validation.Valid;
@@ -8,8 +9,10 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Appointment;
 import org.springframework.samples.petclinic.model.Pet;
+import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.service.AppointmentService;
 import org.springframework.samples.petclinic.service.PetService;
+import org.springframework.samples.petclinic.service.VetService;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +29,9 @@ public class AppointmentController {
 	@Autowired
 	private PetService			petService;
 
+	@Autowired
+	private VetService 			vetService;
+
 
 	@ModelAttribute("appointment")
 	public Appointment loadPetWithAppointment(@PathVariable("petId") final int petId) {
@@ -33,6 +39,11 @@ public class AppointmentController {
 		Appointment appointment = new Appointment();
 		appointment.addPet(pet);
 		return appointment;
+	}
+
+	@ModelAttribute("vets")
+	public Collection<Vet> loadVets() {
+		return this.vetService.findVets();
 	}
 
 	@GetMapping(value = "/owners/*/pets/{petId}/appointments/new")
