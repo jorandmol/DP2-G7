@@ -118,8 +118,8 @@ public class VetController {
 	@GetMapping(value = "/vets/{vetId}/edit")
 	public String initUpdateVetForm(@PathVariable("vetId") int vetId, Model model) {
 		Vet vet = this.vetService.findVetById(vetId);
-		model.addAttribute("username", vet.getUser().getUsername());
 		model.addAttribute(vet);
+		model.addAttribute("username", vet.getUser().getUsername());
 		model.addAttribute("edit", true);
 		return VIEWS_VET_CREATE_OR_UPDATE_FORM;
 

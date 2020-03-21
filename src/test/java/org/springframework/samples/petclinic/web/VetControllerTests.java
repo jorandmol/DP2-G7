@@ -1,15 +1,18 @@
 package org.springframework.samples.petclinic.web;
 
 import org.assertj.core.util.Lists;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.samples.petclinic.configuration.SecurityConfiguration;
 import org.springframework.samples.petclinic.model.Specialty;
+import org.springframework.samples.petclinic.model.User;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.service.VetService;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
@@ -19,6 +22,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.test.context.support.WithMockUser;
 
@@ -33,13 +37,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = VetController.class, excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = WebSecurityConfigurer.class), excludeAutoConfiguration = SecurityConfiguration.class)
 class VetControllerTests {
 
-	private static final int TEST_VET_ID = 1;
+	private static final int TEST_VET_ID = 4;
 
 	@Autowired
 	private VetController vetController;
 
 	@MockBean
-	private VetService clinicService;
+	private VetService vetService;
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -59,7 +63,7 @@ class VetControllerTests {
 		radiology.setId(1);
 		radiology.setName("radiology");
 		helen.addSpecialty(radiology);
-		given(this.clinicService.findVets()).willReturn(Lists.newArrayList(james, helen));
+		given(this.vetService.findVets()).willReturn(Lists.newArrayList(james, helen));
 	}
 
 	@WithMockUser(value = "spring")
@@ -101,17 +105,13 @@ class VetControllerTests {
 				.andExpect(model().attributeHasFieldErrors("vet", "telephone"))
 				.andExpect(view().name("vets/createOrUpdateVetForm"));
 	}
+	
 
 //	@WithMockUser(value = "spring")
 //	@Test
 //	void testInitUpdateVetForm() throws Exception {
 //		mockMvc.perform(get("/vets/{vetId}/edit", TEST_VET_ID)).andExpect(status().isOk())
 //				.andExpect(model().attributeExists("vet"))
-//				.andExpect(model().attribute("vet", hasProperty("lastName", is("Franklin"))))
-//				.andExpect(model().attribute("vet", hasProperty("firstName", is("George"))))
-//				.andExpect(model().attribute("vet", hasProperty("address", is("110 W. Liberty St."))))
-//				.andExpect(model().attribute("vet", hasProperty("city", is("Madison"))))
-//				.andExpect(model().attribute("vet", hasProperty("telephone", is("6085551023"))))
 //				.andExpect(view().name("vets/createOrUpdateVetForm"));
 //	}
 //
@@ -120,10 +120,12 @@ class VetControllerTests {
 //	void testProcessUpdateVetFormSuccess() throws Exception {
 //		mockMvc.perform(post("/vets/{vetId}/edit", TEST_VET_ID).with(csrf()).param("firstName", "Joe")
 //				.param("lastName", "Bloggs").param("address", "123 Caramel Street").param("city", "London")
-//				.param("telephone", "01616291589")).andExpect(status().is3xxRedirection())
+//				.param("telephone", "123456789")
+//				.param("user.password", "holi"))
+//				.andExpect(status().is3xxRedirection())
 //				.andExpect(view().name("redirect:/vets/{vetId}"));
 //	}
-//	
+	
 //	@Test
 //	void testProcessUpdateVetFormHasErrors() throws Exception {
 //		mockMvc.perform(post("/vets/{vetId}/edit", TEST_VET_ID)
