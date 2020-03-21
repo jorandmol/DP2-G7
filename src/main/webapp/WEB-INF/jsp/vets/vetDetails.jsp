@@ -27,6 +27,10 @@
             <td><c:out value="${vet.telephone}"/></td>
         </tr>
         <tr>
+            <th>Username</th>
+            <td><c:out value="${vet.user.username}"/></td>
+        </tr>
+        <tr>
         	<th>Specialties</th>
         	<td>
         	<c:forEach var="specialty" items="${vet.specialties}">
@@ -36,4 +40,10 @@
             </td>
         </tr>
     </table>
+    
+    <spring:url value="{vetId}/edit" var="editUrl">
+        <spring:param name="vetId" value="${vet.id}"/>
+    </spring:url>
+    <a href="${fn:escapeXml(editUrl)}" class="btn btn-default">Edit Vet</a>
+    
 </petclinic:layout>

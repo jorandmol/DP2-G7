@@ -16,12 +16,14 @@
 package org.springframework.samples.petclinic.web;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.samples.petclinic.model.Specialty;
+import org.springframework.samples.petclinic.model.User;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.model.Vets;
 import org.springframework.samples.petclinic.service.VetService;
-import org.springframework.samples.petclinic.service.exceptions.DuplicatedPetNameException;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -57,10 +59,11 @@ public class VetController {
 	public Collection<Specialty> populateSpecialties() {
 		return this.vetService.findSpecialties();
 	}
-	
+
 	@GetMapping(value = { "/vets" })
 	public String showVetList(Map<String, Object> model) {
-		// Here we are returning an object of type 'Vets' rather than a collection of Vet
+		// Here we are returning an object of type 'Vets' rather than a collection of
+		// Vet
 		// objects
 		// so it is simpler for Object-Xml mapping
 		Vets vets = new Vets();
@@ -69,16 +72,17 @@ public class VetController {
 		return "vets/vetList";
 	}
 
-	@GetMapping(value = { "/vets.xml"})
+	@GetMapping(value = { "/vets.xml" })
 	public @ResponseBody Vets showResourcesVetList() {
-		// Here we are returning an object of type 'Vets' rather than a collection of Vet
+		// Here we are returning an object of type 'Vets' rather than a collection of
+		// Vet
 		// objects
 		// so it is simpler for JSon/Object mapping
 		Vets vets = new Vets();
 		vets.getVetList().addAll(this.vetService.findVets());
 		return vets;
 	}
-	
+
 	@GetMapping(value = "/vets/new")
 	public String initCreationForm(ModelMap model) {
 		Vet vet = new Vet();
@@ -87,22 +91,70 @@ public class VetController {
 	}
 
 	@PostMapping(value = "/vets/new")
-	public String processCreationForm(@Valid Vet vet, BindingResult result, ModelMap model) {		
+	public String processCreationForm(@Valid Vet vet, BindingResult result, ModelMap model) {
 		if (result.hasErrors()) {
 			model.put("vet", vet);
 			return VIEWS_VET_CREATE_OR_UPDATE_FORM;
-		}
-		else {
-            try{
-            	this.vetService.saveVet(vet);
-            }catch(Exception ex){
-                result.rejectValue("user.username", "duplicate", "already exists");
-                return VIEWS_VET_CREATE_OR_UPDATE_FORM;
-            }
-            return "redirect:/vets/" + vet.getId();
+		} else {
+			try {
+				this.vetService.saveVet(vet);
+			} catch (Exception ex) {
+				
+				if (vet.getUser().getUsername().isEmpty()) 
+					result.rejectValue("user.username", "empty");
+				
+				if (vet.getUser().getPassword().isEmpty()) 
+					result.rejectValue("user.password", "empty");
+				
+				if (ex.getClass().equals(DataIntegrityViolationException.class))
+					result.rejectValue("user.username", "duplicate");
+
+				return VIEWS_VET_CREATE_OR_UPDATE_FORM;
+			}
+			return "redirect:/vets/" + vet.getId();
 		}
 	}
-	
+
+	@GetMapping(value = "/vets/{vetId}/edit")
+	public String initUpdateVetForm(@PathVariable("vetId") int vetId, Model model) {
+		Vet vet = this.vetService.findVetById(vetId);
+		model.addAttribute("username", vet.getUser().getUsername());
+		model.addAttribute(vet);
+		model.addAttribute("edit", true);
+		return VIEWS_VET_CREATE_OR_UPDATE_FORM;
+
+	}
+
+	@PostMapping(value = "/vets/{vetId}/edit")
+	public String processUpdateVetForm(@PathVariable("vetId") int vetId, @Valid Vet vet, BindingResult result,
+			ModelMap model) {
+		Vet vet1 = this.vetService.findVetById(vetId);
+		String username = vet1.getUser().getUsername();
+		if (result.hasErrors()) {
+			model.addAttribute("edit", true);
+			model.addAttribute("username", username);
+			model.put("vet", vet);
+			return VIEWS_VET_CREATE_OR_UPDATE_FORM;
+		} else {
+			try {
+				model.addAttribute("username", username);
+				model.addAttribute("edit", true);
+				vet.setId(vetId);
+				User user = vet1.getUser();
+				user.setPassword(vet.getUser().getPassword());
+				vet.setUser(user);
+				this.vetService.saveVet(vet);
+			} catch (Exception ex) {
+				
+				if (vet.getUser().getPassword().isEmpty()) 
+					result.rejectValue("user.password", "empty");
+				
+				return VIEWS_VET_CREATE_OR_UPDATE_FORM;
+			}
+			return "redirect:/vets/{vetId}";
+		}
+	}
+
 	@GetMapping("/vets/{vetId}")
 	public ModelAndView showVet(@PathVariable("vetId") int vetId) {
 		ModelAndView mav = new ModelAndView("vets/vetDetails");

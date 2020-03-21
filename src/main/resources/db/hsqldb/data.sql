@@ -7,13 +7,23 @@ INSERT INTO authorities VALUES ('owner1','owner');
 -- One vet user, named vet1 with passwor v3t
 INSERT INTO users(username,password,enabled) VALUES ('vet1','v3t',TRUE);
 INSERT INTO authorities VALUES ('vet1','veterinarian');
+INSERT INTO users(username,password,enabled) VALUES ('vet2','v3t',TRUE);
+INSERT INTO authorities VALUES ('vet2','veterinarian');
+INSERT INTO users(username,password,enabled) VALUES ('vet3','v3t',TRUE);
+INSERT INTO authorities VALUES ('vet3','veterinarian');
+INSERT INTO users(username,password,enabled) VALUES ('vet4','v3t',TRUE);
+INSERT INTO authorities VALUES ('vet4','veterinarian');
+INSERT INTO users(username,password,enabled) VALUES ('vet5','v3t',TRUE);
+INSERT INTO authorities VALUES ('vet5','veterinarian');
+INSERT INTO users(username,password,enabled) VALUES ('vet6','v3t',TRUE);
+INSERT INTO authorities VALUES ('vet6','veterinarian');
 
 INSERT INTO vets VALUES (1, 'James', 'Carter', '110 W. Liberty St.', 'Madison', '6085551023', 'vet1');
-INSERT INTO vets VALUES (2, 'Helen', 'Leary','110 W. Liberty St.', 'Madison', '6085551023', 'vet1');
-INSERT INTO vets VALUES (3, 'Linda', 'Douglas', '110 W. Liberty St.', 'Madison', '6085551023', 'vet1');
-INSERT INTO vets VALUES (4, 'Rafael', 'Ortega', '110 W. Liberty St.', 'Madison', '6085551023', 'vet1');
-INSERT INTO vets VALUES (5, 'Henry', 'Stevens', '110 W. Liberty St.', 'Madison', '6085551023', 'vet1');
-INSERT INTO vets VALUES (6, 'Sharon', 'Jenkins', '110 W. Liberty St.', 'Madison', '6085551023', 'vet1');
+INSERT INTO vets VALUES (2, 'Helen', 'Leary','110 W. Liberty St.', 'Madison', '6085551023', 'vet2');
+INSERT INTO vets VALUES (3, 'Linda', 'Douglas', '110 W. Liberty St.', 'Madison', '6085551023', 'vet3');
+INSERT INTO vets VALUES (4, 'Rafael', 'Ortega', '110 W. Liberty St.', 'Madison', '6085551023', 'vet4');
+INSERT INTO vets VALUES (5, 'Henry', 'Stevens', '110 W. Liberty St.', 'Madison', '6085551023', 'vet5');
+INSERT INTO vets VALUES (6, 'Sharon', 'Jenkins', '110 W. Liberty St.', 'Madison', '6085551023', 'vet6');
 
 INSERT INTO specialties VALUES (1, 'radiology');
 INSERT INTO specialties VALUES (2, 'surgery');
