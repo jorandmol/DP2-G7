@@ -7,6 +7,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotEmpty;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -20,6 +21,7 @@ public class Appointment extends BaseEntity {
 
 	@Column(name = "appointment_date")
 	@DateTimeFormat(pattern = "dd/MM/yyyy")
+	@FutureOrPresent
 	private LocalDate	appointmentDate;
 
 	@Column(name = "appointment_request_date")
