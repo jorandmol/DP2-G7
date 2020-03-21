@@ -52,11 +52,11 @@ public class AppointmentController {
 	}
 
 	@PostMapping(value = "/owners/{ownerId}/pets/{petId}/appointments/new")
-	public String processNewAppointmentForm(@Valid final Appointment appointment, final BindingResult result) {
+	public String processNewAppointmentForm(@Valid final Appointment appointment, final BindingResult result, @PathVariable("ownerId") final int ownerId, @ModelAttribute("vet") Integer vetId) {
 		if (result.hasErrors()) {
 			return "pets/createOrUpdateAppointmentForm";
 		} else {
-			this.appointmentService.saveAppointment(appointment);
+			this.appointmentService.saveAppointment(appointment, ownerId, vetId);
 			return "redirect:/owners/{ownerId}";
 		}
 	}

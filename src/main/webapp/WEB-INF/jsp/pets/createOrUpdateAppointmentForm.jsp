@@ -41,7 +41,7 @@
                 <div class="form-group">
                     <label class="col-sm-2 control-label" for="vet">Vet</label>
                     <div class="col-sm-10">
-                        <select name="vets" id="vet" class="form-control">
+                        <select name="vet" id="vet" class="form-control">
                             <c:forEach items="${vets}" var="vet">
                                 <option value="${vet.id}">${vet.firstName}&nbsp;${vet.lastName}</option>
                             </c:forEach>
