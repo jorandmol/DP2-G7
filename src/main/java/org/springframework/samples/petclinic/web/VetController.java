@@ -15,8 +15,10 @@
  */
 package org.springframework.samples.petclinic.web;
 
+import org.springframework.beans.PropertyEditorRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.samples.petclinic.model.Authorities;
 import org.springframework.samples.petclinic.model.Specialty;
 import org.springframework.samples.petclinic.model.User;
 import org.springframework.samples.petclinic.model.Vet;
@@ -118,9 +120,9 @@ public class VetController {
 	@GetMapping(value = "/vets/{vetId}/edit")
 	public String initUpdateVetForm(@PathVariable("vetId") int vetId, Model model) {
 		Vet vet = this.vetService.findVetById(vetId);
-		model.addAttribute(vet);
 		model.addAttribute("username", vet.getUser().getUsername());
 		model.addAttribute("edit", true);
+		model.addAttribute(vet);
 		return VIEWS_VET_CREATE_OR_UPDATE_FORM;
 
 	}

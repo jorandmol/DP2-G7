@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Specialty;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.model.User;
@@ -171,7 +170,7 @@ class VetServiceTests {
 	
 	@Test
 	@Transactional
-	void shouldUpdateVet() {
+	void findVetByIdTest() {
 		Vet vet = this.vetService.findVetById(1);
 		String name = vet.getFirstName();
 		String newName = name + " "+ "Maria";
