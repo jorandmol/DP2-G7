@@ -69,7 +69,7 @@ public class Vet extends Person {
 	
 	@OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "username", referencedColumnName = "username")
-//	@NotNull
+	@NotNull
 	private User user;
 
 	protected List<Specialty> getSpecialtiesInternal() {

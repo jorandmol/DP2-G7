@@ -17,8 +17,6 @@ package org.springframework.samples.petclinic.service;
 
 import java.util.Collection;
 
-import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Specialty;
@@ -66,12 +64,16 @@ public class VetService {
 		//creating user
 		userService.saveUser(vet.getUser());
 		//creating authorities
-		authoritiesService.saveAuthorities(vet.getUser().getUsername(), "vet");
+		authoritiesService.saveAuthorities(vet.getUser().getUsername(), "veterinarian");
 	}
 
 	@Transactional(readOnly = true)
 	public Vet findVetById(int vetId) {
 		return vetRepository.findById(vetId);
+	}
+
+	public Vet findVetByUsername(String username) {
+		return vetRepository.findByUsername(username);
 	}
 
 }
