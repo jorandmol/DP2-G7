@@ -17,6 +17,7 @@ import lombok.Data;
 @Table(name = "medicines")
 public class Medicine extends NamedEntity  {
 	
+	@NotEmpty
 	@Column(name = "expiration_date")    
 	@DateTimeFormat(pattern = "yyyy/MM/dd")
 	private LocalDate expirationDate;
@@ -26,7 +27,6 @@ public class Medicine extends NamedEntity  {
 	private String description;
 
 	@NotEmpty
-	@Pattern(regexp = "^[A-Z]{3}\\-\\d{3,9}$")
 	@Column(name = "code")
 	private String code;
 	
