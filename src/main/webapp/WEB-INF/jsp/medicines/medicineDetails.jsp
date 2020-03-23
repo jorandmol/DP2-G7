@@ -7,24 +7,26 @@
 <petclinic:layout pageName="medicines">
 
     <h2>Medicine Information</h2>
-
+	<h3><b><c:out value="${medicine.name}"/></b></h3>
 
     <table class="table table-striped">
         <tr>
-            <th>Medicine´s Identificator</th>
-            <td><b><c:out value="${medicine.identificator}"/></b></td>
+            <th>Code</th>
+            <td><c:out value="${medicine.code}"/></td>
         </tr>
         <tr>
-            <th>Medicine´s Expiration Date</th>
+            <th>Expiration Date</th>
             <td><c:out value="${medicine.expirationDate}"/></td>
         </tr>
         <tr>
-            <th>Medicine´s Description</th>
+            <th>Description</th>
             <td><c:out value="${medicine.description}"/></td>
         </tr>
       
     </table>
-
+	<div>
+		<a class="btn btn-default" href='<spring:url value="/medicines" htmlEscape="true"/>'>Return</a>
+	</div>
 
 
 </petclinic:layout>
