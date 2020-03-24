@@ -2,6 +2,8 @@ package org.springframework.samples.petclinic.service;
 
 import java.util.Collection;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.repository.BannerRepository;
 import org.springframework.samples.petclinic.model.Banner;
@@ -21,6 +23,18 @@ public class BannerService {
 	@Transactional(readOnly = true)
 	public Collection<Banner> findBanners() {
 		return bannerRepository.findAll();
+	}
+
+	public void saveBanner(@Valid Banner banner) {
+		bannerRepository.save(banner);
+	}
+
+	public void deleteBannerById(int bannerId) {
+			this.bannerRepository.deleteById(bannerId);
+	}
+
+	public Banner findRandomBanner() {
+		return this.bannerRepository.findRandomBanner();
 	}
 
 }

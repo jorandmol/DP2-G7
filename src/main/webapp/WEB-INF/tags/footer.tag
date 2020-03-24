@@ -1,4 +1,5 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<%@taglib prefix="jstl" uri="http://java.sun.com/jsp/jstl/core"%>
 
 <%-- Placed at the end of the document so the pages load faster --%>
 <spring:url value="/webjars/jquery/2.2.4/jquery.min.js" var="jQuery"/>
@@ -12,3 +13,8 @@
 <spring:url value="/webjars/bootstrap/3.3.6/js/bootstrap.min.js" var="bootstrapJs"/>
 <script src="${bootstrapJs}"></script>
 
+<jstl:if test="${banner != null}">
+	<div class="text-center pt-3">
+		<a href="${banner.targetUrl}" target="_blank"><img src="${banner.picture}" /></a>
+	</div>
+</jstl:if>
