@@ -64,7 +64,7 @@ public class BannerController {
 		return "redirect:/banners";
 	}
 	
-	@ModelAttribute("banner")
+	@ModelAttribute("bannerPhoto")
 	public Banner getBanner() {
 		Banner result;
 

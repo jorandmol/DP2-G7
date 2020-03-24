@@ -13,8 +13,8 @@
 <spring:url value="/webjars/bootstrap/3.3.6/js/bootstrap.min.js" var="bootstrapJs"/>
 <script src="${bootstrapJs}"></script>
 
-<jstl:if test="${banner != null}">
+<jstl:if test="${bannerPhoto != null}">
 	<div class="text-center pt-3">
-		<a href="${banner.targetUrl}" target="_blank"><img src="${banner.picture}" /></a>
+		<a href="${bannerPhoto.targetUrl}" target="_blank"><img src="${bannerPhoto.picture}" /></a>
 	</div>
 </jstl:if>
