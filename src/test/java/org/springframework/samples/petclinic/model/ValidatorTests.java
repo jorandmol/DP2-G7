@@ -11,6 +11,8 @@ import javax.validation.Validator;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.samples.petclinic.web.MedicineValidator;
+import org.springframework.validation.Errors;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 /**
@@ -50,8 +52,8 @@ class ValidatorTests {
 		Medicine med = new Medicine();
 		med.setName("Paracetamol");
 		med.setDescription("Antinflamatorio para todo tipo de mascotas");
-		med.setExpirationDate(LocalDate.now().plusYears(2));
-		med.setCode("ads");
+		med.setExpirationDate(LocalDate.now().minusYears(2));
+		med.setCode("BAY-123");
 		
 		Validator validator = createValidator();
 		Set<ConstraintViolation<Medicine>> constraintViolations = validator.validate(med);

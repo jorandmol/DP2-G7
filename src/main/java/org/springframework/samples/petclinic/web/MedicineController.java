@@ -44,6 +44,11 @@ public class MedicineController {
 		dataBinder.setDisallowedFields("id");
 	}
 
+	@InitBinder("medicine")
+	public void initPetBinder(WebDataBinder dataBinder) {
+		dataBinder.setValidator(new MedicineValidator());
+	}
+	
 	@GetMapping()
 	public String listMedicines(ModelMap modelMap) {
 		Iterable<Medicine> med = this.medicineService.findAll();
@@ -64,25 +69,11 @@ public class MedicineController {
 			return VIEWS_MEDICINE_CREATE_OR_UPDATE_FORM;
 		}
 		else {
-			List<String> messages = new ArrayList<>();
-			Boolean invalidCode = this.medicineService.codeAlreadyExists(medicine.getCode());
-			Boolean invalidDate = this.medicineService.pastDate(medicine.getExpirationDate());
-			if(invalidCode) {
-				messages.add("Code already in use");
-			}
-			if(invalidDate){
-				messages.add("Date is before today");
-			}
-			if(invalidCode || invalidDate) {
-				modelMap.addAttribute("messages", messages);
-				return VIEWS_MEDICINE_CREATE_OR_UPDATE_FORM;
-			} else {
 			this.medicineService.saveMedicine(medicine);
-			return "redirect:/medicines/" + medicine.getId();	
-			}
+			return "redirect:/medicines";	
 		}
 	}
-	
+		
 	@GetMapping("/{medicineId}")
 	public ModelAndView showMedicine(@PathVariable("medicineId") int medicineId) {
 		
