@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 public class StayController {
@@ -64,6 +65,17 @@ public class StayController {
 	public String showStances(@PathVariable int petId, Map<String, Object> model) {
 		model.put("stances", this.petService.findPetById(petId).getStances());
 		return "stayList";
+	}
+	
+	@RequestMapping(value = "/owners/{ownerId}/pets/{petId}/stances/{stayId}/delete")
+	public String processDeleteForm(@PathVariable("stayId") int stayId, 
+			@PathVariable("ownerId") int ownerId,
+			@PathVariable("petId") int petId) {
+		Pet pet = petService.findPetById(petId);
+		Stay stay = stayService.findStayById(stayId);
+		pet.deleteStay(stay);
+		this.stayService.deleteStay(stay);
+		return "redirect:/owners/{ownerId}";
 	}
 
 }

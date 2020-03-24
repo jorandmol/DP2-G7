@@ -130,5 +130,11 @@ public class Pet extends NamedEntity {
 		PropertyComparator.sort(sortedStances, new MutableSortDefinition("registerDate", false, false));
 		return Collections.unmodifiableList(sortedStances);
 	}
+	
+	public void deleteStay(Stay stay) {
+		getStancesInternal().remove(stay);
+
+	}
+
 
 }
