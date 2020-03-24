@@ -35,6 +35,12 @@ public class StayController {
 	public void setAllowedFields(WebDataBinder dataBinder) {
 		dataBinder.setDisallowedFields("id");
 	}
+	
+	@InitBinder("stay")
+	public void initPetBinder(WebDataBinder dataBinder) {
+		dataBinder.setValidator(new StayValidator());
+	}
+
 
 	@ModelAttribute("stay")
 	public Stay loadPetWithStay(@PathVariable("petId") int petId) {
