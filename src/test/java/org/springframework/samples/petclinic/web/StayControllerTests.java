@@ -8,6 +8,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
+import java.time.LocalDate;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,8 @@ import org.springframework.test.web.servlet.MockMvc;
 class StayControllerTests {
 	
 	private static final int TEST_PET_ID = 1;
+
+	private static final int TEST_OWNER_ID = 1;
 
 	@Autowired
 	private StayController stayController;
@@ -58,6 +62,29 @@ class StayControllerTests {
 		mockMvc.perform(get("/owners/*/pets/{petId}/stances", TEST_PET_ID)).andExpect(status().isOk())
 				.andExpect(model().attributeExists("stances")).andExpect(view().name("stayList"));
 	}
+	
+	
+	@WithMockUser(value = "spring")
+    @Test
+void testProcessNewStayFormSuccess() throws Exception {
+	mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/stances/new", TEST_OWNER_ID,TEST_PET_ID)
+						.with(csrf())
+						.param("registerDate", "2021/02/12")    
+                        .param("releaseDate", "2021/03/12"))  
+            .andExpect(status().is3xxRedirection())
+			.andExpect(view().name("redirect:/owners/{ownerId}"));
+}
+	
+	
+	@WithMockUser(value = "spring")
+    @Test
+void testProcessNewStayFormHasErrors() throws Exception {
+	mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/stances/new", TEST_OWNER_ID,TEST_PET_ID)
+						.with(csrf())
+                        .param("releaseDate", "2021/03/12"))  
+			.andExpect(model().attributeHasErrors("stay")).andExpect(status().isOk())
+			.andExpect(view().name("pets/createOrUpdateStayForm"));
+}
 
 
 }
