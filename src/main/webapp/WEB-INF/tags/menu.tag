@@ -96,20 +96,21 @@
 									</div>
 								</div>
 							</li>
-							<!-- <li class="divider"></li>
+							<li class="divider"></li>
                             <li> 
 								<div class="navbar-login navbar-login-session">
 									<div class="row">
 										<div class="col-lg-12">
 											<p>
-												<a href="#" class="btn btn-primary btn-block">My Profile</a>
-												<a href="#" class="btn btn-danger btn-block">Change
-													Password</a>
+												<sec:authorize access="!hasAuthority('admin')">
+													<spring:url value="/users/profile" var="profileUrl"></spring:url>
+                    								<a href="${fn:escapeXml(profileUrl)}" class="btn btn-primary btn-block">My Profile</a>
+												</sec:authorize>														
 											</p>
 										</div>
 									</div>
 								</div>
-							</li> -->
+							</li>
 						</ul></li>
 				</sec:authorize>
 			</ul>
