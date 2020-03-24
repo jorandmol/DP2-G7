@@ -1,7 +1,10 @@
 package org.springframework.samples.petclinic.web;
 
 import static org.mockito.BDDMockito.given;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
@@ -22,7 +25,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @WebMvcTest(controllers = StayController.class,
             excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = WebSecurityConfigurer.class), 
             excludeAutoConfiguration = SecurityConfiguration.class)
-public class StayControllerTests {
+class StayControllerTests {
 	
 	private static final int TEST_PET_ID = 1;
 
@@ -45,6 +48,15 @@ public class StayControllerTests {
 	void testInitNewStayForm() throws Exception {
 		mockMvc.perform(get("/owners/*/pets/{petId}/stances/new", TEST_PET_ID)).andExpect(status().isOk())
 				.andExpect(view().name("pets/createOrUpdateStayForm"));
+	}
+	 
+	 
+
+	@WithMockUser(value = "spring")
+     @Test
+	void testShowStances() throws Exception {
+		mockMvc.perform(get("/owners/*/pets/{petId}/stances", TEST_PET_ID)).andExpect(status().isOk())
+				.andExpect(model().attributeExists("stances")).andExpect(view().name("stayList"));
 	}
 
 

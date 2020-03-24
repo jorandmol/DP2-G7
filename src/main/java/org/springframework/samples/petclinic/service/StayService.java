@@ -26,6 +26,7 @@ public class StayService {
 		stayRepository.save(stay);
 	}
 
+	@Transactional
 	public Collection<Stay> findStancesByPetId(int petId) {
 		return stayRepository.findByPetId(petId);
 	}

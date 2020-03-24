@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.Stay;
 import org.springframework.samples.petclinic.service.PetService;
-import org.springframework.samples.petclinic.service.StayService;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
@@ -21,13 +20,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 @Controller
 public class StayController {
 	
-	private final StayService stayService;
+
 	
 	private final PetService petService;
 
 	@Autowired
-	public StayController(StayService stayService,PetService petService) {
-		this.stayService = stayService;
+	public StayController(PetService petService) {
+		
 		this.petService = petService;
 	}
 
@@ -61,7 +60,7 @@ public class StayController {
 			return "pets/createOrUpdateStayForm";
 		}
 		else {
-			this.stayService.saveStay(stay);
+			this.petService.saveStay(stay);
 			return "redirect:/owners/{ownerId}";
 		}
 	}
