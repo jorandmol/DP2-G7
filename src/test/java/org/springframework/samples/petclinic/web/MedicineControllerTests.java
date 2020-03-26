@@ -80,7 +80,7 @@ class MedicineControllerTests {
 		med.setName("Vivapum");
 		med.setDescription("Antinflamatorio");
 		med.setCode("ABC-123");
-		med.setExpirationDate(LocalDate.now().plusYears(2));
+		med.setExpirationDate(LocalDate.of(2022, 3, 24));
 		given(this.medicineService.findMedicineById(TEST_MED_ID)).willReturn(med);
 	}
 	

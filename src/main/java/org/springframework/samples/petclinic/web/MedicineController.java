@@ -6,6 +6,8 @@ package org.springframework.samples.petclinic.web;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.validation.Valid;
 
@@ -14,10 +16,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Medicine;
 import org.springframework.samples.petclinic.model.PetType;
 import org.springframework.samples.petclinic.service.MedicineService;
-
+import org.springframework.samples.petclinic.service.exceptions.DuplicatedMedicineCodeException;
+import org.springframework.samples.petclinic.service.exceptions.PastMedicineDateException;
+import org.springframework.samples.petclinic.service.exceptions.WrongMedicineCodeException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
@@ -69,7 +74,11 @@ public class MedicineController {
 			return VIEWS_MEDICINE_CREATE_OR_UPDATE_FORM;
 		}
 		else {
-			this.medicineService.saveMedicine(medicine);
+			try {
+				this.medicineService.saveMedicine(medicine);
+			} catch (DuplicatedMedicineCodeException | PastMedicineDateException | IllegalArgumentException | WrongMedicineCodeException ex) {
+				 Logger.getLogger(MedicineService.class.getName()).log(Level.SEVERE, null, ex);
+			}
 			return "redirect:/medicines";	
 		}
 	}

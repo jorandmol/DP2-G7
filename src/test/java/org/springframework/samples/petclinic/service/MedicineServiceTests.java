@@ -16,14 +16,20 @@
 package org.springframework.samples.petclinic.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.NoSuchElementException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.validation.ConstraintViolationException;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -36,7 +42,10 @@ import org.springframework.samples.petclinic.model.PetType;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.model.Visit;
 import org.springframework.samples.petclinic.model.User;
+import org.springframework.samples.petclinic.service.exceptions.DuplicatedMedicineCodeException;
 import org.springframework.samples.petclinic.service.exceptions.DuplicatedPetNameException;
+import org.springframework.samples.petclinic.service.exceptions.PastMedicineDateException;
+import org.springframework.samples.petclinic.service.exceptions.WrongMedicineCodeException;
 import org.springframework.samples.petclinic.util.EntityUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -79,8 +88,15 @@ class MedicineServiceTests {
 	@Test
 	void shouldFindMedicineWithCorrectId() {
 		Medicine med2 = this.medicineService.findMedicineById(2);
-		assertThat(med2.getName().contentEquals("Dalsy"));
-		assertThat(med2.getExpirationDate().getYear() == 2024);
+		assertThat(med2.getName().contentEquals("Pet Dalsy"));
+	}
+	
+	@Test
+	void shouldNotFindMedicineWithCorrectId() {
+		assertThrows(NoSuchElementException.class, () -> {
+			this.medicineService.findMedicineById(12);
+		});
+		
 	}
 
 	@Test
@@ -95,14 +111,112 @@ class MedicineServiceTests {
 		med.setDescription("Desparasitante");
 		med.setCode("VET-123");
             try {
-                this.medicineService.saveMedicine(med);
-            } catch (DataAccessException ex) {
-                Logger.getLogger(MedicineServiceTests.class.getName()).log(Level.SEVERE, null, ex);
-            }
+				this.medicineService.saveMedicine(med);
+			} catch (DuplicatedMedicineCodeException | PastMedicineDateException | WrongMedicineCodeException ex) {
+				 Logger.getLogger(MedicineServiceTests.class.getName()).log(Level.SEVERE, null, ex);
+			}
         Collection<Medicine> medicines2 = (Collection<Medicine>) this.medicineService.findAll();
 		assertThat(medicines2.size()).isEqualTo(found + 1);
 		// checks that id has been generated
 		assertThat(med.getId()).isNotNull();
+	}
+	
+	@Test
+	@Transactional
+	public void shouldNotInsertMedicineEmptyName() {		
+		Medicine med = new Medicine();
+		med.setName("");
+		med.setExpirationDate(LocalDate.now().plusYears(2));
+		med.setDescription("Desparasitante");
+		med.setCode("VET-123");
+           
+		assertThrows(ConstraintViolationException.class, () -> {
+			this.medicineService.saveMedicine(med);
+		});
+	}
+	
+	@Test
+	@Transactional
+	public void shouldNotInsertMedicineEmptyDescription() {
+		Medicine med = new Medicine();
+		med.setName("Virbaninte");
+		med.setExpirationDate(LocalDate.now().plusYears(2));
+		med.setDescription("");
+		med.setCode("VET-123");
+           
+		assertThrows(ConstraintViolationException.class, () -> {
+			this.medicineService.saveMedicine(med);
+		});
+	}
+	
+	@Test
+	@Transactional
+	public void shouldNotInsertMedicineEmptyCode() {
+		Medicine med = new Medicine();
+		med.setName("Virbaninte");
+		med.setExpirationDate(LocalDate.now().plusYears(2));
+		med.setDescription("Desparasitante");
+		med.setCode("");
+           
+		assertThrows(ConstraintViolationException.class, () -> {
+			this.medicineService.saveMedicine(med);
+		});
+	}
+	
+	@Test
+	@Transactional
+	public void shouldNotInsertMedicineNullDate() {
+		Medicine med = new Medicine();
+		med.setName("Virbaninte");
+		med.setExpirationDate(null);
+		med.setDescription("Desparasitante");
+		med.setCode("BAY-123");
+           
+		assertThrows(ConstraintViolationException.class, () -> {
+			this.medicineService.saveMedicine(med);
+		});
+	}
+	
+	@ParameterizedTest
+	@CsvSource({"2019,12,18","2009,2,8","2019,1,28","2020,2,25"})
+	public void shouldNotInsertMedicinePastDate(int year, int month, int day) {
+		Medicine med = new Medicine();
+		med.setName("Virbaninte");
+		med.setExpirationDate(LocalDate.of(year, month, day));
+		med.setDescription("Desparasitante");
+		med.setCode("BAY-123");
+           
+		assertThrows(PastMedicineDateException.class, () -> {
+			this.medicineService.saveMedicine(med);
+		});
+	}
+	
+	@Test
+	public void shouldNotInsertMedicineUsedCode() {
+		String usedCode = this.medicineService.findMedicineById(1).getCode();		
+		Medicine med = new Medicine();
+		med.setName("Virbaninte");
+		med.setExpirationDate(LocalDate.now().plusYears(2));
+		med.setDescription("Desparasitante");
+		med.setCode(usedCode);
+           
+		assertThrows(DuplicatedMedicineCodeException.class, () -> {
+			this.medicineService.saveMedicine(med);
+		});
+	}
+	
+	@ParameterizedTest
+	@CsvSource({"bay-123","123456","123-123","abcd"})
+	public void shouldNotInsertMedicineWrongCode(String code) {		
+		Medicine med = new Medicine();
+		med.setName("Virbaninte");
+		med.setExpirationDate(LocalDate.now().plusYears(2));
+		med.setDescription("Desparasitante");
+		med.setCode(code);
+           
+		assertThrows(WrongMedicineCodeException.class, () -> {
+			this.medicineService.saveMedicine(med);
+		});
 	}
 	
 	@Test
@@ -116,7 +230,7 @@ class MedicineServiceTests {
 	void shouldFindUsedCode() {
 		Medicine medicine = this.medicineService.findMedicineById(1);
 		String code = medicine.getCode();
-		assertThat(medicineService.codeAlreadyExists(code));
+		assertThat(this.medicineService.codeAlreadyExists(code));
 	}
 	
 
