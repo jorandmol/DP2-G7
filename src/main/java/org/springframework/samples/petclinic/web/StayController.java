@@ -16,19 +16,19 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 public class StayController {
 	
 
-	
+
 	private final PetService petService;
 
 	@Autowired
 	public StayController(PetService petService) {
 		
 		this.petService = petService;
+		
 	}
 
 	@InitBinder
@@ -72,14 +72,14 @@ public class StayController {
 		return "stayList";
 	}
 	
-	@RequestMapping(value = "/owners/{ownerId}/pets/{petId}/stances/{stayId}/delete")
+	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/stances/{stayId}/delete")
 	public String processDeleteForm(@PathVariable("stayId") int stayId, 
 			@PathVariable("ownerId") int ownerId,
 			@PathVariable("petId") int petId) {
 		Pet pet = petService.findPetById(petId);
-		Stay stay = stayService.findStayById(stayId);
+		Stay stay = petService.findStayById(stayId);
 		pet.deleteStay(stay);
-		this.stayService.deleteStay(stay);
+		this.petService.deleteStay(stay);
 		return "redirect:/owners/{ownerId}";
 	}
 

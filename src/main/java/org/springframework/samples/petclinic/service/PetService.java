@@ -85,8 +85,21 @@ public class PetService {
 		return visitRepository.findByPetId(petId);
 	}
 
+	@Transactional
 	public void saveStay(@Valid Stay stay) {
 		stayRepository.save(stay);
+		
+	}
+
+	@Transactional(readOnly = true)
+	public Stay findStayById(int stayId) {
+		
+		return stayRepository.findById(stayId);
+	}
+
+	@Transactional
+	public void deleteStay(Stay stay) {
+		stayRepository.delete(stay);
 		
 	}
 
