@@ -86,7 +86,7 @@ class OwnerControllerTests {
 							.with(csrf())
 							.param("address", "123 Caramel Street")
 							.param("city", "London")
-							.param("telephone", "01316761638"))
+							.param("telephone", "0131676163"))
 				.andExpect(status().is3xxRedirection());
 	}
 

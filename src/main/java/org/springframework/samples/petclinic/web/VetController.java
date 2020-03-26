@@ -15,10 +15,8 @@
  */
 package org.springframework.samples.petclinic.web;
 
-import org.springframework.beans.PropertyEditorRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.samples.petclinic.model.Authorities;
 import org.springframework.samples.petclinic.model.Specialty;
 import org.springframework.samples.petclinic.model.User;
 import org.springframework.samples.petclinic.model.Vet;
@@ -28,7 +26,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -60,6 +60,11 @@ public class VetController {
 	@ModelAttribute("specialties")
 	public Collection<Specialty> populateSpecialties() {
 		return this.vetService.findSpecialties();
+	}
+	
+	@InitBinder("vet")
+	public void initPetBinder(WebDataBinder dataBinder) {
+		dataBinder.setValidator(new VetValidator());
 	}
 
 	@GetMapping(value = { "/vets" })
@@ -101,13 +106,10 @@ public class VetController {
 			try {
 				this.vetService.saveVet(vet);
 			} catch (Exception ex) {
-				
-				if (vet.getUser().getUsername().isEmpty()) 
+
+				if (vet.getUser().getUsername().isEmpty())
 					result.rejectValue("user.username", "empty");
-				
-				if (vet.getUser().getPassword().isEmpty()) 
-					result.rejectValue("user.password", "empty");
-				
+
 				if (ex.getClass().equals(DataIntegrityViolationException.class))
 					result.rejectValue("user.username", "duplicate");
 
@@ -121,14 +123,14 @@ public class VetController {
 	public String initUpdateVetForm(@PathVariable("vetId") int vetId, Model model) {
 		Vet vet = this.vetService.findVetById(vetId);
 		model.addAttribute("username", vet.getUser().getUsername());
-		model.addAttribute("edit", true);
 		model.addAttribute(vet);
+		model.addAttribute("edit", true);
 		return VIEWS_VET_CREATE_OR_UPDATE_FORM;
 
 	}
 
 	@PostMapping(value = "/vets/{vetId}/edit")
-	public String processUpdateVetForm(@PathVariable("vetId") int vetId, @Valid Vet vet, BindingResult result,
+	public String processUpdateVetForm( @Valid Vet vet, BindingResult result, @PathVariable("vetId") int vetId,
 			ModelMap model) {
 		Vet vet1 = this.vetService.findVetById(vetId);
 		String username = vet1.getUser().getUsername();
@@ -138,21 +140,14 @@ public class VetController {
 			model.put("vet", vet);
 			return VIEWS_VET_CREATE_OR_UPDATE_FORM;
 		} else {
-			try {
-				model.addAttribute("username", username);
-				model.addAttribute("edit", true);
-				vet.setId(vetId);
-				User user = vet1.getUser();
-				user.setPassword(vet.getUser().getPassword());
-				vet.setUser(user);
-				this.vetService.saveVet(vet);
-			} catch (Exception ex) {
-				
-				if (vet.getUser().getPassword().isEmpty()) 
-					result.rejectValue("user.password", "empty");
-				
-				return VIEWS_VET_CREATE_OR_UPDATE_FORM;
-			}
+
+			model.addAttribute("username", username);
+			model.addAttribute("edit", true);
+			vet.setId(vetId);
+			User user = vet1.getUser();
+			user.setPassword(vet.getUser().getPassword());
+			vet.setUser(user);
+			this.vetService.saveVet(vet);
 			return "redirect:/vets/{vetId}";
 		}
 	}

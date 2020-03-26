@@ -18,6 +18,9 @@ package org.springframework.samples.petclinic.service;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collection;
+
+import javax.validation.ConstraintViolationException;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,7 +95,7 @@ class VetServiceTests {
 		vet.setTelephone("123456789");
                 User user=new User();
                 user.setUsername("elenamolino");
-                user.setPassword("p4ss-w0rd");
+                user.setPassword("p4ss-w0rd-");
                 user.setEnabled(true);
                 vet.setUser(user);                
                 
@@ -124,7 +127,7 @@ class VetServiceTests {
 		System.out.println("............................................................");
                 User user=new User();
                 user.setUsername("elenamolino");
-                user.setPassword("p4ss-w0rd");
+                user.setPassword("p4ss-w0rd-");
                 user.setEnabled(true);
                 vet.setUser(user);                
                 
@@ -165,6 +168,28 @@ class VetServiceTests {
 		Assertions.assertThrows(DataIntegrityViolationException.class, () ->{
 			vetService.saveVet(vetWithSameUsername);
 		});	
+		
+	}
+	
+	@Test
+	public void shouldThrowExceptionInsertingVetsWithUsernameEmpty() {
+		Vet vet= new Vet();
+		vet.setFirstName("Elena");
+		vet.setLastName("Molino");
+		vet.setAddress("30, Avenida Reina Mercedes");
+		vet.setCity("Almedralejo");
+		vet.setTelephone("123456789");
+				User user=new User();
+				user.setUsername("");
+				user.setPassword("p4ss-w0rd");
+				user.setEnabled(true);
+				vet.setUser(user);
+		try {
+			vetService.saveVet(vet);		
+		} catch (Exception e) {
+			e.printStackTrace();
+			assertThat(e.getClass()).isEqualTo(ConstraintViolationException.class);
+		}
 		
 	}
 	

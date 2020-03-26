@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.repository.VetRepository;
@@ -30,7 +31,7 @@ public class VetServiceMockedTests {
     	Vet newVet= new Vet();
     	newVet.setId(1);
     	newVet.setFirstName("Elena");
-    	when(vetRepository.findById(1)).thenReturn(newVet);
+    	Mockito.when(vetRepository.findById(1)).thenReturn(newVet);
     	
     	Vet vet = this.vetService.findVetById(1);
     	

@@ -16,6 +16,8 @@ import org.springframework.samples.petclinic.service.UserService;
 import org.springframework.samples.petclinic.service.VetService;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
 
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
@@ -33,6 +35,8 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import javax.print.PrintException;
 
 /**
  * Test class for the {@link VetController}
@@ -85,6 +89,11 @@ class VetControllerTests {
 		rafael.setAddress("110 W. Liberty St.");
 		rafael.setCity("Madison");
 		rafael.setTelephone("608555102");
+			User user= new User();
+			user.setUsername("vet1");
+			user.setPassword("v3t");
+			user.setEnabled(true);
+			rafael.setUser(user);
 		given(this.vetService.findVetById(TEST_VET_ID)).willReturn(rafael);
 		
 	}
@@ -112,16 +121,18 @@ class VetControllerTests {
 	}
 
 	@WithMockUser(value = "spring")
-	@Test
-	void testProcessCreationFormSuccess() throws Exception {
-		mockMvc.perform(post("/vets/new")
-				.param("firstName", "Elena")
-				.param("lastName", "Molino").with(csrf())
-				.param("address", "38 Avenida América")
-				.param("city", "London")
-				.param("telephone", "013167616"))
-				.andExpect(status().is3xxRedirection());
-	}
+    @Test
+    void testProcessCreationFormSuccess() throws Exception {
+        mockMvc.perform(post("/vets/new")
+        		.param("firstName", "Elena")
+        		.param("lastName", "Molino").with(csrf())
+                .param("address", "38 Avenida América")
+                .param("city", "London")
+                .param("telephone", "013167616")
+                .param("user.username", "vet55")
+                .param("user.password", "v3terinario_55"))
+        		.andExpect(status().is3xxRedirection());
+    }
 
 	@WithMockUser(value = "spring")
 	@Test
@@ -137,43 +148,64 @@ class VetControllerTests {
 				.andExpect(view().name("vets/createOrUpdateVetForm"));
 	}
 	
-
-//	@WithMockUser(value = "spring")
-//	@Test
-//	void testInitUpdateVetForm() throws Exception {
-//		mockMvc.perform(get("/vets/{vetId}/edit", TEST_VET_ID)).andExpect(status().isOk())
-//				.andExpect(model().attributeExists("vet"))
-//				.andExpect(model().attribute("vet", hasProperty("firstName", is("Rafael"))))
-//				.andExpect(model().attribute("vet", hasProperty("lastName", is("Ortega"))))
-//				.andExpect(model().attribute("vet", hasProperty("address", is("110 W. Liberty St."))))
-//				.andExpect(model().attribute("vet", hasProperty("city", is("Madison"))))
-//				.andExpect(model().attribute("vet", hasProperty("telephone", is("608555102"))))
-//				.andExpect(view().name("vets/createOrUpdateVetForm"));
-//	}
-//
-//	@WithMockUser(value = "spring")
-//	@Test
-//	void testProcessUpdateVetFormSuccess() throws Exception {
-//		mockMvc.perform(post("/vets/{vetId}/edit", TEST_VET_ID).with(csrf()).param("firstName", "Joe")
-//				.param("lastName", "Bloggs").param("address", "123 Caramel Street").param("city", "London")
-//				.param("telephone", "123456789")
-//				.param("user.password", "holi"))
-//				.andExpect(status().is3xxRedirection())
-//				.andExpect(view().name("redirect:/vets/{vetId}"));
-//	}
 	
-//	@Test
-//	void testProcessUpdateVetFormHasErrors() throws Exception {
-//		mockMvc.perform(post("/vets/{vetId}/edit", TEST_VET_ID)
-//							.with(csrf())
-//							.param("firstName", "Joe")
-//							.param("lastName", "Bloggs")
-//							.param("city", "London"))
-//				.andExpect(status().isOk())
-//				.andExpect(model().attributeHasErrors("owner"))
-//				.andExpect(model().attributeHasFieldErrors("owner", "address"))
-//				.andExpect(model().attributeHasFieldErrors("owner", "telephone"))
-//				.andExpect(view().name("vets/createOrUpdateVetForm"));
-//	}
+
+	@WithMockUser(value = "spring")
+	@Test
+	void testInitUpdateVetForm() throws Exception {
+		mockMvc.perform(get("/vets/{vetId}/edit", TEST_VET_ID))
+				.andExpect(status().isOk())
+				.andExpect(model().attributeExists("username"))
+				.andExpect(model().attributeExists("edit"))
+				.andExpect(model().attributeExists("vet"))
+				.andExpect(model().attribute("vet", hasProperty("firstName", is("Rafael"))))
+				.andExpect(model().attribute("vet", hasProperty("lastName", is("Ortega"))))
+				.andExpect(model().attribute("vet", hasProperty("address", is("110 W. Liberty St."))))
+				.andExpect(model().attribute("vet", hasProperty("city", is("Madison"))))
+				.andExpect(model().attribute("vet", hasProperty("telephone", is("608555102"))))
+				.andExpect(view().name("vets/createOrUpdateVetForm"));
+	}
+
+	@WithMockUser(value = "spring")
+	@Test
+	void testProcessUpdateVetFormSuccess() throws Exception {
+		mockMvc.perform(post("/vets/{vetId}/edit", TEST_VET_ID)
+				.with(csrf())
+				.param("firstName", "Rafael")
+				.param("lastName", "Bloggs")
+				.param("address", "123 Caramel Street")
+				.param("city", "London")
+				.param("telephone", "123456789")
+				.param("user.username", "rafitaBloggs")
+				.param("user.password", "holi-Elen4"))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(view().name("redirect:/vets/{vetId}"));
+	}
+	
+	@Test
+	void testProcessUpdateVetFormHasErrors() throws Exception {	
+		mockMvc.perform(post("/vets/{vetId}/edit", TEST_VET_ID).with(csrf())
+				.param("firstName", "Joe")
+				.param("lastName", "Bloggs")
+				.param("telephone", "123456789")
+				.param("user.password", "v3terin4ri0_1"))
+				.andExpect(status().isOk())
+				.andExpect(model().attributeHasErrors("vet"))
+				.andExpect(model().attributeHasFieldErrors("vet", "address"))
+				.andExpect(model().attributeHasFieldErrors("vet", "city"))
+				.andExpect(view().name("vets/createOrUpdateVetForm"));
+	}
+	
+	 @WithMockUser(value = "spring")
+		@Test
+		void testShowOwner() throws Exception {
+			mockMvc.perform(get("/vets/{vetId}", TEST_VET_ID)).andExpect(status().isOk())
+					.andExpect(model().attribute("vet", hasProperty("firstName", is("Rafael"))))
+					.andExpect(model().attribute("vet", hasProperty("lastName", is("Ortega"))))
+					.andExpect(model().attribute("vet", hasProperty("address", is("110 W. Liberty St."))))
+					.andExpect(model().attribute("vet", hasProperty("city", is("Madison"))))
+					.andExpect(model().attribute("vet", hasProperty("telephone", is("608555102"))))
+					.andExpect(view().name("vets/vetDetails"));
+		}
 
 }
