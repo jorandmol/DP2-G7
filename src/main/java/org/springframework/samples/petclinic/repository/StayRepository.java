@@ -10,5 +10,9 @@ public interface StayRepository {
 	void save(Stay stay) throws DataAccessException;
 	
 	List<Stay> findByPetId(Integer petId);
+	
+	void delete(Stay stay) throws DataAccessException;
+
+	Stay findById(int id) throws DataAccessException;
 
 }

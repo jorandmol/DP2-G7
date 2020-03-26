@@ -30,5 +30,15 @@ public class StayService {
 	public Collection<Stay> findStancesByPetId(int petId) {
 		return stayRepository.findByPetId(petId);
 	}
+	
+	@Transactional
+	public void deleteStay(Stay stay) throws DataAccessException {
+		stayRepository.delete(stay);
+	}
 
+	
+	@Transactional
+	public Stay findStayById(int id) throws DataAccessException {
+		return stayRepository.findById(id);
+	}
 }
