@@ -90,7 +90,8 @@ class VetControllerTests {
 	@Test
 	void testProcessCreationFormSuccess() throws Exception {
 		mockMvc.perform(post("/vets/new").param("firstName", "Elena").param("lastName", "Molino").with(csrf())
-				.param("address", "38 Avenida América").param("city", "London").param("telephone", "013167616"))
+				.param("address", "38 Avenida América").param("city", "London").param("telephone", "013167616")
+				.param("user.username", "vet55").param("user.password", "v3t55"))
 				.andExpect(status().is3xxRedirection());
 	}
 
