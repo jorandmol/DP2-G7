@@ -73,6 +73,31 @@
                         </c:forEach>
                         <tr>
                             <td>
+                                <spring:url value="/owners/{ownerId}/pets/{petId}/stances/new" var="stayUrl">
+                                    <spring:param name="ownerId" value="${owner.id}"/>
+                                    <spring:param name="petId" value="${pet.id}"/>
+                                </spring:url>
+                                <a href="${fn:escapeXml(stayUrl)}">Stances</a>
+                            </td>
+                            <c:forEach var="stay" items="${pet.stances}">
+							<tr>
+								<td><petclinic:localDate date="${stay.registerDate}"
+										pattern="yyyy-MM-dd" /></td>
+								<td><petclinic:localDate date="${stay.releaseDate}"
+										pattern="yyyy-MM-dd" /></td>
+
+							</tr>
+
+							<td><spring:url
+									value="/owners/{ownerId}/pets/{petId}/stances/{stayId}/delete"
+									var="deleteStayUrl">
+									<spring:param name="ownerId" value="${owner.id}" />
+									<spring:param name="petId" value="${pet.id}" />
+									<spring:param name="stayId" value="${stay.id}" />
+								</spring:url> <a href="${fn:escapeXml(deleteStayUrl)}">Delete
+									stay</a></td>
+						</c:forEach>
+                            <td>
                                 <spring:url value="/owners/{ownerId}/pets/{petId}/edit" var="petUrl">
                                     <spring:param name="ownerId" value="${owner.id}"/>
                                     <spring:param name="petId" value="${pet.id}"/>

@@ -17,12 +17,16 @@ package org.springframework.samples.petclinic.service;
 
 import java.util.Collection;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.PetType;
+import org.springframework.samples.petclinic.model.Stay;
 import org.springframework.samples.petclinic.model.Visit;
 import org.springframework.samples.petclinic.repository.PetRepository;
+import org.springframework.samples.petclinic.repository.StayRepository;
 import org.springframework.samples.petclinic.repository.VisitRepository;
 import org.springframework.samples.petclinic.service.exceptions.DuplicatedPetNameException;
 import org.springframework.stereotype.Service;
@@ -41,6 +45,8 @@ public class PetService {
 	private PetRepository petRepository;
 	
 	private VisitRepository visitRepository;
+	
+	private StayRepository stayRepository;
 	
 
 	@Autowired
@@ -77,6 +83,24 @@ public class PetService {
 
 	public Collection<Visit> findVisitsByPetId(int petId) {
 		return visitRepository.findByPetId(petId);
+	}
+
+	@Transactional
+	public void saveStay(@Valid Stay stay) {
+		stayRepository.save(stay);
+		
+	}
+
+	@Transactional(readOnly = true)
+	public Stay findStayById(int stayId) {
+		
+		return stayRepository.findById(stayId);
+	}
+
+	@Transactional
+	public void deleteStay(Stay stay) {
+		stayRepository.delete(stay);
+		
 	}
 
 }
