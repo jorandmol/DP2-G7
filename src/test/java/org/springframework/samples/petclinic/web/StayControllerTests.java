@@ -8,6 +8,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
+import java.time.LocalDate;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,64 +24,67 @@ import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-/**
- * Test class for {@link VisitController}
- *
- * @author Colin But
- */
-@WebMvcTest(controllers = VisitController.class,
-			excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = WebSecurityConfigurer.class),
-			excludeAutoConfiguration= SecurityConfiguration.class)
-class VisitControllerTests {
-
+@WebMvcTest(controllers = StayController.class,
+            excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = WebSecurityConfigurer.class), 
+            excludeAutoConfiguration = SecurityConfiguration.class)
+class StayControllerTests {
+	
 	private static final int TEST_PET_ID = 1;
 
+	private static final int TEST_OWNER_ID = 1;
+
 	@Autowired
-	private VisitController visitController;
+	private StayController stayController;
 
 	@MockBean
 	private PetService clinicService;
 
 	@Autowired
 	private MockMvc mockMvc;
-
+	
 	@BeforeEach
 	void setup() {
 		given(this.clinicService.findPetById(TEST_PET_ID)).willReturn(new Pet());
 	}
-
-        @WithMockUser(value = "spring")
-        @Test
-	void testInitNewVisitForm() throws Exception {
-		mockMvc.perform(get("/owners/*/pets/{petId}/visits/new", TEST_PET_ID)).andExpect(status().isOk())
-				.andExpect(view().name("pets/createOrUpdateVisitForm"));
+	
+	 @WithMockUser(value = "spring")
+     @Test
+	void testInitNewStayForm() throws Exception {
+		mockMvc.perform(get("/owners/*/pets/{petId}/stances/new", TEST_PET_ID)).andExpect(status().isOk())
+				.andExpect(view().name("pets/createOrUpdateStayForm"));
 	}
-
-	@WithMockUser(value = "spring")
-        @Test
-	void testProcessNewVisitFormSuccess() throws Exception {
-		mockMvc.perform(post("/owners/*/pets/{petId}/visits/new", TEST_PET_ID).param("name", "George")
-							.with(csrf())
-							.param("description", "Visit Description"))                                
-                .andExpect(status().is3xxRedirection())
-				.andExpect(view().name("redirect:/owners/{ownerId}"));
-	}
+	 
+	 
 
 	@WithMockUser(value = "spring")
-        @Test
-	void testProcessNewVisitFormHasErrors() throws Exception {
-		mockMvc.perform(post("/owners/*/pets/{petId}/visits/new", TEST_PET_ID)
-							.with(csrf())
-							.param("name", "George"))
-				.andExpect(model().attributeHasErrors("visit")).andExpect(status().isOk())
-				.andExpect(view().name("pets/createOrUpdateVisitForm"));
+     @Test
+	void testShowStances() throws Exception {
+		mockMvc.perform(get("/owners/*/pets/{petId}/stances", TEST_PET_ID)).andExpect(status().isOk())
+				.andExpect(model().attributeExists("stances")).andExpect(view().name("stayList"));
 	}
-
+	
+	
 	@WithMockUser(value = "spring")
-        @Test
-	void testShowVisits() throws Exception {
-		mockMvc.perform(get("/owners/*/pets/{petId}/visits", TEST_PET_ID)).andExpect(status().isOk())
-				.andExpect(model().attributeExists("visits")).andExpect(view().name("visitList"));
-	}
+    @Test
+void testProcessNewStayFormSuccess() throws Exception {
+	mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/stances/new", TEST_OWNER_ID,TEST_PET_ID)
+						.with(csrf())
+						.param("registerDate", "2021/02/12")    
+                        .param("releaseDate", "2021/03/12"))  
+            .andExpect(status().is3xxRedirection())
+			.andExpect(view().name("redirect:/owners/{ownerId}"));
+}
+	
+	
+	@WithMockUser(value = "spring")
+    @Test
+void testProcessNewStayFormHasErrors() throws Exception {
+	mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/stances/new", TEST_OWNER_ID,TEST_PET_ID)
+						.with(csrf())
+                        .param("releaseDate", "2021/03/12"))  
+			.andExpect(model().attributeHasErrors("stay")).andExpect(status().isOk())
+			.andExpect(view().name("pets/createOrUpdateStayForm"));
+}
+
 
 }

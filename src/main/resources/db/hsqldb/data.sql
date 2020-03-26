@@ -62,3 +62,5 @@ INSERT INTO visits(id,pet_id,visit_date,description) VALUES (2, 8, '2013-01-02',
 INSERT INTO visits(id,pet_id,visit_date,description) VALUES (3, 8, '2013-01-03', 'neutered');
 INSERT INTO visits(id,pet_id,visit_date,description) VALUES (4, 7, '2013-01-04', 'spayed');
 
+INSERT INTO stances(id,pet_id,register_date,release_date) VALUES (1,7, '2020-10-01', '2020-10-05');
+INSERT INTO stances(id,pet_id,register_date,release_date) VALUES (2,8, '2020-10-01', '2020-10-05');
