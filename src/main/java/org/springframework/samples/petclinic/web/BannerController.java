@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 @ControllerAdvice
 public class BannerController {
 
+	@Autowired
 	private final BannerService bannerService;
 	
 	private static final String VIEWS_BANNER_CREATE_FORM = "banners/createBannerForm";
@@ -30,9 +31,8 @@ public class BannerController {
 			this.bannerService=bannerService;
 	}
 	
-	
 	@GetMapping(value = { "/banners" })
-	public String showBannerList(Map<String, Object> model) {
+	public String showBannersList(Map<String, Object> model) {
 		Collection<Banner> banners= this.bannerService.findBanners();
 		model.put("banners", banners);
 		return "banners/bannersList";
@@ -66,9 +66,8 @@ public class BannerController {
 	
 	@ModelAttribute("bannerPhoto")
 	public Banner getBanner() {
-		Banner result;
-
-		result = this.bannerService.findRandomBanner();
+		
+		Banner result = this.bannerService.findRandomBanner();
 
 		return result;
 	}
