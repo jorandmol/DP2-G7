@@ -29,7 +29,6 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.xml.bind.annotation.XmlElement;
 
@@ -69,7 +68,7 @@ public class Vet extends Person {
 	
 	@OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "username", referencedColumnName = "username")
-//	@NotNull
+	@NotNull
 	private User user;
 
 	protected List<Specialty> getSpecialtiesInternal() {

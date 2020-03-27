@@ -63,12 +63,16 @@ public class VetService {
 		//creating user
 		userService.saveUser(vet.getUser());
 		//creating authorities
-		authoritiesService.saveAuthorities(vet.getUser().getUsername(), "vet");
+		authoritiesService.saveAuthorities(vet.getUser().getUsername(), "veterinarian");
 	}
 
 	@Transactional(readOnly = true)
 	public Vet findVetById(int vetId) {
 		return vetRepository.findById(vetId);
+	}
+
+	public Vet findVetByUsername(String username) {
+		return vetRepository.findByUsername(username);
 	}
 
 }
