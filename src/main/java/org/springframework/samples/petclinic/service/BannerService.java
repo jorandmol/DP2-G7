@@ -12,12 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class BannerService {
-	
+
 	private BannerRepository bannerRepository;
-	
+
 	@Autowired
 	public BannerService(BannerRepository bannerRepository) {
-			this.bannerRepository= bannerRepository;
+		this.bannerRepository = bannerRepository;
 	}
 
 	@Transactional(readOnly = true)
@@ -25,16 +25,19 @@ public class BannerService {
 		return bannerRepository.findAll();
 	}
 
+	@Transactional
+	public Banner findRandomBanner() {
+		return this.bannerRepository.findRandomBanner();
+	}
+
+	@Transactional
 	public void saveBanner(@Valid Banner banner) {
 		bannerRepository.save(banner);
 	}
 
+	@Transactional
 	public void deleteBannerById(int bannerId) {
-			this.bannerRepository.deleteById(bannerId);
-	}
-
-	public Banner findRandomBanner() {
-		return this.bannerRepository.findRandomBanner();
+		this.bannerRepository.deleteById(bannerId);
 	}
 
 }

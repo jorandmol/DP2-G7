@@ -14,7 +14,7 @@ public interface BannerRepository {
 	void save(@Valid Banner banner) throws DataAccessException;
 
 	void deleteById(int bannerId) throws DataAccessException;
-
+	
 	Banner findRandomBanner() throws DataAccessException;
 
 }
