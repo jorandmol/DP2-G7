@@ -41,7 +41,7 @@
         </tr>
     </table>
     
-    <spring:url value="{vetId}/edit" var="editUrl">
+    <spring:url value="/vets/{vetId}/edit" var="editUrl">
         <spring:param name="vetId" value="${vet.id}"/>
     </spring:url>
     <a href="${fn:escapeXml(editUrl)}" class="btn btn-default">Edit Vet</a>

@@ -4,6 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Pattern;
 
 import lombok.Data;
 
@@ -16,6 +17,7 @@ public class User{
 	String username;
 	
 	@NotEmpty
+	@Pattern(regexp = "^(?=(.*\\d))(?=(.*[A-Za-z]))(?=(.*[\\pP]))([^\\s]){10,}$|^$")
 	String password;
 	
 	boolean enabled;
