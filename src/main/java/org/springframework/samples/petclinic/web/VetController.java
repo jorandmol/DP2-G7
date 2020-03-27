@@ -100,7 +100,7 @@ public class VetController {
 	@PostMapping(value = "/vets/new")
 	public String processCreationForm(@Valid Vet vet, BindingResult result, ModelMap model) {
 		if (result.hasErrors()) {
-			model.put("vet", vet);
+			model.addAttribute("vet", vet);
 			return VIEWS_VET_CREATE_OR_UPDATE_FORM;
 		} else {
 			try {
@@ -123,7 +123,7 @@ public class VetController {
 	public String initUpdateVetForm(@PathVariable("vetId") int vetId, Model model) {
 		Vet vet = this.vetService.findVetById(vetId);
 		model.addAttribute("username", vet.getUser().getUsername());
-		model.addAttribute(vet);
+		model.addAttribute("vet", vet);
 		model.addAttribute("edit", true);
 		return VIEWS_VET_CREATE_OR_UPDATE_FORM;
 

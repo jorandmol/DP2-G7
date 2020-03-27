@@ -17,7 +17,6 @@ package org.springframework.samples.petclinic.web;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-import org.springframework.web.bind.annotation.ModelAttribute;
 
 /**
  * <code>Validator</code> for <code>Pet</code> forms.
