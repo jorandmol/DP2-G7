@@ -1,6 +1,7 @@
 
 package org.springframework.samples.petclinic.web;
 
+import java.time.LocalDate;
 import java.util.Map;
 
 import javax.validation.Valid;
@@ -11,8 +12,11 @@ import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.service.AppointmentService;
 import org.springframework.samples.petclinic.service.PetService;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,7 +29,6 @@ public class AppointmentController {
 
 	@Autowired
 	private PetService			petService;
-
 
 	@ModelAttribute("appointment")
 	public Appointment loadPetWithAppointment(@PathVariable("petId") final int petId) {
@@ -51,12 +54,19 @@ public class AppointmentController {
 	}
 	
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete")
-	public String deleteAppointment(@PathVariable("appointmentId") int appointmentId, @PathVariable("petId") int petId) {
+	public String deleteAppointment(@PathVariable("appointmentId") int appointmentId, @PathVariable("petId") int petId, ModelMap model) {
 		Appointment appointment = this.appointmentService.findAppointmentById(appointmentId);
         Pet pet =  this.petService.findPetById(petId);
-        pet.deleteAppointments(appointment);
-        this.appointmentService.deleteAppointment(appointment);
+        model.addAttribute("canDelete", true);
         
+        if(appointment.getAppointmentDate().minusDays(2).isEqual(LocalDate.now())
+				|| appointment.getAppointmentDate().minusDays(2).isBefore(LocalDate.now())) {
+        	model.addAttribute("covadonga", "No se puede cancelar una cita con 2 dias o menos de antelación");
+        	
+        } else {
+            pet.deleteAppointment(appointment);
+            this.appointmentService.deleteAppointment(appointment);
+        }
         return "redirect:/owners/{ownerId}";
 	}
 }

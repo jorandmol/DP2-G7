@@ -11,8 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class AppointmentService {
 
-	@Autowired
 	private AppointmentRepository appointmentRepository;
+	
+	@Autowired
+	public AppointmentService(AppointmentRepository appointmentRepository) {	
+		this.appointmentRepository = appointmentRepository;
+	}
 
 
 	@Transactional

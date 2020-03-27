@@ -127,7 +127,7 @@ public class Pet extends NamedEntity {
 		return Collections.unmodifiableList(sortedAppointments);
 	}
 	
-	public void deleteAppointments(Appointment appointment) {
+	public void deleteAppointment(Appointment appointment) {
 		getAppointmentsInternal().remove(appointment);
 	}
 
