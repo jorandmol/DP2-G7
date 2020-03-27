@@ -30,7 +30,7 @@ public class BannerControllerTests {
 	private BannerController bannerController;
 
 	@MockBean
-	private BannerService clinicService;
+	private BannerService bannerService;
 
 	@Autowired
 	private MockMvc mockMvc;
