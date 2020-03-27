@@ -17,29 +17,21 @@ package org.springframework.samples.petclinic.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.time.LocalDate;
 import java.util.Collection;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import javax.validation.ConstraintViolationException;
+
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.dao.DataAccessException;
-import org.springframework.samples.petclinic.model.Owner;
-import org.springframework.samples.petclinic.model.Pet;
-import org.springframework.samples.petclinic.model.PetType;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.samples.petclinic.model.Specialty;
 import org.springframework.samples.petclinic.model.Vet;
-import org.springframework.samples.petclinic.model.Visit;
 import org.springframework.samples.petclinic.model.User;
-import org.springframework.samples.petclinic.model.Authorities;
-import org.springframework.samples.petclinic.service.exceptions.DuplicatedPetNameException;
 import org.springframework.samples.petclinic.util.EntityUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -87,6 +79,132 @@ class VetServiceTests {
 		assertThat(vet.getNrOfSpecialties()).isEqualTo(2);
 		assertThat(vet.getSpecialties().get(0).getName()).isEqualTo("dentistry");
 		assertThat(vet.getSpecialties().get(1).getName()).isEqualTo("surgery");
+	}
+	
+	@Test
+	@Transactional
+	public void shouldInsertVetWithoutSpecialties() {
+		Collection<Vet> vets = this.vetService.findVets();
+		int numberOfVets = vets.size();
+
+		Vet vet = new Vet();
+		vet.setFirstName("Elena");
+		vet.setLastName("Molino");
+		vet.setAddress("30, Avenida Reina Mercedes");
+		vet.setCity("Sevilla");
+		vet.setTelephone("123456789");
+                User user=new User();
+                user.setUsername("elenamolino");
+                user.setPassword("p4ss-w0rd-");
+                user.setEnabled(true);
+                vet.setUser(user);                
+                
+		this.vetService.saveVet(vet);
+		assertThat(vet.getId()).isNotEqualTo(0);
+
+		Collection<Vet> vets2 = this.vetService.findVets();
+		assertThat(vets2.size()).isEqualTo(numberOfVets + 1);
+	}
+	
+
+	@Test
+	@Transactional
+	public void shouldInsertVetWithSpecialties() {
+		Collection<Vet> vets = this.vetService.findVets();
+		int numberOfVets = vets.size();
+
+		Vet vet = new Vet();
+		vet.setFirstName("Elena");
+		vet.setLastName("Molino");
+		vet.setAddress("30, Avenida Reina Mercedes");
+		vet.setCity("Sevilla");
+		vet.setTelephone("123456789");
+		Collection<Specialty> specialties= this.vetService.findSpecialties();
+		vet.addSpecialty(EntityUtils.getById(specialties, Specialty.class, 1));
+		vet.addSpecialty(EntityUtils.getById(specialties, Specialty.class, 2));
+		System.out.println("............................................................");
+		System.out.println(vet.getSpecialties());
+		System.out.println("............................................................");
+                User user=new User();
+                user.setUsername("elenamolino");
+                user.setPassword("p4ss-w0rd-");
+                user.setEnabled(true);
+                vet.setUser(user);                
+                
+		this.vetService.saveVet(vet);
+		assertThat(vet.getId()).isNotEqualTo(0);
+
+		Collection<Vet> vets2 = this.vetService.findVets();
+		assertThat(vets2.size()).isEqualTo(numberOfVets + 1);
+	}
+	
+	@Test
+	@Transactional
+	public void shouldThrowExceptionInsertingVetsWithUsernameDuplicate() {
+		Vet vet= new Vet();
+		vet.setFirstName("Elena");
+		vet.setLastName("Molino");
+		vet.setAddress("30, Avenida Reina Mercedes");
+		vet.setCity("Almedralejo");
+		vet.setTelephone("123456789");
+				User user=new User();
+				user.setUsername("elenamolino");
+				user.setPassword("p4ss-w0rd");
+				user.setEnabled(true);
+				vet.setUser(user);
+		try {
+			vetService.saveVet(vet);		
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		Vet vetWithSameUsername = new Vet();
+			User user1=new User();
+			user1.setUsername("elenamolino");
+			user1.setPassword("p4ss-w0rd");
+			user1.setEnabled(true);
+			
+		vetWithSameUsername.setUser(user1);
+		Assertions.assertThrows(DataIntegrityViolationException.class, () ->{
+			vetService.saveVet(vetWithSameUsername);
+		});	
+		
+	}
+	
+	@Test
+	public void shouldThrowExceptionInsertingVetsWithUsernameEmpty() {
+		Vet vet= new Vet();
+		vet.setFirstName("Elena");
+		vet.setLastName("Molino");
+		vet.setAddress("30, Avenida Reina Mercedes");
+		vet.setCity("Almedralejo");
+		vet.setTelephone("123456789");
+				User user=new User();
+				user.setUsername("");
+				user.setPassword("p4ss-w0rd");
+				user.setEnabled(true);
+				vet.setUser(user);
+		try {
+			vetService.saveVet(vet);		
+		} catch (Exception e) {
+			e.printStackTrace();
+			assertThat(e.getClass()).isEqualTo(ConstraintViolationException.class);
+		}
+		
+	}
+	
+	@Test
+	@Transactional
+	void findVetByIdTest() {
+		Vet vet = this.vetService.findVetById(1);
+		String name = vet.getFirstName();
+		String newName = name + " "+ "Maria";
+
+	    vet.setFirstName(newName);
+		this.vetService.saveVet(vet);
+
+		Vet vet1 = this.vetService.findVetById(1);
+		assertThat(vet1.getFirstName()).isEqualTo(newName);
 	}
 
 
