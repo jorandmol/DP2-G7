@@ -11,6 +11,7 @@ import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.repository.AppointmentRepository;
 import org.springframework.samples.petclinic.repository.OwnerRepository;
 import org.springframework.samples.petclinic.repository.VetRepository;
+import org.springframework.samples.petclinic.service.exceptions.VeterinarianNotAvailableException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,13 +28,22 @@ public class AppointmentService {
 	private OwnerRepository ownerRepository;
 
 	@Transactional
-	public void saveAppointment(final Appointment appointment, Integer ownerId, Integer vetId) throws DataAccessException {
-		Owner owner = this.ownerRepository.findById(ownerId);
-		Vet vet = this.vetRepository.findById(vetId).get();
-		LocalDate requestDate = LocalDate.now();
-		appointment.setOwner(owner);
-		appointment.setVet(vet);
-		appointment.setAppointmentRequestDate(requestDate);
-		this.appointmentRepository.save(appointment);
+	public void saveAppointment(final Appointment appointment, Integer ownerId, Integer vetId) throws VeterinarianNotAvailableException {
+		if (this.appointmentRepository.countAppointmentsByVetAndDay(appointment.getAppointmentDate(), vetId) > 3) {
+		    throw new VeterinarianNotAvailableException();
+        } else {
+            Owner owner = this.ownerRepository.findById(ownerId);
+            Vet vet = this.vetRepository.findById(vetId).get();
+            LocalDate requestDate = LocalDate.now();
+            appointment.setOwner(owner);
+            appointment.setVet(vet);
+            appointment.setAppointmentRequestDate(requestDate);
+            this.appointmentRepository.save(appointment);
+        }
 	}
+
+	@Transactional
+    public int countAppointmentsByVetAndDay(int vetId, LocalDate date) {
+	    return this.appointmentRepository.countAppointmentsByVetAndDay(date, vetId);
+    }
 }

@@ -62,3 +62,9 @@ INSERT INTO visits(id,pet_id,visit_date,description) VALUES (2, 8, '2013-01-02',
 INSERT INTO visits(id,pet_id,visit_date,description) VALUES (3, 8, '2013-01-03', 'neutered');
 INSERT INTO visits(id,pet_id,visit_date,description) VALUES (4, 7, '2013-01-04', 'spayed');
 
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (1,'2020-03-30','2020-03-27','Cita médica',1,1,1);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (2,'2020-03-30','2020-03-27','Estudio radiográfico',1,1,1);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (3,'2020-03-30','2020-03-27','Tratamiento de fractura',1,1,1);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (4,'2020-04-01','2020-03-27','Estudio radriográfico',3,3,3);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (5,'2020-04-01','2020-03-27','Revisión fractura',3,3,3);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (6,'2020-04-02','2020-03-27','Cita médica',2,2,2);

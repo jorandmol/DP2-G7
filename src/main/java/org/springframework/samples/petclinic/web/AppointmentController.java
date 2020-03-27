@@ -13,6 +13,7 @@ import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.service.AppointmentService;
 import org.springframework.samples.petclinic.service.PetService;
 import org.springframework.samples.petclinic.service.VetService;
+import org.springframework.samples.petclinic.service.exceptions.VeterinarianNotAvailableException;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -52,12 +53,17 @@ public class AppointmentController {
 	}
 
 	@PostMapping(value = "/owners/{ownerId}/pets/{petId}/appointments/new")
-	public String processNewAppointmentForm(@Valid final Appointment appointment, final BindingResult result, @PathVariable("ownerId") final int ownerId, @ModelAttribute("vet") Integer vetId) {
+	public String processNewAppointmentForm(@Valid final Appointment appointment, final BindingResult result, @PathVariable("ownerId") final int ownerId, @ModelAttribute("vet") Integer vetId, @PathVariable("petId") final int petId) {
 		if (result.hasErrors()) {
 			return "pets/createOrUpdateAppointmentForm";
 		} else {
-			this.appointmentService.saveAppointment(appointment, ownerId, vetId);
-			return "redirect:/owners/{ownerId}";
+            try {
+                this.appointmentService.saveAppointment(appointment, ownerId, vetId);
+            } catch (VeterinarianNotAvailableException e) {
+                result.rejectValue("appointmentDate","notAvailable");
+                return "pets/createOrUpdateAppointmentForm";
+            }
+            return "redirect:/owners/{ownerId}";
 		}
 	}
 }
