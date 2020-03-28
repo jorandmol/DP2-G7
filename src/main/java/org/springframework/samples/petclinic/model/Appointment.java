@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotEmpty;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -21,6 +22,7 @@ public class Appointment extends BaseEntity {
 
 	@Column(name = "appointment_date")
 	@DateTimeFormat(pattern = "yyyy/MM/dd")
+	@FutureOrPresent
 	private LocalDate	appointmentDate;
 
 	@Column(name = "appointment_request_date")
@@ -39,8 +41,7 @@ public class Appointment extends BaseEntity {
 	@JoinColumn(name = "pet_id")
 	private Pet			pet;
 
-
-	public void addPet(final Pet pet) {
-		this.setPet(pet);
-	}
+	@ManyToOne
+	private Vet			vet;
+  
 }
