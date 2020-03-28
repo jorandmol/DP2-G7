@@ -20,12 +20,14 @@ import java.util.Map;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.samples.petclinic.model.Medicine;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.Stay;
 import org.springframework.samples.petclinic.model.Visit;
 import org.springframework.samples.petclinic.service.PetService;
 import org.springframework.samples.petclinic.service.VetService;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
@@ -72,27 +74,33 @@ public class StayController {
 		return "pets/staysList";
 	}
 	
-	@ModelAttribute("stay")
-	public Stay loadPetWithStay(@PathVariable("petId") int petId) {
-		Pet pet = this.petService.findPetById(petId);
-		Stay stay = new Stay();
-		pet.addStay(stay);
-		return stay;
-	}
+//	@ModelAttribute("stay")
+//	public Stay loadPetWithStay(@PathVariable("petId") int petId) {
+//		Pet pet = this.petService.findPetById(petId);
+//		Stay stay = new Stay();
+//		pet.addStay(stay);
+//		return stay;
+//	}
 	
 	// Spring MVC calls method loadPetWithStay(...) before initNewStayForm is called
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/stays/new")
 	public String initNewStayForm(@PathVariable("petId") int petId, Map<String, Object> model) {
+		Stay stay = new Stay();
+		Pet pet = this.petService.findPetById(petId);
+		pet.addStay(stay);
+		model.put("stay", stay);
 		return "pets/createOrUpdateStayForm";
 	}
 
 	// Spring MVC calls method loadPetWithStay(...) before processNewStayForm is called
 	@PostMapping(value = "/owners/{ownerId}/pets/{petId}/stays/new")
-	public String processNewStayForm(@Valid Stay stay, BindingResult result) {
+	public String processNewStayForm(@Valid Stay stay, BindingResult result, @PathVariable("petId") int petId) {
 		if (result.hasErrors()) {
 			return "pets/createOrUpdateStayForm";
 		}
 		else {
+			Pet pet = this.petService.findPetById(petId);
+			stay.setPet(pet);
 			this.petService.saveStay(stay);
 			return "redirect:/owners/{ownerId}/pets/{petId}/stays";
 		}

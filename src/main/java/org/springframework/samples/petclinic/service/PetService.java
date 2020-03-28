@@ -15,7 +15,10 @@
  */
 package org.springframework.samples.petclinic.service;
 
+
+import java.time.ZoneId;
 import java.util.Collection;
+import java.util.Date;
 
 import javax.validation.Valid;
 
@@ -94,11 +97,13 @@ public class PetService {
 
 	@Transactional(readOnly = true)
 	public Stay findStayById(int stayId) {
-		return stayRepository.findById(stayId).get();
+		return stayRepository.findById(stayId).orElse(null);
 	}
 
 	@Transactional
 	public void deleteStay(Stay stay) {
+		Pet pet = stay.getPet();
+		pet.deleteStay(stay);
 		stayRepository.delete(stay);
 	}
 	
@@ -106,4 +111,13 @@ public class PetService {
 		return stayRepository.findByPetId(petId);
 	}
 
+//	public Boolean existsStayInThatDates(Stay s) {
+//		Date rgDate = Date.from(s.getRegisterDate().atStartOfDay()
+//			      .atZone(ZoneId.systemDefault())
+//			      .toInstant());
+//		Date rlDate = Date.from(s.getReleaseDate().atStartOfDay()
+//			      .atZone(ZoneId.systemDefault())
+//			      .toInstant());
+//		return this.stayRepository.numOfStaysThatDates(rgDate, rlDate) > 0;
+//	}
 }
