@@ -1,6 +1,9 @@
 
 package org.springframework.samples.petclinic.web;
 
+
+import java.time.LocalDate;
+import java.util.Map;
 import java.util.Collection;
 
 import javax.validation.Valid;
@@ -18,7 +21,9 @@ import org.springframework.samples.petclinic.service.exceptions.VeterinarianNotA
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -93,5 +98,21 @@ public class AppointmentController {
             }
             return "redirect:/owners/{ownerId}";
 		}
+	}
+	
+	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete")
+	public String deleteAppointment(@PathVariable("appointmentId") int appointmentId, @PathVariable("petId") int petId, ModelMap model) {
+		Appointment appointment = this.appointmentService.getAppointmentById(appointmentId);
+        Pet pet =  this.petService.findPetById(petId);
+        
+        if(appointment.getAppointmentDate().minusDays(2).isEqual(LocalDate.now())
+				|| appointment.getAppointmentDate().minusDays(2).isBefore(LocalDate.now())) {
+        	model.addAttribute("covadonga", "No se puede cancelar una cita con 2 dias o menos de antelación");
+        	
+        } else {
+            pet.deleteAppointment(appointment);
+            this.appointmentService.deleteAppointment(appointment);
+        }
+        return "redirect:/owners/{ownerId}";
 	}
 }

@@ -19,8 +19,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class AppointmentService {
 
-	@Autowired
 	private AppointmentRepository appointmentRepository;
+	
+	@Autowired
+	public AppointmentService(AppointmentRepository appointmentRepository) {	
+		this.appointmentRepository = appointmentRepository;
+	}
 
 	@Autowired
 	private VetRepository vetRepository;
@@ -36,6 +40,11 @@ public class AppointmentService {
             appointment.setAppointmentRequestDate(requestDate);
             this.appointmentRepository.save(appointment);
         }
+	}
+  
+	@Transactional
+	public void deleteAppointment(final Appointment appointment) throws DataAccessException {
+		this.appointmentRepository.delete(appointment);
 	}
 
 	@Transactional

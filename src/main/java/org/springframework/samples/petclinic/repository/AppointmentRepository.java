@@ -11,7 +11,7 @@ import java.time.LocalDate;
 
 @Repository
 public interface AppointmentRepository extends CrudRepository<Appointment, Integer> {
-
+  
 	@Query("SELECT COUNT(a) FROM Appointment a WHERE a.vet.id=:vetId AND a.appointmentDate=:date")
     int countAppointmentsByVetAndDay(@Param("vetId") int vetId, @Param("date")LocalDate date);
 
