@@ -13,6 +13,7 @@
             <th>Name</th>
             <th>Description</th>
             <th>Medicines</th>
+            <th>Time Limit</th>
         </tr>
         </thead>
         <tbody>
@@ -22,15 +23,16 @@
                     <c:out value="${treatment.name}"/>
                 </td>
                 <td>
-                    <c:forEach var="description" items="${treatment.description}">
-                        <c:out value="${description} "/>
-                    </c:forEach>
+                    <c:out value="${treatment.description} "/>
                 </td>
                 <td>
                 	<c:forEach var="medicine" items="${treatment.medicines}">
                         <c:out value="${medicine.name} "/>
                     </c:forEach>
                 </td>
+               	<td>
+               		<c:out value="${treatment.timeLimit}"></c:out>
+               	</td>
             </tr>
         </c:forEach>
         </tbody>

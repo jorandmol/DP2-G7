@@ -62,9 +62,6 @@ public class Pet extends NamedEntity {
 
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "pet", fetch = FetchType.EAGER)
 	private Set<Visit> visits;
-	
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "pet", fetch = FetchType.EAGER)
-	private Set<Treatment> treatments;
 
 	public void setBirthDate(LocalDate birthDate) {
 		this.birthDate = birthDate;
@@ -110,18 +107,5 @@ public class Pet extends NamedEntity {
 	public void addVisit(Visit visit) {
 		getVisitsInternal().add(visit);
 		visit.setPet(this);
-	}
-
-	protected Set<Treatment> getTreatmentsInternal() {
-		if (this.treatments == null) {
-			this.treatments = new HashSet<>();
-		}
-		return this.treatments;
-	}
-	
-	public List<Treatment> getTreatments() {
-		List<Treatment> sortedTreatments = new ArrayList<>(getTreatmentsInternal());
-		PropertyComparator.sort(sortedTreatments, new MutableSortDefinition("description", false, false));
-		return Collections.unmodifiableList(sortedTreatments);
 	}
 }

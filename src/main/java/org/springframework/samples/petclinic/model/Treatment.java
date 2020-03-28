@@ -1,5 +1,6 @@
 package org.springframework.samples.petclinic.model;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -18,6 +19,7 @@ import javax.validation.constraints.NotEmpty;
 
 import org.springframework.beans.support.MutableSortDefinition;
 import org.springframework.beans.support.PropertyComparator;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import lombok.Data;
 
@@ -50,6 +52,10 @@ public class Treatment extends NamedEntity{
 	@NotEmpty
 	@Column(name = "description")
 	private String description;
+	
+	@Column(name = "time_limit")        
+	@DateTimeFormat(pattern = "yyyy/MM/dd")
+	private LocalDate timeLimit;
 	
 	@ManyToOne
 	@JoinColumn(name = "pet_id")
