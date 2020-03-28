@@ -2,6 +2,7 @@
 package org.springframework.samples.petclinic.service;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -24,18 +25,13 @@ public class AppointmentService {
 	@Autowired
 	private VetRepository vetRepository;
 
-	@Autowired
-	private OwnerRepository ownerRepository;
-
 	@Transactional
-	public void saveAppointment(final Appointment appointment, Integer ownerId, Integer vetId) throws VeterinarianNotAvailableException {
-		if (this.appointmentRepository.countAppointmentsByVetAndDay(appointment.getAppointmentDate(), vetId) > 3) {
+	public void saveAppointment(final Appointment appointment, Integer vetId) throws VeterinarianNotAvailableException {
+		if (countAppointmentsByVetAndDay(vetId, appointment.getAppointmentDate()) > 3) {
 		    throw new VeterinarianNotAvailableException();
         } else {
-            Owner owner = this.ownerRepository.findById(ownerId);
             Vet vet = this.vetRepository.findById(vetId).get();
             LocalDate requestDate = LocalDate.now();
-            appointment.setOwner(owner);
             appointment.setVet(vet);
             appointment.setAppointmentRequestDate(requestDate);
             this.appointmentRepository.save(appointment);
@@ -44,6 +40,15 @@ public class AppointmentService {
 
 	@Transactional
     public int countAppointmentsByVetAndDay(int vetId, LocalDate date) {
-	    return this.appointmentRepository.countAppointmentsByVetAndDay(date, vetId);
+	    return this.appointmentRepository.countAppointmentsByVetAndDay(vetId, date);
+    }
+
+    @Transactional
+    public Appointment getAppointmentById(int appointmentId) {
+        Optional<Appointment> appointment = this.appointmentRepository.findById(appointmentId);
+        if (appointment.isPresent()) {
+            return appointment.get();
+        }
+        return null;
     }
 }

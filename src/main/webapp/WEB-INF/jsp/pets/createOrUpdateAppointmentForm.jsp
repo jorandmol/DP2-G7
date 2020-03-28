@@ -36,24 +36,48 @@
 
         <form:form modelAttribute="appointment" class="form-horizontal">
             <div class="form-group has-feedback">
-                <petclinic:inputField label="Date" name="appointmentDate"/>
-                <petclinic:inputField label="Description" name="description"/>
-                <div class="form-group">
-                    <label class="col-sm-2 control-label" for="vet">Vet</label>
-                    <div class="col-sm-10">
-                        <select name="vet" id="vet" class="form-control">
-                            <c:forEach items="${vets}" var="vet">
-                                <option value="${vet.id}">${vet.firstName}&nbsp;${vet.lastName}</option>
-                            </c:forEach>
-                        </select>
-                    </div>
-                </div>
+                <c:choose>
+                    <c:when test="${appointment['new']}">
+                        <petclinic:inputField label="Date" name="appointmentDate"/>
+                        <petclinic:inputField label="Description" name="description"/>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label" for="vet">Vet</label>
+                            <div class="col-sm-10">
+                                <select name="vet" class="form-control">
+                                    <c:forEach items="${vets}" var="vet">
+                                        <option value="${vet.id}">${vet.firstName}&nbsp;${vet.lastName}</option>
+                                    </c:forEach>
+                                </select>
+                            </div>
+                        </div>
+                    </c:when>
+                    <c:otherwise>
+                        <petclinic:inputField label="Date" name="appointmentDate"/>
+                        <petclinic:inputField label="Description" name="description"/>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label" for="vet">Vet</label>
+                            <div class="col-sm-10">
+                                <select name="vet" class="form-control" readonly>
+                                    <c:forEach items="${vets}" var="vet">
+                                        <c:if test="${appointment.vet.id == vet.id}">
+                                            <option value="${vet.id}" selected>${vet.firstName}&nbsp;${vet.lastName}</option>
+                                        </c:if>
+                                    </c:forEach>
+                                </select>
+                            </div>
+                        </div>
+                    </c:otherwise>
+                </c:choose>
             </div>
 
             <div class="form-group">
                 <div class="col-sm-offset-2 col-sm-10">
                     <input type="hidden" name="petId" value="${appointment.pet.id}"/>
-                    <button class="btn btn-default" type="submit">New Appointment</button>
+                    <button class="btn btn-default" type="submit"><c:choose>
+                        <c:when test="${appointment['new']}">New</c:when>
+                        <c:otherwise>Update</c:otherwise>
+                    </c:choose>
+                         Appointment</button>
                 </div>
             </div>
         </form:form>
