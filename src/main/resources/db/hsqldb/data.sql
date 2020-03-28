@@ -62,3 +62,7 @@ INSERT INTO visits(id,pet_id,visit_date,description) VALUES (2, 8, '2013-01-02',
 INSERT INTO visits(id,pet_id,visit_date,description) VALUES (3, 8, '2013-01-03', 'neutered');
 INSERT INTO visits(id,pet_id,visit_date,description) VALUES (4, 7, '2013-01-04', 'spayed');
 
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id) VALUES (1, '2020-09-06', '2020-03-27', 'Revisión de gato', 1, 1);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id) VALUES (2, '2020-08-26', '2020-03-25', 'Mi gato vomita bolas de pelo, ¿es normal?', 1, 1);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id) VALUES (3, '2020-08-24', '2020-03-29', 'Cuando da vueltas en la rueda vomita', 2, 2);
+

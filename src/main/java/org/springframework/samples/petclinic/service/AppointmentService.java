@@ -11,12 +11,24 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class AppointmentService {
 
-	@Autowired
 	private AppointmentRepository appointmentRepository;
+	
+	@Autowired
+	public AppointmentService(AppointmentRepository appointmentRepository) {	
+		this.appointmentRepository = appointmentRepository;
+	}
 
 
 	@Transactional
 	public void saveAppointment(final Appointment appointment) throws DataAccessException {
 		this.appointmentRepository.save(appointment);
+	}
+	
+	public void deleteAppointment(final Appointment appointment) throws DataAccessException {
+		this.appointmentRepository.delete(appointment);
+	}
+	
+	public Appointment findAppointmentById(int appointmentId) throws DataAccessException {
+		return this.appointmentRepository.findById(appointmentId);
 	}
 }
