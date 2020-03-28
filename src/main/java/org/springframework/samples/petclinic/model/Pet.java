@@ -34,8 +34,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 /**
  * Simple business object representing a pet.
@@ -62,6 +60,9 @@ public class Pet extends NamedEntity {
 
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "pet", fetch = FetchType.EAGER)
 	private Set<Visit> visits;
+	
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "pet", fetch = FetchType.EAGER)
+	private Set<Appointment> appointments;
 
 	public void setBirthDate(LocalDate birthDate) {
 		this.birthDate = birthDate;
@@ -108,4 +109,26 @@ public class Pet extends NamedEntity {
 		getVisitsInternal().add(visit);
 		visit.setPet(this);
 	}
+	
+	protected Set<Appointment> getAppointmentsInternal() {
+		if (this.appointments == null) {
+			this.appointments = new HashSet<Appointment>();
+		}
+		return this.appointments;
+	}
+	
+	protected void setAppointmentsInternal(Set<Appointment> appointments) {
+		this.appointments = appointments;
+	}
+	
+	public List<Appointment> getAppointments() {
+		List<Appointment> sortedAppointments = new ArrayList<>(getAppointmentsInternal());
+		PropertyComparator.sort(sortedAppointments, new MutableSortDefinition("date", false, false));
+		return Collections.unmodifiableList(sortedAppointments);
+	}
+	
+	public void deleteAppointment(Appointment appointment) {
+		getAppointmentsInternal().remove(appointment);
+	}
+
 }

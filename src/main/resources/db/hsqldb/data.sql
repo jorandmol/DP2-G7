@@ -76,3 +76,11 @@ INSERT INTO treatment_medicines VALUES (2,2);
 INSERT INTO treatment_medicines VALUES (1,3);
 INSERT INTO treatment_medicines VALUES (3,1);
 INSERT INTO treatment_medicines VALUES (4,1);
+
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (1,'2020-03-30','2020-03-27','Cita médica',1,1,1);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (2,'2020-03-30','2020-03-27','Estudio radiográfico',1,1,1);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (3,'2020-03-30','2020-03-27','Tratamiento de fractura',1,1,1);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (4,'2020-04-01','2020-03-27','Estudio radriográfico',3,3,3);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (5,'2020-04-01','2020-03-27','Revisión fractura',3,3,3);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (6,'2020-04-02','2020-03-27','Cita médica',2,2,2);
+
