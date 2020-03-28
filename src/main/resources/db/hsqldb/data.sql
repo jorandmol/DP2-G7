@@ -62,9 +62,25 @@ INSERT INTO visits(id,pet_id,visit_date,description) VALUES (2, 8, '2013-01-02',
 INSERT INTO visits(id,pet_id,visit_date,description) VALUES (3, 8, '2013-01-03', 'neutered');
 INSERT INTO visits(id,pet_id,visit_date,description) VALUES (4, 7, '2013-01-04', 'spayed');
 
+INSERT INTO treatments(id,name,description,time_limit,pet_id) VALUES (1, 'Dolor muscular', 'Ingerir una pastilla de ibuprefono cada 6 horas y paracetamol cada 8 horas', '2020-10-27', 1);
+INSERT INTO treatments(id,name,description,time_limit,pet_id) VALUES (3, 'Cojea de una pata', 'Ingerir una pastilla de ibuprefono cada 6 horas y paracetamol cada 8 horas', '2020-01-27', 1);
+INSERT INTO treatments(id,name,description,time_limit,pet_id) VALUES (4, 'Dolor de barriga', 'Ingerir una pastilla de ibuprefono cada 6 horas y paracetamol cada 8 horas', '2020-07-27', 1);
+INSERT INTO treatments(id,name,description,time_limit,pet_id) VALUES (2, 'Fiebre alta', 'Ingerir una pastilla de paracetamol cada 8 horas, reposo y beber mucha agua', '2020-07-25', 2);
+
+INSERT INTO medicines(id,name,expiration_date,description,code) VALUES (1, 'Ibuprofeno', '2020-07-15', 'Reduce la inflamación', 'codigo1');
+INSERT INTO medicines(id,name,expiration_date,description,code) VALUES (2, 'Paracetamol', '2020-07-15', 'Reduce la fiebre y el dolor', 'codigo2');
+INSERT INTO medicines(id,name,expiration_date,description,code) VALUES (3, 'Paracetamol', '2020-07-15', 'Reduce la inflamación', 'codigo3');
+
+INSERT INTO treatment_medicines VALUES (1,1);
+INSERT INTO treatment_medicines VALUES (2,2);
+INSERT INTO treatment_medicines VALUES (1,3);
+INSERT INTO treatment_medicines VALUES (3,1);
+INSERT INTO treatment_medicines VALUES (4,1);
+
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (1,'2020-03-30','2020-03-27','Cita médica',1,1,1);
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (2,'2020-03-30','2020-03-27','Estudio radiográfico',1,1,1);
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (3,'2020-03-30','2020-03-27','Tratamiento de fractura',1,1,1);
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (4,'2020-04-01','2020-03-27','Estudio radriográfico',3,3,3);
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (5,'2020-04-01','2020-03-27','Revisión fractura',3,3,3);
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (6,'2020-04-02','2020-03-27','Cita médica',2,2,2);
+
