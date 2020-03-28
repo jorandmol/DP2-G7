@@ -3,9 +3,10 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="petclinic" tagdir="/WEB-INF/tags" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 
-<petclinic:layout pageName="owners">
+<petclinic:layout pageName="stays">
     <jsp:attribute name="customScript">
         <script>
             $(function () {
@@ -37,8 +38,8 @@
 
         <form:form modelAttribute="stay" class="form-horizontal">
             <div class="form-group has-feedback">
-                <petclinic:inputField label="Register Date" name="registerDate"/>
-                <petclinic:inputField label="Release Date" name="releaseDate"/>
+                <petclinic:inputField label="Register date" name="registerDate"/>
+                <petclinic:inputField label="Release date" name="releaseDate"/>
             </div>
 
             <div class="form-group">
@@ -50,13 +51,14 @@
         </form:form>
 
         <br/>
-        <b>Older stances</b>
+        <b>Older stays</b>
         <table class="table table-striped">
             <tr>
                 <th>Register date</th>
                 <th>Exit date</th>
+                <th>Actions</th>
             </tr>
-            <c:forEach var="stay" items="${stay.pet.stances}">
+            <c:forEach var="stay" items="${stay.pet.stays}">
                 <c:if test="${!stay['new']}">
                     <tr>
                         <td><petclinic:localDate date="${stay.registerDate}" pattern="yyyy/MM/dd"/></td>

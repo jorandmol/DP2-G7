@@ -51,9 +51,10 @@ public class PetService {
 
 	@Autowired
 	public PetService(PetRepository petRepository,
-			VisitRepository visitRepository) {
+			VisitRepository visitRepository, StayRepository stayRepository) {
 		this.petRepository = petRepository;
 		this.visitRepository = visitRepository;
+		this.stayRepository = stayRepository;
 	}
 
 	@Transactional(readOnly = true)
@@ -86,21 +87,23 @@ public class PetService {
 	}
 
 	@Transactional
-	public void saveStay(@Valid Stay stay) {
+	public void saveStay(Stay stay) {
 		stayRepository.save(stay);
 		
 	}
 
 	@Transactional(readOnly = true)
 	public Stay findStayById(int stayId) {
-		
-		return stayRepository.findById(stayId);
+		return stayRepository.findById(stayId).get();
 	}
 
 	@Transactional
 	public void deleteStay(Stay stay) {
 		stayRepository.delete(stay);
-		
+	}
+	
+	public Collection<Stay> findStaysByPetId(int petId) {
+		return stayRepository.findByPetId(petId);
 	}
 
 }

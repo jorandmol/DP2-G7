@@ -78,6 +78,16 @@ public class MedicineController {
 				this.medicineService.saveMedicine(medicine);
 			} catch (DuplicatedMedicineCodeException | PastMedicineDateException | IllegalArgumentException | WrongMedicineCodeException ex) {
 				 Logger.getLogger(MedicineService.class.getName()).log(Level.SEVERE, null, ex);
+				 if(ex.getClass().equals(DuplicatedMedicineCodeException.class)) {
+					 result.rejectValue("name", "duplicate", "already exists");
+				 }
+				 if(ex.getClass().equals(PastMedicineDateException.class)) {
+					 result.rejectValue("name", "past", "past date");
+				 }
+				 if(ex.getClass().equals(WrongMedicineCodeException.class)) {
+					 result.rejectValue("name", "pattern", "Must match pattern");
+				 }
+				 return VIEWS_MEDICINE_CREATE_OR_UPDATE_FORM;
 			}
 			return "redirect:/medicines";	
 		}

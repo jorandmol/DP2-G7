@@ -28,21 +28,21 @@ public class StayValidator implements Validator {
 			errors.rejectValue("releaseDate", REQUIRED, REQUIRED);
 		}
 
-		if(stay.getRegisterDate() != null || stay.getReleaseDate() != null) {
+		if(stay.getRegisterDate() != null && stay.getReleaseDate() != null) {
 
 			LocalDate registerDate = stay.getRegisterDate();
 			LocalDate releaseDate = stay.getReleaseDate();
 			LocalDate now = LocalDate.now();
 
-			if(stay.getRegisterDate() != null && registerDate.isBefore(now)) {
+			if(registerDate.isBefore(now)) {
 				errors.rejectValue("registerDate", REQUIRED, "Register date must be equal of after now");
 			}
 
-			if(stay.getReleaseDate() != null && releaseDate.isBefore(now)) {
+			if(releaseDate.isBefore(now)) {
 				errors.rejectValue("releaseDate", REQUIRED, "Release date must be equal or after now");
 			}
 
-			if(stay.getRegisterDate() != null && stay.getReleaseDate() != null && releaseDate.isBefore(registerDate)) {
+			if(releaseDate.isBefore(registerDate)) {
 				errors.rejectValue("releaseDate", REQUIRED, "Release date must be equal or after register date");
 			}
 		}	
