@@ -20,9 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class AppointmentService {
 
 	private AppointmentRepository appointmentRepository;
-	
+
 	@Autowired
-	public AppointmentService(AppointmentRepository appointmentRepository) {	
+	public AppointmentService(AppointmentRepository appointmentRepository) {
 		this.appointmentRepository = appointmentRepository;
 	}
 
@@ -41,7 +41,7 @@ public class AppointmentService {
             this.appointmentRepository.save(appointment);
         }
 	}
-  
+
 	@Transactional
 	public void deleteAppointment(final Appointment appointment) throws DataAccessException {
 		this.appointmentRepository.delete(appointment);
@@ -59,5 +59,19 @@ public class AppointmentService {
             return appointment.get();
         }
         return null;
+    }
+
+    @Transactional
+    public void editAppointment(final Appointment appointment) throws VeterinarianNotAvailableException {
+	    int vetId = appointment.getVet().getId();
+	    LocalDate newDate = appointment.getAppointmentDate();
+	    if (countAppointmentsByVetAndDay(vetId, newDate) > 3) {
+	        throw  new VeterinarianNotAvailableException();
+        } else {
+	        LocalDate date = LocalDate.now();
+	        appointment.setAppointmentDate(newDate);
+	        appointment.setAppointmentRequestDate(date);
+	        this.appointmentRepository.save(appointment);
+        }
     }
 }
