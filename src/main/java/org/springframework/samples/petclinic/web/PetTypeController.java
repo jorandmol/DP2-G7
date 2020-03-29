@@ -5,6 +5,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.PetType;
 import org.springframework.samples.petclinic.service.PetTypeService;
+import org.springframework.samples.petclinic.service.exceptions.DuplicatedPetNameException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -48,7 +49,12 @@ public class PetTypeController {
 		if(result.hasErrors()) {
 			return "pet-type/typeForm";
 		} else {
+			try {
 			petTypeService.savePetType(petType);
+			} catch (DuplicatedPetNameException e) {
+				result.rejectValue("name", "Pet type name already exists", "Pet type name already exists");
+				return "pet-type/typeForm";
+			}
 			return "redirect:/pet-type";
 		}
 	}

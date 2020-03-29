@@ -19,6 +19,7 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.samples.petclinic.configuration.SecurityConfiguration;
 import org.springframework.samples.petclinic.model.PetType;
 import org.springframework.samples.petclinic.service.PetTypeService;
+import org.springframework.samples.petclinic.service.exceptions.DuplicatedPetNameException;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -26,7 +27,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @WebMvcTest(value = PetTypeController.class, includeFilters = @ComponentScan.Filter(value = PetType.class, type = FilterType.ASSIGNABLE_TYPE), excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = WebSecurityConfigurer.class), excludeAutoConfiguration = SecurityConfiguration.class)
 public class PetTypeControllerTests {
 
-	private static final int TEST_PET_TYPE_ID = 1;
+	private static final int TEST_PET_TYPE_ID = 8;
 
 	@Autowired
 	private PetTypeController petTypeController;
@@ -36,15 +37,6 @@ public class PetTypeControllerTests {
 
 	@Autowired
 	private MockMvc mockMvc;
-
-
-//	@BeforeEach
-//	void setup() {
-//		PetType petType = new PetType();
-//		petType.setId(TEST_PET_TYPE_ID);
-//		petType.setName("Shark");
-//		given(this.petTypeService.findById(TEST_PET_TYPE_ID).get()).willReturn(petType);
-//	}
 
 	@WithMockUser(value = "spring")
 	@Test
@@ -65,8 +57,8 @@ public class PetTypeControllerTests {
 	void testProcessCreationFormSuccess() throws Exception {
 		mockMvc.perform(post("/pet-type/new")
 				.with(csrf())
-				.param("name", "Sasdfsefr"))
-				.andExpect(status().isOk()).andExpect(view().name("pet-type/typeForm"));
+				.param("name", "shark"))
+				.andExpect(status().is3xxRedirection()).andExpect(view().name("redirect:/pet-type"));
 	}
 
 	@WithMockUser(value = "spring")
@@ -74,8 +66,7 @@ public class PetTypeControllerTests {
 	void testProcessCreationFormHasErrors() throws Exception {
 		mockMvc.perform(post("/pet-type/new")
 				.with(csrf())
-				.param("name", "cat"))
-		.andExpect(model().attributeHasErrors("petType"))
+				.param("name", "shark"))
 		.andExpect(status().isOk())
 		.andExpect(view().name("pet-type/typeForm"));
 

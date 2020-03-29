@@ -1,5 +1,6 @@
 package org.springframework.samples.petclinic.web;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.PetType;
 import org.springframework.samples.petclinic.service.PetTypeService;
@@ -11,6 +12,7 @@ public class PetTypeValidator implements Validator {
 	
 	private static final String REQUIRED = "required";
 	
+	@Autowired
 	private PetTypeService petTypeService;
 
 	@Override
@@ -18,16 +20,9 @@ public class PetTypeValidator implements Validator {
 		PetType petType = (PetType) obj;
 		String name = petType.getName();
 		// name validation
-		if (!StringUtils.hasLength(name) || name.length()>50 || name.length()<3) {
+		if (name == null || !StringUtils.hasLength(name) || name.length()>50 || name.length()<3) {
 			errors.rejectValue("name", REQUIRED+" and between 3 and 50 characters", REQUIRED+" and between 3 and 50 character");
 		}
-
-		// type validation
-		if (!this.petTypeService.typeNameDontExists(name)) {
-			errors.rejectValue("name", "Pet type already exists","Pet type already exists" );
-		}
-
-	
 	}
 
 	/**

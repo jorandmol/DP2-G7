@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.PetType;
 import org.springframework.samples.petclinic.repository.PetTypeRepository;
+import org.springframework.samples.petclinic.service.exceptions.DuplicatedPetNameException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,8 +18,12 @@ public class PetTypeService {
 		this.petTypeRepository = petTypeRepository;
 	}
 	
-	public void savePetType(PetType petType) {
+	public void savePetType(PetType petType) throws DuplicatedPetNameException{
+		if(typeNameDontExists(petType.getName())) {
 		petTypeRepository.save(petType);
+		} else {
+			throw new DuplicatedPetNameException();
+		}
 	}
 
 	public Iterable<PetType> findAll() {
@@ -26,8 +31,8 @@ public class PetTypeService {
 	}
 	
 	public boolean typeNameDontExists(String typeName) {
-		PetType res = this.petTypeRepository.countTypeName(typeName).orElse(null);
-		return res == null;
+		int res = this.petTypeRepository.countTypeName(typeName);
+		return res == 0;
 	}
 
 	public Optional<PetType> findById(Integer petTypeId) {

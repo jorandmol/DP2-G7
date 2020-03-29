@@ -1,6 +1,7 @@
 package org.springframework.samples.petclinic.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Collection;
 import java.util.List;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.samples.petclinic.model.PetType;
+import org.springframework.samples.petclinic.service.exceptions.DuplicatedPetNameException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,7 +40,11 @@ public class PetTypeServiceTests {
 
 		PetType petType = new PetType();
 		petType.setName("Platipus");
+		try {
 		this.petTypeService.savePetType(petType);
+		} catch (DuplicatedPetNameException e) {
+			e.printStackTrace();
+		}
 		Iterable<PetType> petTypes2 = this.petTypeService.findAll();
 		
 		assertThat(((Collection<PetType>) petTypes2).size()).isEqualTo(found + 1);
@@ -46,6 +52,16 @@ public class PetTypeServiceTests {
           
 		
 		assertThat(petType.getId()).isNotNull();
+	}
+	
+	@Test
+	@Transactional
+	public void shouldNotInsertPetTypeIntoDatabaseAndGenerateId() {
+		PetType petType = new PetType();
+		petType.setName("cat");
+		assertThrows(DuplicatedPetNameException.class, () ->{
+			this.petTypeService.savePetType(petType);
+		});
 	}
 	
 	@Test
