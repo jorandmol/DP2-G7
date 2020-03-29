@@ -18,8 +18,8 @@ package org.springframework.samples.petclinic.service;
 
 import java.time.ZoneId;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
-
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +50,6 @@ public class PetService {
 	private VisitRepository visitRepository;
 	
 	private StayRepository stayRepository;
-	
 
 	@Autowired
 	public PetService(PetRepository petRepository,
