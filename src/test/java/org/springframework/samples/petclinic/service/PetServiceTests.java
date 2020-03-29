@@ -23,18 +23,18 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.PetType;
+import org.springframework.samples.petclinic.model.Stay;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.model.Visit;
-import org.springframework.samples.petclinic.model.User;
 import org.springframework.samples.petclinic.service.exceptions.DuplicatedPetNameException;
 import org.springframework.samples.petclinic.util.EntityUtils;
 import org.springframework.stereotype.Service;
@@ -77,13 +77,12 @@ class PetServiceTests {
         
         @Autowired
 	protected OwnerService ownerService;	
-
+        
 	@Test
 	void shouldFindPetWithCorrectId() {
 		Pet pet7 = this.petService.findPetById(7);
 		assertThat(pet7.getName()).startsWith("Samantha");
 		assertThat(pet7.getOwner().getFirstName()).isEqualTo("Jean");
-
 	}
 
 	@Test
@@ -223,6 +222,60 @@ class PetServiceTests {
 		assertThat(visitArr[0].getPet()).isNotNull();
 		assertThat(visitArr[0].getDate()).isNotNull();
 		assertThat(visitArr[0].getPet().getId()).isEqualTo(7);
+	}
+	
+	// STAY
+	
+	
+	
+	@Test
+	@Transactional
+	public void shouldAddNewStayForPet() {
+		Pet pet7 = this.petService.findPetById(7);
+		int found = pet7.getStays().size();
+		Stay stay = new Stay();
+		pet7.addStay(stay);
+		stay.setRegisterDate(LocalDate.now());
+		stay.setReleaseDate(LocalDate.now().plusDays(3));
+		this.petService.saveStay(stay);
+            try {
+                this.petService.savePet(pet7);
+            } catch (DuplicatedPetNameException ex) {
+                Logger.getLogger(PetServiceTests.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+		pet7 = this.petService.findPetById(7);
+		assertThat(pet7.getStays().size()).isEqualTo(found + 1);
+		assertThat(stay.getId()).isNotNull();
+	}
+
+	@Test
+	void shouldFindStaysByPetId() throws Exception {
+		Collection<Stay> stays = this.petService.findStaysByPetId(8);
+		assertThat(stays.size()).isEqualTo(1);
+		Stay[] stayArr = stays.toArray(new Stay[stays.size()]);
+		assertThat(stayArr[0].getPet()).isNotNull();
+		assertThat(stayArr[0].getRegisterDate()).isNotNull();
+		assertThat(stayArr[0].getPet().getId()).isEqualTo(8);
+	}
+
+	@Test
+	void shouldFindStayWithCorrectId() {
+		Stay stay = this.petService.findStayById(1);
+		assertThat(stay.getPet().getName()).startsWith("Samantha");
+		assertThat(stay.getRegisterDate()).isEqualTo(LocalDate.of(2020,10,1));
+	}
+	
+	@Test
+	void shouldDeleteStayWithCorrectId() {
+		Stay stay = this.petService.findStayById(1);
+		Pet pet = this.petService.findPetById(7);
+		int numStays = pet.getStays().size();
+		this.petService.deleteStay(stay);
+		
+		assertThat(this.petService.findStayById(1)).isEqualTo(null);
+		assertThat(pet.getStays().size()).isEqualTo(numStays - 1);
+		
 	}
 
 }
