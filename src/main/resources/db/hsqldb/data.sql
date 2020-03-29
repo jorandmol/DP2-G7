@@ -62,3 +62,10 @@ INSERT INTO visits(id,pet_id,visit_date,description) VALUES (2, 8, '2013-01-02',
 INSERT INTO visits(id,pet_id,visit_date,description) VALUES (3, 8, '2013-01-03', 'neutered');
 INSERT INTO visits(id,pet_id,visit_date,description) VALUES (4, 7, '2013-01-04', 'spayed');
 
+INSERT INTO medicines VALUES (1, 'Paracetamol', 'BAY-2356', 'Antinflamatorio', '2021-07-04');
+INSERT INTO medicines VALUES (2, 'Pet Dalsy', 'BOT-334', 'Ideal para cachorros', '2024-03-04');
+INSERT INTO medicines VALUES (3, 'Ibuprofeno', 'IUP-004', 'Elimina síntomas de gripe', '2022-10-14');
+
+INSERT INTO stances(id,pet_id,register_date,release_date) VALUES (1,7, '2020-10-01', '2020-10-05');
+INSERT INTO stances(id,pet_id,register_date,release_date) VALUES (2,8, '2020-10-01', '2020-10-05');
+
