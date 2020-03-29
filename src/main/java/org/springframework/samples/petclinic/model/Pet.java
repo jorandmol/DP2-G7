@@ -123,7 +123,7 @@ public class Pet extends NamedEntity {
 	
 	public List<Appointment> getAppointments() {
 		List<Appointment> sortedAppointments = new ArrayList<>(getAppointmentsInternal());
-		PropertyComparator.sort(sortedAppointments, new MutableSortDefinition("date", false, false));
+		PropertyComparator.sort(sortedAppointments, new MutableSortDefinition("appointmentDate", false, false));
 		return Collections.unmodifiableList(sortedAppointments);
 	}
 	

@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class AppointmentController {
@@ -124,18 +125,20 @@ public class AppointmentController {
     }
 
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete")
-	public String deleteAppointment(@PathVariable("appointmentId") int appointmentId, @PathVariable("petId") int petId, ModelMap model) {
+	public ModelAndView deleteAppointment(@PathVariable("ownerId") int ownerId, @PathVariable("appointmentId") int appointmentId, @PathVariable("petId") int petId, ModelMap model) {
 		Appointment appointment = this.appointmentService.getAppointmentById(appointmentId);
         Pet pet =  this.petService.findPetById(petId);
+        ModelAndView mav = new ModelAndView("owners/ownerDetails");
+        mav.addObject(this.ownerService.findOwnerById(ownerId));
 
         if(appointment.getAppointmentDate().minusDays(2).isEqual(LocalDate.now())
 				|| appointment.getAppointmentDate().minusDays(2).isBefore(LocalDate.now())) {
-        	model.addAttribute("covadonga", "No se puede cancelar una cita con 2 dias o menos de antelación");
+        	model.addAttribute("errors", "No se puede cancelar una cita con 2 dias o menos de antelación");
 
         } else {
             pet.deleteAppointment(appointment);
             this.appointmentService.deleteAppointment(appointment);
         }
-        return "redirect:/owners/{ownerId}";
+        return mav;
 	}
 }

@@ -95,9 +95,7 @@
         								<spring:param name="petId" value="${pet.id}"></spring:param>
         								<spring:param name="appointmentId" value="${appointment.id}"></spring:param>
     								</spring:url>
-    								<a href="${fn:escapeXml(deleteAppointmentUrl)}" class="btn btn-default">Delete Appointment</a>
-    								<input type="hidden" id="covadonga" name="covadonga" value="${covadonga}">
-    								<c:out value="${covadonga}"></c:out>
+    								<a href="${fn:escapeXml(deleteAppointmentUrl)}">Delete Appointment</a>
                                 </td>
                             </tr>
                         </c:forEach>
@@ -107,24 +105,25 @@
                                     <spring:param name="ownerId" value="${owner.id}"/>
                                     <spring:param name="petId" value="${pet.id}"/>
                                 </spring:url>
-                                <a href="${fn:escapeXml(petUrl)}">Edit Pet</a>
+                                <a href="${fn:escapeXml(petUrl)}" class="btn btn-default">Edit Pet</a>
                             </td>
                             <td>
                                 <spring:url value="/owners/{ownerId}/pets/{petId}/visits/new" var="visitUrl">
                                     <spring:param name="ownerId" value="${owner.id}"/>
                                     <spring:param name="petId" value="${pet.id}"/>
                                 </spring:url>
-                                <a href="${fn:escapeXml(visitUrl)}">Add Visit</a>
+                                <a href="${fn:escapeXml(visitUrl)}" class="btn btn-default">Add Visit</a>
                             </td>
                             <td>
                                 <spring:url value="/owners/{ownerId}/pets/{petId}/appointments/new" var="appointmentUrl">
                                     <spring:param name="ownerId" value="${owner.id}"/>
                                     <spring:param name="petId" value="${pet.id}"/>
                                 </spring:url>
-                                <a href="${fn:escapeXml(appointmentUrl)}">Add Appointment</a>
+                                <a href="${fn:escapeXml(appointmentUrl)}" class="btn btn-default">Add Appointment</a>
                             </td>
                         </tr>
                     </table>
+					<span class="error-text"> <c:out value="${errors}"></c:out> </span>
                 </td>
             </tr>
 
