@@ -41,7 +41,7 @@
                         <petclinic:inputField label="Date" name="appointmentDate"/>
                         <petclinic:inputField label="Description" name="description"/>
                         <div class="form-group">
-                            <label class="col-sm-2 control-label" for="vet">Vet</label>
+                            <label class="col-sm-2 control-label">Vet</label>
                             <div class="col-sm-10">
                                 <select name="vet" class="form-control">
                                     <c:forEach items="${vets}" var="vet">
@@ -54,9 +54,15 @@
                     </c:when>
                     <c:otherwise>
                         <petclinic:inputField label="Date" name="appointmentDate"/>
-                        <petclinic:inputField label="Description" name="description"/>
                         <div class="form-group">
-                            <label class="col-sm-2 control-label" for="vet">Vet</label>
+                            <label class="col-sm-2 control-label">Description</label>
+                            <div class="col-sm-10">
+                                <p><c:out value="${appointment.description}" /></p>
+                                <input type="hidden" name="description" value="${appointment.description}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Vet</label>
                             <div class="col-sm-10">
                                 <select name="vet" class="form-control" readonly>
                                     <c:forEach items="${vets}" var="vet">

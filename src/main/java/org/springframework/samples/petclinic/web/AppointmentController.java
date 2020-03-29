@@ -84,8 +84,7 @@ public class AppointmentController {
 
 	@PostMapping(value = "/owners/{ownerId}/pets/{petId}/appointments/new")
 	public String processNewAppointmentForm(@Valid final Appointment appointment, final BindingResult result,
-                                            @PathVariable("ownerId") final int ownerId, @ModelAttribute("vet") Integer vetId,
-                                            ModelMap modelMap) {
+                                            @ModelAttribute("vet") Integer vetId, ModelMap modelMap) {
 		if (result.hasErrors()) {
 			return VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
 		} else {
@@ -103,6 +102,26 @@ public class AppointmentController {
             return "redirect:/owners/{ownerId}";
 		}
 	}
+
+	@PostMapping(value = "/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/edit")
+    public String processAppointmentEditForm(@Valid final Appointment appointment, final BindingResult result,
+                                             @PathVariable("appointmentId") final int appointmentId,
+                                             ModelMap modelMap) {
+	    if (result.hasErrors()) {
+	        return  VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
+        } else {
+	        try {
+                Appointment appointmentToUpdate = this.appointmentService.getAppointmentById(appointmentId);
+                appointmentToUpdate.setAppointmentDate(appointment.getAppointmentDate());
+                this.appointmentService.editAppointment(appointmentToUpdate);
+            } catch (VeterinarianNotAvailableException e) {
+                // TODO internacionalizar el mensaje de error
+                modelMap.put("vetError", "Este veterinario ya tiene el máximo de citas para ese día");
+                return VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
+            }
+        }
+	    return "redirect:/owners/{ownerId}";
+    }
 
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete")
 	public String deleteAppointment(@PathVariable("appointmentId") int appointmentId, @PathVariable("petId") int petId, ModelMap model) {
