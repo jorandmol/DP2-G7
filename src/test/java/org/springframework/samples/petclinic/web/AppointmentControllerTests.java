@@ -26,44 +26,44 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(controllers = AppointmentController.class, excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = WebSecurityConfigurer.class), excludeAutoConfiguration = SecurityConfiguration.class)
 public class AppointmentControllerTests {
-	
+
 	private static final int TEST_APPOINTMENT_ID1 = 1;
-	
+
 	private static final int TEST_APPOINTMENT_ID2 = 2;
-	
+
 	private static final int TEST_APPOINTMENT_ID3 = 3;
-	
+
 	private static final int TEST_OWNER_ID = 1;
-	
+
 	private static final int TEST_PET_ID = 1;
-	
+
 	@Autowired
 	private AppointmentController appointmentController;
 
 	@MockBean
 	private AppointmentService appointmentService;
-	
+
 	@MockBean
 	private OwnerController ownerController;
-	
+
 	@MockBean
 	private OwnerService ownerService;
-	
+
 	@MockBean
 	private PetController petCotroller;
-	
+
 	@MockBean
 	private PetService petService;
-	
+
 	@Autowired
 	private MockMvc mockMvc;
-	
+
 	private Appointment appointment1;
-	
+
 	private Appointment appointment2;
-	
+
 	private Appointment appointment3;
-	
+
 	@BeforeEach
 	void setup() {
 		appointment1 = new Appointment();
@@ -71,26 +71,26 @@ public class AppointmentControllerTests {
 		appointment1.setAppointmentDate(LocalDate.now().plusDays(10));
 		appointment1.setAppointmentRequestDate(LocalDate.of(2020, 02, 26));
 		appointment1.setDescription("Revisión de perro");
-		given(this.appointmentService.findAppointmentById(TEST_APPOINTMENT_ID1)).willReturn(appointment1);
+		given(this.appointmentService.getAppointmentById(TEST_APPOINTMENT_ID1)).willReturn(appointment1);
 		given(this.petService.findPetById(TEST_PET_ID)).willReturn(new Pet());
-			
+
 		appointment2 = new Appointment();
 		appointment2.setId(TEST_APPOINTMENT_ID2);
 		appointment2.setAppointmentDate(LocalDate.now().plusDays(1));
 		appointment2.setAppointmentRequestDate(LocalDate.of(2020, 02, 26));
 		appointment2.setDescription("Revisión de perro");
-		given(this.appointmentService.findAppointmentById(TEST_APPOINTMENT_ID2)).willReturn(appointment2);
+		given(this.appointmentService.getAppointmentById(TEST_APPOINTMENT_ID2)).willReturn(appointment2);
 		given(this.petService.findPetById(TEST_PET_ID)).willReturn(new Pet());
-		
+
 		appointment3 = new Appointment();
 		appointment3.setId(TEST_APPOINTMENT_ID3);
 		appointment3.setAppointmentDate(LocalDate.now().plusDays(2));
 		appointment3.setAppointmentRequestDate(LocalDate.of(2020, 02, 26));
 		appointment3.setDescription("Revisión de perro");
-		given(this.appointmentService.findAppointmentById(TEST_APPOINTMENT_ID3)).willReturn(appointment3);
+		given(this.appointmentService.getAppointmentById(TEST_APPOINTMENT_ID3)).willReturn(appointment3);
 		given(this.petService.findPetById(TEST_PET_ID)).willReturn(new Pet());
 	}
-	
+
 	@WithMockUser(value = "spring")
 	@Test
 	void testProcessDeleteAppointment() throws Exception {
@@ -98,7 +98,7 @@ public class AppointmentControllerTests {
 		.andExpect(status().is3xxRedirection())
 		.andExpect(view().name("redirect:/owners/{ownerId}"));
 	}
-	
+
 	@WithMockUser(value = "spring")
 	@Test
 	void testProcessDeleteAppointmentErrorsBefore() throws Exception {
@@ -106,7 +106,7 @@ public class AppointmentControllerTests {
 		.andExpect(status().is3xxRedirection())
 		.andExpect(view().name("redirect:/owners/{ownerId}"));
 	}
-	
+
 	@WithMockUser(value = "spring")
 	@Test
 	void testProcessDeleteAppointmentErrorsNow() throws Exception {

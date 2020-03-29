@@ -90,7 +90,6 @@
                                 <td><petclinic:localDate date="${appointment.appointmentDate}" pattern="yyyy-MM-dd"/></td>
                                 <td><c:out value="${appointment.description}"/></td>
                                 <td>
-                                	<c:if test="${!canDelete}">
                                 	<spring:url value="/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete" var="deleteAppointmentUrl">
         								<spring:param name="ownerId" value="${owner.id}"/>
         								<spring:param name="petId" value="${pet.id}"></spring:param>
@@ -99,7 +98,6 @@
     								<a href="${fn:escapeXml(deleteAppointmentUrl)}" class="btn btn-default">Delete Appointment</a>
     								<input type="hidden" id="covadonga" name="covadonga" value="${covadonga}">
     								<c:out value="${covadonga}"></c:out>
-    								</c:if>
                                 </td>
                             </tr>
                         </c:forEach>

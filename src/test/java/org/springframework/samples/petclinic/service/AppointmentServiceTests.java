@@ -14,18 +14,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 @DataJpaTest(includeFilters = @ComponentScan.Filter(Service.class))
 public class AppointmentServiceTests {
-	
+
 	@Autowired
 	protected AppointmentService appointmentService;
-	
+
 	@Test
 	@Transactional
 	void shouldDeleteAppointment() {
-		Appointment appointment = this.appointmentService.findAppointmentById(1);
-		
+		Appointment appointment = this.appointmentService.getAppointmentById(1);
+
 		this.appointmentService.deleteAppointment(appointment);
-		
-		assertThat(this.appointmentService.findAppointmentById(1)).isEqualTo(null);
+
+		assertThat(this.appointmentService.getAppointmentById(1)).isEqualTo(null);
 	}
 
 }
