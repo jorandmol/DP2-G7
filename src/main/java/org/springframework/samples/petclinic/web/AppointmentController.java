@@ -19,6 +19,7 @@ import org.springframework.samples.petclinic.service.PetService;
 import org.springframework.samples.petclinic.service.VetService;
 import org.springframework.samples.petclinic.service.exceptions.VeterinarianNotAvailableException;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
@@ -82,7 +83,9 @@ public class AppointmentController {
     }
 
 	@PostMapping(value = "/owners/{ownerId}/pets/{petId}/appointments/new")
-	public String processNewAppointmentForm(@Valid final Appointment appointment, final BindingResult result, @PathVariable("ownerId") final int ownerId, @ModelAttribute("vet") Integer vetId) {
+	public String processNewAppointmentForm(@Valid final Appointment appointment, final BindingResult result,
+                                            @PathVariable("ownerId") final int ownerId, @ModelAttribute("vet") Integer vetId,
+                                            ModelMap modelMap) {
 		if (result.hasErrors()) {
 			return VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
 		} else {
@@ -93,22 +96,23 @@ public class AppointmentController {
                     return "redirect:/oups";
                 }
             } catch (VeterinarianNotAvailableException e) {
-                result.rejectValue("appointmentDate","notAvailable");
+                // TODO internacionalizar el mensaje de error
+                modelMap.put("vetError", "Este veterinario ya tiene el máximo de citas para ese día");
                 return VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
             }
             return "redirect:/owners/{ownerId}";
 		}
 	}
-	
+
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete")
 	public String deleteAppointment(@PathVariable("appointmentId") int appointmentId, @PathVariable("petId") int petId, ModelMap model) {
 		Appointment appointment = this.appointmentService.getAppointmentById(appointmentId);
         Pet pet =  this.petService.findPetById(petId);
-        
+
         if(appointment.getAppointmentDate().minusDays(2).isEqual(LocalDate.now())
 				|| appointment.getAppointmentDate().minusDays(2).isBefore(LocalDate.now())) {
         	model.addAttribute("covadonga", "No se puede cancelar una cita con 2 dias o menos de antelación");
-        	
+
         } else {
             pet.deleteAppointment(appointment);
             this.appointmentService.deleteAppointment(appointment);

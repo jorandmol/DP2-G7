@@ -48,6 +48,7 @@
                                         <option value="${vet.id}">${vet.firstName}&nbsp;${vet.lastName}</option>
                                     </c:forEach>
                                 </select>
+                                <c:out value="${vetError}" />
                             </div>
                         </div>
                     </c:when>
