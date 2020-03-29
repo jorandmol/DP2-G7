@@ -1,5 +1,6 @@
 package org.springframework.samples.petclinic.web;
 
+import static org.junit.Assert.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -8,7 +9,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
+import org.hamcrest.core.IsEqual;
 import org.hibernate.event.spi.PostCollectionRecreateEvent;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +30,6 @@ import org.springframework.test.web.servlet.MockMvc;
 @WebMvcTest(value = PetTypeController.class, includeFilters = @ComponentScan.Filter(value = PetType.class, type = FilterType.ASSIGNABLE_TYPE), excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = WebSecurityConfigurer.class), excludeAutoConfiguration = SecurityConfiguration.class)
 public class PetTypeControllerTests {
 
-	private static final int TEST_PET_TYPE_ID = 8;
-
 	@Autowired
 	private PetTypeController petTypeController;
 
@@ -38,6 +39,18 @@ public class PetTypeControllerTests {
 	@Autowired
 	private MockMvc mockMvc;
 
+	@BeforeEach
+	void setUp() {
+		PetType petType = new PetType();
+		petType.setId(13);
+		petType.setName("bird");
+		try {
+			this.petTypeService.addPetType(petType);
+		} catch (DuplicatedPetNameException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	@WithMockUser(value = "spring")
 	@Test
 	void testList() throws Exception {
@@ -66,10 +79,21 @@ public class PetTypeControllerTests {
 	void testProcessCreationFormHasErrors() throws Exception {
 		mockMvc.perform(post("/pet-type/new")
 				.with(csrf())
-				.param("name", "shark"))
+				.param("name", ""))
 		.andExpect(status().isOk())
 		.andExpect(view().name("pet-type/typeForm"));
 
 	}
+	
+//	@WithMockUser(value = "spring")
+//	@Test
+//	void testProcessCreationFormHasErrorsNameExists() throws Exception {
+//		mockMvc.perform(post("/pet-type/new")
+//				.with(csrf())
+//				.param("name", "bird"))
+//		.andExpect(status().isOk())
+//		.andExpect(view().name("pet-type/typeForm"));
+//
+//	}
 
 }

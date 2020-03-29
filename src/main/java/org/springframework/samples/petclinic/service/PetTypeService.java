@@ -18,11 +18,11 @@ public class PetTypeService {
 		this.petTypeRepository = petTypeRepository;
 	}
 	
-	public void savePetType(PetType petType) throws DuplicatedPetNameException{
-		if(typeNameDontExists(petType.getName())) {
-		petTypeRepository.save(petType);
-		} else {
+	public void addPetType(PetType petType) throws DuplicatedPetNameException{
+		if(!typeNameDontExists(petType.getName())) {
 			throw new DuplicatedPetNameException();
+		} else {
+			petTypeRepository.save(petType);
 		}
 	}
 

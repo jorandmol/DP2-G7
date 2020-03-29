@@ -50,7 +50,7 @@ public class PetTypeController {
 			return "pet-type/typeForm";
 		} else {
 			try {
-			petTypeService.savePetType(petType);
+			this.petTypeService.addPetType(petType);
 			} catch (DuplicatedPetNameException e) {
 				result.rejectValue("name", "Pet type name already exists", "Pet type name already exists");
 				return "pet-type/typeForm";

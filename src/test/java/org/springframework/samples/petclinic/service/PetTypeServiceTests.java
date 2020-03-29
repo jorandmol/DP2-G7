@@ -41,7 +41,7 @@ public class PetTypeServiceTests {
 		PetType petType = new PetType();
 		petType.setName("Platipus");
 		try {
-		this.petTypeService.savePetType(petType);
+		this.petTypeService.addPetType(petType);
 		} catch (DuplicatedPetNameException e) {
 			e.printStackTrace();
 		}
@@ -60,7 +60,7 @@ public class PetTypeServiceTests {
 		PetType petType = new PetType();
 		petType.setName("cat");
 		assertThrows(DuplicatedPetNameException.class, () ->{
-			this.petTypeService.savePetType(petType);
+			this.petTypeService.addPetType(petType);
 		});
 	}
 	
