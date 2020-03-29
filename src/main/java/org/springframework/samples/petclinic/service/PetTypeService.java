@@ -25,9 +25,9 @@ public class PetTypeService {
 		return this.petTypeRepository.findAll();
 	}
 	
-	public boolean typeAlreadyExists(String typeName) {
-		int res = this.petTypeRepository.countTypeName(typeName);
-		return res == 0;
+	public boolean typeNameDontExists(String typeName) {
+		PetType res = this.petTypeRepository.countTypeName(typeName).orElse(null);
+		return res == null;
 	}
 
 	public Optional<PetType> findById(Integer petTypeId) {

@@ -54,7 +54,7 @@ public class PetTypeServiceTests {
 		Optional<PetType> petType1 = this.petTypeService.findById(1);
 		assertThat(petType1.get().getName()).isEqualTo("cat");
 
-		Boolean exists = this.petTypeService.typeAlreadyExists("cat");
+		Boolean exists = this.petTypeService.typeNameDontExists("cat");
 	  
 		assertThat(exists.equals(false));
 		
@@ -68,7 +68,7 @@ public class PetTypeServiceTests {
 		List<PetType> lsPetType = ((Collection<PetType>) petTypes).stream().collect(Collectors.toList());
 		assertThat(!lsPetType.contains("Shark"));
 
-		Boolean exists = this.petTypeService.typeAlreadyExists("Shark");
+		Boolean exists = this.petTypeService.typeNameDontExists("Shark");
 	  
 		assertThat(exists.equals(true));
 		

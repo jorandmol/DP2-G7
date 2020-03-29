@@ -15,10 +15,9 @@
     </jsp:attribute>
     <jsp:body>
         <h2>New Pet Type</h2>
-        <form:form action="/pet-type/save" modelAttribute="petType" class="form-horizontal">
+        <form:form action="/pet-type/new" modelAttribute="petType" class="form-horizontal">
             <div class="form-group has-feedback">
                 <petclinic:inputField label="Enter name" name="name"/>
-                <p style="color:red"><c:out value="${message}"></c:out></p>
             </div>
             <div class="form-group">
                 <div class="col-sm-offset-2 col-sm-10">
