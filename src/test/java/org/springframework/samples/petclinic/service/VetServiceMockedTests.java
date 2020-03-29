@@ -26,7 +26,7 @@ public class VetServiceMockedTests {
     
     @Test
 	@Transactional
-	void findVetByIdTest() {
+	void testFindVetById() {
     	Vet newVet= new Vet();
     	newVet.setId(1);
     	newVet.setFirstName("Elena");

@@ -61,7 +61,7 @@ public class VetController {
 	public Collection<Specialty> populateSpecialties() {
 		return this.vetService.findSpecialties();
 	}
-	
+
 	@InitBinder("vet")
 	public void initPetBinder(WebDataBinder dataBinder) {
 		dataBinder.setValidator(new VetValidator());
@@ -130,21 +130,18 @@ public class VetController {
 	}
 
 	@PostMapping(value = "/vets/{vetId}/edit")
-	public String processUpdateVetForm( @Valid Vet vet, BindingResult result, @PathVariable("vetId") int vetId,
+	public String processUpdateVetForm(@Valid Vet vet, BindingResult result, @PathVariable("vetId") int vetId,
 			ModelMap model) {
-		Vet vet1 = this.vetService.findVetById(vetId);
-		String username = vet1.getUser().getUsername();
+		Vet v = this.vetService.findVetById(vetId);
+		String username = v.getUser().getUsername();
+		model.addAttribute("edit", true);
+		model.addAttribute("username", username);
 		if (result.hasErrors()) {
-			model.addAttribute("edit", true);
-			model.addAttribute("username", username);
 			model.put("vet", vet);
 			return VIEWS_VET_CREATE_OR_UPDATE_FORM;
 		} else {
-
-			model.addAttribute("username", username);
-			model.addAttribute("edit", true);
 			vet.setId(vetId);
-			User user = vet1.getUser();
+			User user = v.getUser();
 			user.setPassword(vet.getUser().getPassword());
 			vet.setUser(user);
 			this.vetService.saveVet(vet);

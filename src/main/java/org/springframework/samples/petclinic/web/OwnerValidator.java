@@ -15,7 +15,7 @@
  */
 package org.springframework.samples.petclinic.web;
 
-import org.springframework.samples.petclinic.model.Vet;
+import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
@@ -29,36 +29,36 @@ import org.springframework.validation.Validator;
  * @author Ken Krebs
  * @author Juergen Hoeller
  */
-public class VetValidator implements Validator {
+public class OwnerValidator implements Validator {
 
 	@Override
 	public void validate(Object obj, Errors errors) {
 
-		Vet vet = (Vet) obj;
+		Owner owner = (Owner) obj;
 
-		String password = vet.getUser().getPassword();
+		String password = owner.getUser().getPassword();
 
-		if (vet.getFirstName().isEmpty() || vet.getFirstName() == null) {
+		if (owner.getFirstName().isEmpty() || owner.getFirstName() == null) {
 			errors.rejectValue("firstName", "empty", "cannot be empty");
 		}
 
-		if (vet.getLastName().isEmpty() || vet.getLastName() == null) {
+		if (owner.getLastName().isEmpty() || owner.getLastName() == null) {
 			errors.rejectValue("lastName", "empty", "cannot be empty");
 		}
 
-		if (vet.getTelephone().isEmpty() || vet.getTelephone() == null) {
+		if (owner.getTelephone().isEmpty() || owner.getTelephone() == null) {
 			errors.rejectValue("telephone", "empty", "cannot be empty");
 		}
 
-		if (!vet.getTelephone().matches("^[0-9]{9,9}$")) {
+		if (!owner.getTelephone().matches("^[0-9]{9,9}$")) {
 			errors.rejectValue("telephone", "phone.format", "The phone must be made up of 9 numbers");
 		}
 
-		if (vet.getAddress().isEmpty() || vet.getAddress() == null) {
+		if (owner.getAddress().isEmpty() || owner.getAddress() == null) {
 			errors.rejectValue("address", "empty", "cannot be empty");
 		}
 
-		if (vet.getCity().isEmpty() || vet.getCity() == null) {
+		if (owner.getCity().isEmpty() || owner.getCity() == null) {
 			errors.rejectValue("city", "empty", "cannot be empty");
 		}
 
@@ -74,11 +74,11 @@ public class VetValidator implements Validator {
 	}
 
 	/**
-	 * This Validator validates *just* Vet instances
+	 * This Validator validates *just* Owner instances
 	 */
 	@Override
 	public boolean supports(Class<?> clazz) {
-		return Vet.class.isAssignableFrom(clazz);
+		return Owner.class.isAssignableFrom(clazz);
 	}
 
 }
