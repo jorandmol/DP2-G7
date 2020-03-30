@@ -123,7 +123,6 @@ class VetControllerTests {
 	void testProcessCreationFormSuccess() throws Exception {
 		mockMvc.perform(post("/vets/new")
 				.param("firstName", "Elena")
-				.param("id", "100")
 				.param("lastName", "Molino")
 				.with(csrf())
 				.param("address", "38 Avenida América")
@@ -131,8 +130,7 @@ class VetControllerTests {
 				.param("telephone", "123456789")
 				.param("user.username", "vet55")
 				.param("user.password", "v3terinario_55"))
-				.andExpect(status().is3xxRedirection())
-				.andExpect(view().name("redirect:/vets/100"));
+				.andExpect(status().is3xxRedirection());
 	}
 
 	@WithMockUser(value = "spring")
@@ -148,27 +146,7 @@ class VetControllerTests {
 				.param("user.password", "noNumbersPass_"))
 				.andExpect(status().isOk())
 				.andExpect(model().attributeHasErrors("vet"))
-				.andExpect(model().attributeHasFieldErrors("vet", "telephone"))
-				.andExpect(model().attributeHasFieldErrors("vet", "user.password"))
-				.andExpect(view().name("vets/createOrUpdateVetForm"));
-	}
-
-	@WithMockUser(value = "spring")
-	@Test
-	void testProcessCreationFormHasEmptyFields() throws Exception {
-		mockMvc.perform(post("/vets/new").with(csrf())
-				.param("firstName", "")
-				.param("lastName", "")
-				.param("city", "")
-				.param("address", "")
-				.param("telephone", "")
-				.param("user.username", "")
-				.param("user.password", ""))
-				.andExpect(status().isOk()).andExpect(model().attributeHasErrors("vet"))
 				.andExpect(model().attributeHasFieldErrors("vet", "firstName"))
-				.andExpect(model().attributeHasFieldErrors("vet", "lastName"))
-				.andExpect(model().attributeHasFieldErrors("vet", "city"))
-				.andExpect(model().attributeHasFieldErrors("vet", "address"))
 				.andExpect(model().attributeHasFieldErrors("vet", "telephone"))
 				.andExpect(model().attributeHasFieldErrors("vet", "user.password"))
 				.andExpect(view().name("vets/createOrUpdateVetForm"));
@@ -178,7 +156,6 @@ class VetControllerTests {
 	@Test
 	void testInitUpdateVetForm() throws Exception {
 		mockMvc.perform(get("/vets/{vetId}/edit", TEST_VET_ID)).andExpect(status().isOk())
-				.andExpect(model().attributeExists("username"))
 				.andExpect(model().attributeExists("edit"))
 				.andExpect(model().attributeExists("vet"))
 				.andExpect(model().attribute("vet", hasProperty("firstName", is("Rafael"))))
@@ -198,7 +175,8 @@ class VetControllerTests {
 				.param("address", "123 Caramel Street")
 				.param("city", "London")
 				.param("telephone", "123456789")
-				.param("user.password", "holi-Elen4"))
+				.param("user.username", "rafaelbloggs")
+				.param("user.password", "str0ng-passw0rd"))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:/vets/{vetId}"));
 	}
@@ -210,6 +188,7 @@ class VetControllerTests {
 				.param("firstName", "Joe")
 				.param("lastName", "Bloggs")
 				.param("telephone", "123456789")
+				.param("user.username", "joebloggs")
 				.param("user.password", "v3terin4ri0_1")
 				.param("address", "")
 				.param("city", ""))

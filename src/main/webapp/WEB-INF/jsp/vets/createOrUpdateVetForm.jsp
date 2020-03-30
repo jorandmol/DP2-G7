@@ -7,15 +7,9 @@
 <%@ taglib prefix="petclinic" tagdir="/WEB-INF/tags" %>
 
 <petclinic:layout pageName="vets">
-	<c:choose>
-    	<c:when test="${!edit}">
-    		<h2> New Vet </h2>
-        </c:when>
-        <c:otherwise>
-            <input type="hidden" id="username" name="username" value="${username}">
-            <h2><c:out value="${username}"></c:out></h2>
-       	</c:otherwise>
-	</c:choose> 
+    	<c:if test="${!edit}">
+    		<h2> New </h2>
+        </c:if><h2>Vet</h2>
     <form:form modelAttribute="vet" class="form-horizontal" id="add-vet-form">
         <div class="form-group has-feedback">
             <petclinic:inputField label="First Name" name="firstName"/>
@@ -24,9 +18,7 @@
             <petclinic:inputField label="City" name="city"/>
             <petclinic:inputField label="Telephone" name="telephone"/>
             <petclinic:selectField label="Specialties" name="specialties" names="${specialties}" size="3"/>
-            <c:if test="${!edit}">
-            	<petclinic:inputField label="Username" name="user.username"/>
-            </c:if>
+            <petclinic:inputField label="Username" name="user.username"/>
             <petclinic:inputField label="Password" name="user.password"/>
         </div>
         <div class="form-group">

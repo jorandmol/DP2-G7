@@ -21,12 +21,14 @@ import java.util.stream.Collectors;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.service.OwnerService;
 import org.springframework.samples.petclinic.service.VetService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,6 +56,11 @@ public class UserController {
 		this.vetService = vetService;
 	}
 	
+	@InitBinder("owner")
+	public void initPetBinder(WebDataBinder dataBinder) {
+		dataBinder.setValidator(new OwnerValidator());
+	}
+	
 	@InitBinder
 	public void setAllowedFields(WebDataBinder dataBinder) {
 		dataBinder.setDisallowedFields("id");
@@ -67,13 +74,26 @@ public class UserController {
 	}
 
 	@PostMapping(value = "/users/new")
-	public String processCreationForm(@Valid Owner owner, BindingResult result) {
+	public String processCreationForm(@Valid Owner owner, BindingResult result, ModelMap model) {
 		if (result.hasErrors()) {
+			model.addAttribute("owner", owner);
 			return VIEWS_OWNER_CREATE_FORM;
 		}
 		else {
 			//creating owner, user, and authority
-			this.ownerService.saveOwner(owner);
+			try {
+				this.ownerService.saveOwner(owner);
+			} catch (Exception ex) {
+
+				if (owner.getUser().getUsername().isEmpty())
+					result.rejectValue("user.username", "empty");
+
+				if (ex.getClass().equals(DataIntegrityViolationException.class))
+					result.rejectValue("user.username", "duplicate");
+
+				return VIEWS_OWNER_CREATE_FORM;
+			}
+			
 			return "redirect:/";
 		}
 	}

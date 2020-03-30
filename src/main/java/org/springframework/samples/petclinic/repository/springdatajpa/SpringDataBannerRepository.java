@@ -1,14 +1,13 @@
 package org.springframework.samples.petclinic.repository.springdatajpa;
 
-import org.springframework.samples.petclinic.model.Banner;
-import org.springframework.samples.petclinic.repository.BannerRepository;
-
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
+import org.springframework.samples.petclinic.model.Banner;
+import org.springframework.samples.petclinic.repository.BannerRepository;
 
 public interface SpringDataBannerRepository extends BannerRepository, Repository<Banner, Integer> {
 	

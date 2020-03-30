@@ -20,10 +20,10 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.samples.petclinic.model.Specialty;
-import org.springframework.samples.petclinic.model.User;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.model.Vets;
 import org.springframework.samples.petclinic.service.VetService;
@@ -107,9 +107,6 @@ public class VetController {
 				this.vetService.saveVet(vet);
 			} catch (Exception ex) {
 
-				if (vet.getUser().getUsername().isEmpty())
-					result.rejectValue("user.username", "empty");
-
 				if (ex.getClass().equals(DataIntegrityViolationException.class))
 					result.rejectValue("user.username", "duplicate");
 
@@ -122,7 +119,6 @@ public class VetController {
 	@GetMapping(value = "/vets/{vetId}/edit")
 	public String initUpdateVetForm(@PathVariable("vetId") int vetId, Model model) {
 		Vet vet = this.vetService.findVetById(vetId);
-		model.addAttribute("username", vet.getUser().getUsername());
 		model.addAttribute("vet", vet);
 		model.addAttribute("edit", true);
 		return VIEWS_VET_CREATE_OR_UPDATE_FORM;
@@ -132,19 +128,26 @@ public class VetController {
 	@PostMapping(value = "/vets/{vetId}/edit")
 	public String processUpdateVetForm(@Valid Vet vet, BindingResult result, @PathVariable("vetId") int vetId,
 			ModelMap model) {
-		Vet v = this.vetService.findVetById(vetId);
-		String username = v.getUser().getUsername();
+
 		model.addAttribute("edit", true);
-		model.addAttribute("username", username);
+
 		if (result.hasErrors()) {
 			model.put("vet", vet);
 			return VIEWS_VET_CREATE_OR_UPDATE_FORM;
 		} else {
-			vet.setId(vetId);
-			User user = v.getUser();
-			user.setPassword(vet.getUser().getPassword());
-			vet.setUser(user);
-			this.vetService.saveVet(vet);
+			Vet vetToUpdate = this.vetService.findVetById(vetId);
+			BeanUtils.copyProperties(vet, vetToUpdate, "id", "specialties");
+			vet.getSpecialties().stream().filter(s -> !vetToUpdate.getSpecialties().contains(s))
+					.forEach(s -> vetToUpdate.addSpecialty(s));
+			try {
+				this.vetService.saveVet(vetToUpdate);
+			} catch (Exception ex) {
+
+				if (ex.getClass().equals(DataIntegrityViolationException.class))
+					result.rejectValue("user.username", "duplicate");
+
+				return VIEWS_VET_CREATE_OR_UPDATE_FORM;
+			}
 			return "redirect:/vets/{vetId}";
 		}
 	}

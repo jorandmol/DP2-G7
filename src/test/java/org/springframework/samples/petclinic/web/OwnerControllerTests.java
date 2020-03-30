@@ -94,13 +94,12 @@ class OwnerControllerTests {
 	void testProcessCreationFormSuccess() throws Exception {
 		mockMvc.perform(post("/owners/new")
 				.param("firstName", "Joe")
-				.param("id", "23")
 				.param("lastName", "Bloggs")
 				.with(csrf())
 				.param("address", "123 Caramel Street")
 				.param("city", "London")
 				.param("telephone", "013167616")
-				.param("username", "owner23")
+				.param("user.username", "owner23")
 				.param("user.password", "0wn333r_23"))
       			.andExpect(status().is3xxRedirection());
 	}
@@ -184,7 +183,6 @@ class OwnerControllerTests {
 	@Test
 	void testInitUpdateOwnerForm() throws Exception {
 		mockMvc.perform(get("/owners/{ownerId}/edit", TEST_OWNER_ID)).andExpect(status().isOk())
-				.andExpect(model().attributeExists("username"))
 				.andExpect(model().attributeExists("edit"))
 				.andExpect(model().attributeExists("owner"))
 				.andExpect(model().attribute("owner", hasProperty("lastName", is("Franklin"))))
@@ -204,6 +202,7 @@ class OwnerControllerTests {
 				.param("address", "123 Caramel Street")
 				.param("city", "London")
 				.param("telephone", "016162915")
+				.param("user.username", "joebloggs")
 				.param("user.password", "str0ng-passw0rd"))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:/owners/{ownerId}"));
@@ -213,15 +212,16 @@ class OwnerControllerTests {
 	@Test
 	void testProcessUpdateOwnerFormHasErrors() throws Exception {
 		mockMvc.perform(post("/owners/{ownerId}/edit", TEST_OWNER_ID).with(csrf())
-				.param("firstName", "Joe")
+				.param("firstName", "")
 				.param("lastName", "Bloggs")
-				.param("address", "")
+				.param("address", "123 Caramel Street")
 				.param("city", "London")
-				.param("telephone", "")
+				.param("telephone", "123456")
+				.param("user.username", "owner25")
 				.param("user.password", "noNumbersPass_"))
 				.andExpect(status().isOk())
 				.andExpect(model().attributeHasErrors("owner"))
-				.andExpect(model().attributeHasFieldErrors("owner", "address"))
+				.andExpect(model().attributeHasFieldErrors("owner", "firstName"))
 				.andExpect(model().attributeHasFieldErrors("owner", "telephone"))
 				.andExpect(model().attributeHasFieldErrors("owner", "user.password"))
 				.andExpect(view().name("owners/createOrUpdateOwnerForm"));

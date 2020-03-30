@@ -20,10 +20,10 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.samples.petclinic.model.Owner;
-import org.springframework.samples.petclinic.model.User;
 import org.springframework.samples.petclinic.service.AuthoritiesService;
 import org.springframework.samples.petclinic.service.OwnerService;
 import org.springframework.samples.petclinic.service.UserService;
@@ -84,9 +84,6 @@ public class OwnerController {
 				this.ownerService.saveOwner(owner);
 			} catch (Exception ex) {
 
-				if (owner.getUser().getUsername().isEmpty())
-					result.rejectValue("user.username", "empty");
-
 				if (ex.getClass().equals(DataIntegrityViolationException.class))
 					result.rejectValue("user.username", "duplicate");
 
@@ -131,7 +128,6 @@ public class OwnerController {
 	@GetMapping(value = "/owners/{ownerId}/edit")
 	public String initUpdateOwnerForm(@PathVariable("ownerId") int ownerId, Model model) {
 		Owner owner = this.ownerService.findOwnerById(ownerId);
-		model.addAttribute("username", owner.getUser().getUsername());
 		model.addAttribute("owner", owner);
 		model.addAttribute("edit", true);
 		return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
@@ -140,19 +136,22 @@ public class OwnerController {
 	@PostMapping(value = "/owners/{ownerId}/edit")
 	public String processUpdateOwnerForm(@Valid Owner owner, BindingResult result, @PathVariable("ownerId") int ownerId,
 			ModelMap model) {
-		Owner o = this.ownerService.findOwnerById(ownerId);
-		String username = o.getUser().getUsername();
 		model.addAttribute("edit", true);
-		model.addAttribute("username", username);
 		if (result.hasErrors()) {
 			model.put("owner", owner);
 			return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 		} else {
-			owner.setId(ownerId);
-			User user = o.getUser();
-			user.setPassword(owner.getUser().getPassword());
-			owner.setUser(user);
-			this.ownerService.saveOwner(owner);
+			Owner ownerToUpdate = this.ownerService.findOwnerById(ownerId);
+			BeanUtils.copyProperties(owner, ownerToUpdate, "id");
+			try {
+				this.ownerService.saveOwner(ownerToUpdate);
+			} catch (Exception ex) {
+
+				if (ex.getClass().equals(DataIntegrityViolationException.class))
+					result.rejectValue("user.username", "duplicate");
+
+				return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
+			}
 			return "redirect:/owners/{ownerId}";
 		}
 	}

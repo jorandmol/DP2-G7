@@ -5,8 +5,8 @@ import java.util.Collection;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.samples.petclinic.repository.BannerRepository;
 import org.springframework.samples.petclinic.model.Banner;
+import org.springframework.samples.petclinic.repository.BannerRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
