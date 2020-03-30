@@ -90,12 +90,24 @@
                                 <td><petclinic:localDate date="${appointment.appointmentDate}" pattern="yyyy-MM-dd"/></td>
                                 <td><c:out value="${appointment.description}"/></td>
                                 <td>
+                                    <spring:url value="/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/edit" var="editAppointmentUrl">
+                                        <spring:param name="ownerId" value="${owner.id}"/>
+                                        <spring:param name="petId" value="${pet.id}"></spring:param>
+                                        <spring:param name="appointmentId" value="${appointment.id}"></spring:param>
+                                    </spring:url>
+                                    <a href="${fn:escapeXml(editAppointmentUrl)}">Edit</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><petclinic:localDate date="${appointment.appointmentDate}" pattern="yyyy-MM-dd"/></td>
+                                <td><c:out value="${appointment.description}"/></td>
+                                <td>
                                 	<spring:url value="/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete" var="deleteAppointmentUrl">
         								<spring:param name="ownerId" value="${owner.id}"/>
         								<spring:param name="petId" value="${pet.id}"></spring:param>
         								<spring:param name="appointmentId" value="${appointment.id}"></spring:param>
     								</spring:url>
-    								<a href="${fn:escapeXml(deleteAppointmentUrl)}">Delete Appointment</a>
+    								<a href="${fn:escapeXml(deleteAppointmentUrl)}">Delete</a>
                                 </td>
                             </tr>
                         </c:forEach>
