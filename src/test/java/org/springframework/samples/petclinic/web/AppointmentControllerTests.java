@@ -16,10 +16,12 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.samples.petclinic.configuration.SecurityConfiguration;
 import org.springframework.samples.petclinic.model.Appointment;
+import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.service.AppointmentService;
 import org.springframework.samples.petclinic.service.OwnerService;
 import org.springframework.samples.petclinic.service.PetService;
+import org.springframework.samples.petclinic.service.VetService;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -54,6 +56,12 @@ public class AppointmentControllerTests {
 
 	@MockBean
 	private PetService petService;
+	
+	@MockBean
+	private VetController vetController;
+	
+	@MockBean
+	private VetService vetService;
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -73,6 +81,7 @@ public class AppointmentControllerTests {
 		appointment1.setDescription("Revisión de perro");
 		given(this.appointmentService.getAppointmentById(TEST_APPOINTMENT_ID1)).willReturn(appointment1);
 		given(this.petService.findPetById(TEST_PET_ID)).willReturn(new Pet());
+		given(this.ownerService.findOwnerById(TEST_PET_ID)).willReturn(new Owner());
 
 		appointment2 = new Appointment();
 		appointment2.setId(TEST_APPOINTMENT_ID2);
@@ -81,6 +90,7 @@ public class AppointmentControllerTests {
 		appointment2.setDescription("Revisión de perro");
 		given(this.appointmentService.getAppointmentById(TEST_APPOINTMENT_ID2)).willReturn(appointment2);
 		given(this.petService.findPetById(TEST_PET_ID)).willReturn(new Pet());
+		given(this.ownerService.findOwnerById(TEST_PET_ID)).willReturn(new Owner());
 
 		appointment3 = new Appointment();
 		appointment3.setId(TEST_APPOINTMENT_ID3);
@@ -89,29 +99,30 @@ public class AppointmentControllerTests {
 		appointment3.setDescription("Revisión de perro");
 		given(this.appointmentService.getAppointmentById(TEST_APPOINTMENT_ID3)).willReturn(appointment3);
 		given(this.petService.findPetById(TEST_PET_ID)).willReturn(new Pet());
+		given(this.ownerService.findOwnerById(TEST_PET_ID)).willReturn(new Owner());
 	}
 
 	@WithMockUser(value = "spring")
 	@Test
 	void testProcessDeleteAppointment() throws Exception {
 		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete", TEST_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID1))
-		.andExpect(status().is3xxRedirection())
-		.andExpect(view().name("redirect:/owners/{ownerId}"));
+		.andExpect(status().isOk())
+		.andExpect(view().name("owners/ownerDetails"));
 	}
 
 	@WithMockUser(value = "spring")
 	@Test
 	void testProcessDeleteAppointmentErrorsBefore() throws Exception {
 		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete", TEST_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID2))
-		.andExpect(status().is3xxRedirection())
-		.andExpect(view().name("redirect:/owners/{ownerId}"));
+		.andExpect(status().isOk())
+		.andExpect(view().name("owners/ownerDetails"));
 	}
 
 	@WithMockUser(value = "spring")
 	@Test
 	void testProcessDeleteAppointmentErrorsNow() throws Exception {
 		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete", TEST_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID3))
-		.andExpect(status().is3xxRedirection())
-		.andExpect(view().name("redirect:/owners/{ownerId}"));
+		.andExpect(status().isOk())
+		.andExpect(view().name("owners/ownerDetails"));
 	}
 }

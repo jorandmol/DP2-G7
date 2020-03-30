@@ -23,7 +23,7 @@ public class TreatmentService {
 		List<Treatment> treatments = this.treatmentRepository.findTreatmentsByPetId(petId);
 		
 		return treatments.stream().filter(x->x.getTimeLimit().isAfter(LocalDate.now()))
-				.sorted((a,b) -> a.getTimeLimit().compareTo(b.getTimeLimit()))
 				.collect(Collectors.toList());
 	}
+	
 }

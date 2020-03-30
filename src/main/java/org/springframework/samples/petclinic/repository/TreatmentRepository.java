@@ -11,6 +11,6 @@ import org.springframework.samples.petclinic.model.Treatment;
 
 public interface TreatmentRepository extends CrudRepository<Treatment, Integer>{
 	
-	@Query("SELECT t FROM Treatment t WHERE t.pet.id=:petId")
+	@Query("SELECT t FROM Treatment t WHERE t.pet.id=:petId ORDER BY timeLimit asc")
 	public List<Treatment> findTreatmentsByPetId(@Param("petId") int petId);
 }
