@@ -15,14 +15,30 @@
  */
 package org.springframework.samples.petclinic.web;
 
+import java.util.Collection;
+import java.util.Map;
+
+import javax.validation.Valid;
+
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.samples.petclinic.model.Specialty;
+import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.model.Vets;
 import org.springframework.samples.petclinic.service.VetService;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import java.util.Map;
+import org.springframework.web.servlet.ModelAndView;
 
 /**
  * @author Juergen Hoeller
@@ -34,15 +50,27 @@ import java.util.Map;
 public class VetController {
 
 	private final VetService vetService;
+	private static final String VIEWS_VET_CREATE_OR_UPDATE_FORM = "vets/createOrUpdateVetForm";
 
 	@Autowired
 	public VetController(VetService clinicService) {
 		this.vetService = clinicService;
 	}
 
+	@ModelAttribute("specialties")
+	public Collection<Specialty> populateSpecialties() {
+		return this.vetService.findSpecialties();
+	}
+
+	@InitBinder("vet")
+	public void initPetBinder(WebDataBinder dataBinder) {
+		dataBinder.setValidator(new VetValidator());
+	}
+
 	@GetMapping(value = { "/vets" })
 	public String showVetList(Map<String, Object> model) {
-		// Here we are returning an object of type 'Vets' rather than a collection of Vet
+		// Here we are returning an object of type 'Vets' rather than a collection of
+		// Vet
 		// objects
 		// so it is simpler for Object-Xml mapping
 		Vets vets = new Vets();
@@ -51,9 +79,10 @@ public class VetController {
 		return "vets/vetList";
 	}
 
-	@GetMapping(value = { "/vets.xml"})
+	@GetMapping(value = { "/vets.xml" })
 	public @ResponseBody Vets showResourcesVetList() {
-		// Here we are returning an object of type 'Vets' rather than a collection of Vet
+		// Here we are returning an object of type 'Vets' rather than a collection of
+		// Vet
 		// objects
 		// so it is simpler for JSon/Object mapping
 		Vets vets = new Vets();
@@ -61,4 +90,72 @@ public class VetController {
 		return vets;
 	}
 
+	@GetMapping(value = "/vets/new")
+	public String initCreationForm(ModelMap model) {
+		Vet vet = new Vet();
+		model.put("vet", vet);
+		return VIEWS_VET_CREATE_OR_UPDATE_FORM;
+	}
+
+	@PostMapping(value = "/vets/new")
+	public String processCreationForm(@Valid Vet vet, BindingResult result, ModelMap model) {
+		if (result.hasErrors()) {
+			model.addAttribute("vet", vet);
+			return VIEWS_VET_CREATE_OR_UPDATE_FORM;
+		} else {
+			try {
+				this.vetService.saveVet(vet);
+			} catch (Exception ex) {
+
+				if (ex.getClass().equals(DataIntegrityViolationException.class))
+					result.rejectValue("user.username", "duplicate");
+
+				return VIEWS_VET_CREATE_OR_UPDATE_FORM;
+			}
+			return "redirect:/vets/" + vet.getId();
+		}
+	}
+
+	@GetMapping(value = "/vets/{vetId}/edit")
+	public String initUpdateVetForm(@PathVariable("vetId") int vetId, Model model) {
+		Vet vet = this.vetService.findVetById(vetId);
+		model.addAttribute("vet", vet);
+		model.addAttribute("edit", true);
+		return VIEWS_VET_CREATE_OR_UPDATE_FORM;
+
+	}
+
+	@PostMapping(value = "/vets/{vetId}/edit")
+	public String processUpdateVetForm(@Valid Vet vet, BindingResult result, @PathVariable("vetId") int vetId,
+			ModelMap model) {
+
+		model.addAttribute("edit", true);
+
+		if (result.hasErrors()) {
+			model.put("vet", vet);
+			return VIEWS_VET_CREATE_OR_UPDATE_FORM;
+		} else {
+			Vet vetToUpdate = this.vetService.findVetById(vetId);
+			BeanUtils.copyProperties(vet, vetToUpdate, "id", "specialties");
+			vet.getSpecialties().stream().filter(s -> !vetToUpdate.getSpecialties().contains(s))
+					.forEach(s -> vetToUpdate.addSpecialty(s));
+			try {
+				this.vetService.saveVet(vetToUpdate);
+			} catch (Exception ex) {
+
+				if (ex.getClass().equals(DataIntegrityViolationException.class))
+					result.rejectValue("user.username", "duplicate");
+
+				return VIEWS_VET_CREATE_OR_UPDATE_FORM;
+			}
+			return "redirect:/vets/{vetId}";
+		}
+	}
+
+	@GetMapping("/vets/{vetId}")
+	public ModelAndView showVet(@PathVariable("vetId") int vetId) {
+		ModelAndView mav = new ModelAndView("vets/vetDetails");
+		mav.addObject(this.vetService.findVetById(vetId));
+		return mav;
+	}
 }
