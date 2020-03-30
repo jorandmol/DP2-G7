@@ -21,6 +21,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.samples.petclinic.configuration.SecurityConfiguration;
 import org.springframework.samples.petclinic.model.PetType;
+import org.springframework.samples.petclinic.service.BannerService;
 import org.springframework.samples.petclinic.service.PetTypeService;
 import org.springframework.samples.petclinic.service.exceptions.DuplicatedPetNameException;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
@@ -35,6 +36,9 @@ public class PetTypeControllerTests {
 
 	@MockBean
 	private PetTypeService petTypeService;
+	
+	@MockBean
+	private BannerService bannerService;
 
 	@Autowired
 	private MockMvc mockMvc;

@@ -18,6 +18,7 @@
         <tr>
         	<th style="width: 500px;">Slogan</th>
             <th style="width: 500px;">Name</th>
+            <th style="width: 500px;">End colaboration date</th>
             <th>Function</th>
     	</tr>
     	</thead>
@@ -31,6 +32,9 @@
             		<c:out value="${banner.organizationName}"/>
            		</td>
            		<td>
+            		<c:out value="${banner.endColabDate}"/>
+           		</td>
+           		<td>
            			<sec:authorize access="hasAuthority('admin')">
 						<spring:url value="/banners/{bannerId}/delete" var="bannerUrl">
                         	<spring:param name="bannerId" value="${banner.id}"/>
@@ -42,6 +46,9 @@
     	</c:forEach>
     	</tbody>
     </table>
+    <span class="error-text">
+    <c:out value="${error}"></c:out>
+    </span>
 	<table class="table-buttons">
 		<tr>
             <td>

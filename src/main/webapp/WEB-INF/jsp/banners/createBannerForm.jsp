@@ -7,6 +7,14 @@
 <%@ taglib prefix="petclinic" tagdir="/WEB-INF/tags" %>
 
 <petclinic:layout pageName="banners">
+    <jsp:attribute name="customScript">
+        <script>
+            $(function () {
+                $("#endColabDate").datepicker({dateFormat: 'yy/mm/dd'});
+            });
+        </script>
+    </jsp:attribute>
+    <jsp:body>
     <h2>
         New banner
     </h2>
@@ -14,8 +22,9 @@
         <div class="form-group has-feedback">
             <petclinic:inputField label="Picture" name="picture"/>
             <petclinic:inputField label="Slogan" name="slogan"/>
-            <petclinic:inputField label="Target Url" name="targetUrl"/>
+            <petclinic:inputField label="Target url" name="targetUrl"/>
             <petclinic:inputField label="Organization name" name="organizationName"/>
+            <petclinic:inputField label="End colaborate date" name="endColabDate"/>
         </div>
         <div class="form-group">
             <div class="col-sm-offset-2 col-sm-10">
@@ -23,4 +32,5 @@
             </div>
         </div>
     </form:form>
+   	</jsp:body>
 </petclinic:layout>
