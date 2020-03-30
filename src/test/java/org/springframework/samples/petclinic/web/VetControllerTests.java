@@ -151,6 +151,27 @@ class VetControllerTests {
 				.andExpect(model().attributeHasFieldErrors("vet", "user.password"))
 				.andExpect(view().name("vets/createOrUpdateVetForm"));
 	}
+	
+	@WithMockUser(value = "spring")
+    @Test
+    void testProcessCreationFormHasEmptyFields() throws Exception {
+        mockMvc.perform(post("/vets/new").with(csrf())
+                .param("firstName", "")
+                .param("lastName", "")
+                .param("city", "")
+                .param("address", "")
+                .param("telephone", "")
+                .param("user.username", "")
+                .param("user.password", ""))
+                .andExpect(status().isOk()).andExpect(model().attributeHasErrors("vet"))
+                .andExpect(model().attributeHasFieldErrors("vet", "firstName"))
+                .andExpect(model().attributeHasFieldErrors("vet", "lastName"))
+                .andExpect(model().attributeHasFieldErrors("vet", "city"))
+                .andExpect(model().attributeHasFieldErrors("vet", "address"))
+                .andExpect(model().attributeHasFieldErrors("vet", "telephone"))
+                .andExpect(model().attributeHasFieldErrors("vet", "user.password"))
+                .andExpect(view().name("vets/createOrUpdateVetForm"));
+    }
 
 	@WithMockUser(value = "spring")
 	@Test
