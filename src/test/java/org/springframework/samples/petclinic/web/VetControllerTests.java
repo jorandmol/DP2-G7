@@ -12,6 +12,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -62,24 +65,37 @@ class VetControllerTests {
 
 	@Mock
 	private Vet rafael;
+	
+	@Mock
+	private List<Specialty> specialties1;
+	
+	@Mock
+	private List<Specialty> specialties2;
 
 	@BeforeEach
 	void setup() {
-
+		
 		Vet james = new Vet();
-		james.setFirstName("James");
-		james.setLastName("Carter");
-		james.setId(1);
-		Vet helen = new Vet();
-		helen.setFirstName("Helen");
-		helen.setLastName("Leary");
-		helen.setId(2);
+        james.setFirstName("James");
+        james.setLastName("Carter");
+        james.setId(1);
+        Vet helen = new Vet();
+        helen.setFirstName("Helen");
+        helen.setLastName("Leary");
+        helen.setId(2);
+        
 		Specialty radiology = new Specialty();
 		radiology.setId(1);
 		radiology.setName("radiology");
-		helen.addSpecialty(radiology);
-		given(this.vetService.findVets()).willReturn(Lists.newArrayList(james, helen));
-
+		Specialty surgery = new Specialty();
+		radiology.setId(2);
+		radiology.setName("surgery");
+		
+		specialties1.add(radiology);
+		specialties1.add(surgery);
+		
+		specialties2.add(surgery);
+		
 		rafael = new Vet();
 		rafael.setId(TEST_VET_ID);
 		rafael.setFirstName("Rafael");
@@ -87,13 +103,16 @@ class VetControllerTests {
 		rafael.setAddress("110 W. Liberty St.");
 		rafael.setCity("Madison");
 		rafael.setTelephone("608555102");
+		rafael.addSpecialty(surgery);
 		User user = new User();
 		user.setUsername("vet1");
 		user.setPassword("veter1n4ri0_");
 		user.setEnabled(true);
 		rafael.setUser(user);
 		given(this.vetService.findVetById(TEST_VET_ID)).willReturn(rafael);
+        given(this.vetService.findVets()).willReturn(Lists.newArrayList(james, helen));
 
+		
 	}
 
 	@WithMockUser(value = "spring")
@@ -117,7 +136,7 @@ class VetControllerTests {
 		mockMvc.perform(get("/vets/new")).andExpect(status().isOk()).andExpect(model().attributeExists("vet"))
 				.andExpect(view().name("vets/createOrUpdateVetForm"));
 	}
-
+	
 	@WithMockUser(value = "spring")
 	@Test
 	void testProcessCreationFormSuccess() throws Exception {
@@ -128,6 +147,7 @@ class VetControllerTests {
 				.param("address", "38 Avenida América")
 				.param("city", "London")
 				.param("telephone", "123456789")
+				.flashAttr("specialties", specialties1)
 				.param("user.username", "vet55")
 				.param("user.password", "v3terinario_55"))
 				.andExpect(status().is3xxRedirection());
@@ -196,6 +216,7 @@ class VetControllerTests {
 				.param("address", "123 Caramel Street")
 				.param("city", "London")
 				.param("telephone", "123456789")
+				.flashAttr("specialties", specialties1)
 				.param("user.username", "rafaelbloggs")
 				.param("user.password", "str0ng-passw0rd"))
 				.andExpect(status().is3xxRedirection())

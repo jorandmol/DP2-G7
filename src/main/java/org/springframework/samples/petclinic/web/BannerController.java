@@ -1,5 +1,6 @@
 package org.springframework.samples.petclinic.web;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Map;
 
@@ -11,11 +12,14 @@ import org.springframework.samples.petclinic.service.BannerService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @ControllerAdvice
@@ -30,6 +34,12 @@ public class BannerController {
 	public BannerController(BannerService bannerService) {
 			this.bannerService=bannerService;
 	}
+	
+	@InitBinder("banner")
+	public void initPetBinder(WebDataBinder dataBinder) {
+		dataBinder.setValidator(new BannerValidator());
+	}
+
 	
 	@GetMapping(value = { "/banners" })
 	public String showBannersList(Map<String, Object> model) {
@@ -51,6 +61,7 @@ public class BannerController {
 			model.put("banner", banner);
 			return VIEWS_BANNER_CREATE_FORM;
 		} else {
+			banner.setInitColabDate(LocalDate.now());
 			this.bannerService.saveBanner(banner);
 		}
 		return "redirect:/banners";
@@ -59,10 +70,21 @@ public class BannerController {
 	@GetMapping(value = "/banners/{bannerId}/delete")
 	public String processDeleteBanner(@PathVariable("bannerId") int bannerId, ModelMap model) {
 		
-		this.bannerService.deleteBannerById(bannerId);
-		
-		return "redirect:/banners";
-	}
+        
+        model.addAttribute("banners", this.bannerService.findBanners());
+
+        Banner banner= this.bannerService.findBannerById(bannerId);
+        
+        if(!banner.getEndColabDate().isBefore(LocalDate.now())){
+        	model.addAttribute("error", "cannot be deleted if the collaboration end date has not expired");
+
+        } else {
+      
+    		this.bannerService.deleteBannerById(bannerId);
+        }
+        
+        return "banners/bannersList";
+}
 	
 	@ModelAttribute("bannerPhoto")
 	public Banner getBanner() {

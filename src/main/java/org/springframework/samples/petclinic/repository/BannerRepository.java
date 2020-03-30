@@ -17,4 +17,6 @@ public interface BannerRepository {
 	
 	Banner findRandomBanner() throws DataAccessException;
 
+	Banner findById(int bannerId)throws DataAccessException;
+
 }

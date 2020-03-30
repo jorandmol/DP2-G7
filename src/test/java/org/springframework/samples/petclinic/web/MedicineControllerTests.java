@@ -42,6 +42,7 @@ import org.springframework.samples.petclinic.model.Medicine;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.PetType;
+import org.springframework.samples.petclinic.service.BannerService;
 import org.springframework.samples.petclinic.service.MedicineService;
 import org.springframework.samples.petclinic.service.OwnerService;
 import org.springframework.samples.petclinic.service.PetService;
@@ -64,6 +65,9 @@ class MedicineControllerTests {
 
 	@Autowired
 	private MedicineController medicineController;
+	
+	@MockBean
+	private BannerService bannerService;
 
 	@MockBean
 	private MedicineService medicineService;

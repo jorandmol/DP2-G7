@@ -40,4 +40,8 @@ public class BannerService {
 		this.bannerRepository.deleteById(bannerId);
 	}
 
+	public Banner findBannerById(int bannerId) {
+		return this.bannerRepository.findById(bannerId);
+	}
+
 }
