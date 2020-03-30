@@ -45,8 +45,9 @@ public class PetTypeFormatter implements Formatter<PetType> {
 
 	private final PetService peService;
 
-	@Autowired
+  @Autowired
 	public PetTypeFormatter(PetService petService) {
+		super();
 		this.peService = petService;
 	}
 
