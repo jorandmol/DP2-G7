@@ -14,7 +14,7 @@
         </script>
     </jsp:attribute>
     <jsp:body>
-        <h2><c:if test="${appointment['new']}">New </c:if>Appointment</h2>
+        <h2><c:if test="${!edit}">New </c:if>Appointment</h2>
 
         <b>Pet</b>
         <table class="table table-striped">
@@ -37,7 +37,7 @@
         <form:form modelAttribute="appointment" class="form-horizontal">
             <div class="form-group has-feedback">
                 <c:choose>
-                    <c:when test="${appointment['new']}">
+                    <c:when test="${!edit}">
                         <petclinic:inputField label="Date" name="appointmentDate"/>
                         <petclinic:inputField label="Description" name="description"/>
                         <div class="form-group">
@@ -79,9 +79,10 @@
 
             <div class="form-group">
                 <div class="col-sm-offset-2 col-sm-10">
-                    <input type="hidden" name="petId" value="${appointment.pet.id}"/>
-                    <button class="btn btn-default" type="submit"><c:choose>
-                        <c:when test="${appointment['new']}">New</c:when>
+                    <!-- <input type="hidden" name="petId" value="${appointment.pet.id}"/> -->
+                    <button class="btn btn-default" type="submit">
+                    <c:choose>
+                        <c:when test="${!edit}">New</c:when>
                         <c:otherwise>Update</c:otherwise>
                     </c:choose>
                          Appointment</button>

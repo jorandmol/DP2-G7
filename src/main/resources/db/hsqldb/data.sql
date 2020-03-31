@@ -95,9 +95,9 @@ INSERT INTO treatments(id,name,description,time_limit,pet_id) VALUES (3, 'Cojea 
 INSERT INTO treatments(id,name,description,time_limit,pet_id) VALUES (4, 'Dolor de barriga', 'Ingerir una pastilla de ibuprefono cada 6 horas y paracetamol cada 8 horas', '2020-07-27', 1);
 INSERT INTO treatments(id,name,description,time_limit,pet_id) VALUES (2, 'Fiebre alta', 'Ingerir una pastilla de paracetamol cada 8 horas, reposo y beber mucha agua', '2020-07-25', 2);
 
-INSERT INTO medicines(id,name,expiration_date,description,code) VALUES (1, 'Ibuprofeno', '2020-07-15', 'Reduce la inflamación', 'codigo1');
-INSERT INTO medicines(id,name,expiration_date,description,code) VALUES (2, 'Paracetamol', '2020-07-15', 'Reduce la fiebre y el dolor', 'codigo2');
-INSERT INTO medicines(id,name,expiration_date,description,code) VALUES (3, 'Paracetamol', '2020-07-15', 'Reduce la inflamación', 'codigo3');
+INSERT INTO medicines VALUES (1, 'Paracetamol', 'BAY-2356', 'Antinflamatorio', '2021-07-04');
+INSERT INTO medicines VALUES (2, 'Pet Dalsy', 'BOT-334', 'Ideal para cachorros', '2024-03-04');
+INSERT INTO medicines VALUES (3, 'Ibuprofeno', 'IUP-004', 'Elimina síntomas de gripe', '2022-10-14');
 
 INSERT INTO treatment_medicines VALUES (1,1);
 INSERT INTO treatment_medicines VALUES (2,2);
