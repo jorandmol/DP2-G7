@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.samples.petclinic.web;
 
 import java.util.Collection;
@@ -47,17 +48,18 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 public class OwnerController {
 
-	private static final String VIEWS_OWNER_CREATE_OR_UPDATE_FORM = "owners/createOrUpdateOwnerForm";
+	private static final String	VIEWS_OWNER_CREATE_OR_UPDATE_FORM	= "owners/createOrUpdateOwnerForm";
 
-	private final OwnerService ownerService;
+	private final OwnerService	ownerService;
+
 
 	@Autowired
-	public OwnerController(OwnerService ownerService, UserService userService, AuthoritiesService authoritiesService) {
+	public OwnerController(final OwnerService ownerService, final UserService userService, final AuthoritiesService authoritiesService) {
 		this.ownerService = ownerService;
 	}
 
 	@InitBinder
-	public void setAllowedFields(WebDataBinder dataBinder) {
+	public void setAllowedFields(final WebDataBinder dataBinder) {
 		dataBinder.setDisallowedFields("id");
 	}
 	
@@ -70,7 +72,7 @@ public class OwnerController {
 	public String initCreationForm(ModelMap model) {
 		Owner owner = new Owner();
 		model.put("owner", owner);
-		return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
+		return OwnerController.VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 	}
 
 	@PostMapping(value = "/owners/new")
@@ -95,13 +97,13 @@ public class OwnerController {
 	}
 
 	@GetMapping(value = "/owners/find")
-	public String initFindForm(Map<String, Object> model) {
+	public String initFindForm(final Map<String, Object> model) {
 		model.put("owner", new Owner());
 		return "owners/findOwners";
 	}
 
 	@GetMapping(value = "/owners")
-	public String processFindForm(Owner owner, BindingResult result, Map<String, Object> model) {
+	public String processFindForm(Owner owner, final BindingResult result, final Map<String, Object> model) {
 
 		// allow parameterless GET request for /owners to return all records
 		if (owner.getLastName() == null) {
@@ -126,7 +128,7 @@ public class OwnerController {
 	}
 
 	@GetMapping(value = "/owners/{ownerId}/edit")
-	public String initUpdateOwnerForm(@PathVariable("ownerId") int ownerId, Model model) {
+	public String initUpdateOwnerForm(@PathVariable("ownerId") final int ownerId, final Model model) {
 		Owner owner = this.ownerService.findOwnerById(ownerId);
 		model.addAttribute("owner", owner);
 		model.addAttribute("edit", true);
@@ -163,7 +165,7 @@ public class OwnerController {
 	 * @return a ModelMap with the model attributes for the view
 	 */
 	@GetMapping("/owners/{ownerId}")
-	public ModelAndView showOwner(@PathVariable("ownerId") int ownerId) {
+	public ModelAndView showOwner(@PathVariable("ownerId") final int ownerId) {
 		ModelAndView mav = new ModelAndView("owners/ownerDetails");
 		mav.addObject(this.ownerService.findOwnerById(ownerId));
 		return mav;

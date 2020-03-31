@@ -30,7 +30,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.springframework.beans.support.MutableSortDefinition;
 import org.springframework.beans.support.PropertyComparator;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -61,8 +66,10 @@ public class Pet extends NamedEntity {
 	private Set<Visit> visits;
 	
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "pet", fetch = FetchType.EAGER)
-	private Set<Stay> stays;
+	private Set<Appointment> appointments;
 
+  @OneToMany(cascade = CascadeType.ALL, mappedBy = "pet", fetch = FetchType.EAGER)
+	private Set<Stay> stays;
 
 	public void setBirthDate(LocalDate birthDate) {
 		this.birthDate = birthDate;
@@ -109,7 +116,27 @@ public class Pet extends NamedEntity {
 		getVisitsInternal().add(visit);
 		visit.setPet(this);
 	}
+
+	protected Set<Appointment> getAppointmentsInternal() {
+		if (this.appointments == null) {
+			this.appointments = new HashSet<Appointment>();
+		}
+		return this.appointments;
+	}
 	
+	protected void setAppointmentsInternal(Set<Appointment> appointments) {
+		this.appointments = appointments;
+	}
+	
+	public List<Appointment> getAppointments() {
+		List<Appointment> sortedAppointments = new ArrayList<>(getAppointmentsInternal());
+		PropertyComparator.sort(sortedAppointments, new MutableSortDefinition("appointmentDate", false, false));
+		return Collections.unmodifiableList(sortedAppointments);
+	}
+	
+	public void deleteAppointment(Appointment appointment) {
+		getAppointmentsInternal().remove(appointment);
+
 	public void addStay(Stay stay) {
 		getStaysInternal().add(stay);
 		stay.setPet(this);
@@ -130,7 +157,6 @@ public class Pet extends NamedEntity {
 	
 	public void deleteStay(Stay stay) {
 		this.stays.remove(stay);
-
 	}
 
 }
