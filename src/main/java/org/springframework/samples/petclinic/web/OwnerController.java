@@ -21,13 +21,16 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.service.AuthoritiesService;
 import org.springframework.samples.petclinic.service.OwnerService;
 import org.springframework.samples.petclinic.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -59,21 +62,35 @@ public class OwnerController {
 	public void setAllowedFields(final WebDataBinder dataBinder) {
 		dataBinder.setDisallowedFields("id");
 	}
+	
+	@InitBinder("owner")
+	public void initPetBinder(WebDataBinder dataBinder) {
+		dataBinder.setValidator(new OwnerValidator());
+	}
 
 	@GetMapping(value = "/owners/new")
-	public String initCreationForm(final Map<String, Object> model) {
+	public String initCreationForm(ModelMap model) {
 		Owner owner = new Owner();
 		model.put("owner", owner);
 		return OwnerController.VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 	}
 
 	@PostMapping(value = "/owners/new")
-	public String processCreationForm(@Valid final Owner owner, final BindingResult result) {
+	public String processCreationForm(@Valid Owner owner, BindingResult result, ModelMap model) {
 		if (result.hasErrors()) {
-			return OwnerController.VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
+			model.addAttribute("owner", owner);
+			return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 		} else {
-			//creating owner, user and authorities
-			this.ownerService.saveOwner(owner);
+			// creating owner, user and authorities
+			try {
+				this.ownerService.saveOwner(owner);
+			} catch (Exception ex) {
+
+				if (ex.getClass().equals(DataIntegrityViolationException.class))
+					result.rejectValue("user.username", "duplicate");
+
+				return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
+			}
 
 			return "redirect:/owners/" + owner.getId();
 		}
@@ -113,17 +130,30 @@ public class OwnerController {
 	@GetMapping(value = "/owners/{ownerId}/edit")
 	public String initUpdateOwnerForm(@PathVariable("ownerId") final int ownerId, final Model model) {
 		Owner owner = this.ownerService.findOwnerById(ownerId);
-		model.addAttribute(owner);
-		return OwnerController.VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
+		model.addAttribute("owner", owner);
+		model.addAttribute("edit", true);
+		return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 	}
 
 	@PostMapping(value = "/owners/{ownerId}/edit")
-	public String processUpdateOwnerForm(@Valid final Owner owner, final BindingResult result, @PathVariable("ownerId") final int ownerId) {
+	public String processUpdateOwnerForm(@Valid Owner owner, BindingResult result, @PathVariable("ownerId") int ownerId,
+			ModelMap model) {
+		model.addAttribute("edit", true);
 		if (result.hasErrors()) {
-			return OwnerController.VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
+			model.put("owner", owner);
+			return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 		} else {
-			owner.setId(ownerId);
-			this.ownerService.saveOwner(owner);
+			Owner ownerToUpdate = this.ownerService.findOwnerById(ownerId);
+			BeanUtils.copyProperties(owner, ownerToUpdate, "id");
+			try {
+				this.ownerService.saveOwner(ownerToUpdate);
+			} catch (Exception ex) {
+
+				if (ex.getClass().equals(DataIntegrityViolationException.class))
+					result.rejectValue("user.username", "duplicate");
+
+				return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
+			}
 			return "redirect:/owners/{ownerId}";
 		}
 	}
@@ -131,8 +161,7 @@ public class OwnerController {
 	/**
 	 * Custom handler for displaying an owner.
 	 * 
-	 * @param ownerId
-	 *            the ID of the owner to display
+	 * @param ownerId the ID of the owner to display
 	 * @return a ModelMap with the model attributes for the view
 	 */
 	@GetMapping("/owners/{ownerId}")

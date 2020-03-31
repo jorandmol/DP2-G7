@@ -6,6 +6,8 @@ package org.springframework.samples.petclinic.web;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.validation.Valid;
 
@@ -14,10 +16,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Medicine;
 import org.springframework.samples.petclinic.model.PetType;
 import org.springframework.samples.petclinic.service.MedicineService;
-
+import org.springframework.samples.petclinic.service.exceptions.DuplicatedMedicineCodeException;
+import org.springframework.samples.petclinic.service.exceptions.PastMedicineDateException;
+import org.springframework.samples.petclinic.service.exceptions.WrongMedicineCodeException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
@@ -44,6 +49,11 @@ public class MedicineController {
 		dataBinder.setDisallowedFields("id");
 	}
 
+	@InitBinder("medicine")
+	public void initPetBinder(WebDataBinder dataBinder) {
+		dataBinder.setValidator(new MedicineValidator());
+	}
+	
 	@GetMapping()
 	public String listMedicines(ModelMap modelMap) {
 		Iterable<Medicine> med = this.medicineService.findAll();
@@ -64,25 +74,25 @@ public class MedicineController {
 			return VIEWS_MEDICINE_CREATE_OR_UPDATE_FORM;
 		}
 		else {
-			List<String> messages = new ArrayList<>();
-			Boolean invalidCode = this.medicineService.codeAlreadyExists(medicine.getCode());
-			Boolean invalidDate = this.medicineService.pastDate(medicine.getExpirationDate());
-			if(invalidCode) {
-				messages.add("Code already in use");
+			try {
+				this.medicineService.saveMedicine(medicine);
+			} catch (DuplicatedMedicineCodeException | PastMedicineDateException | IllegalArgumentException | WrongMedicineCodeException ex) {
+				 Logger.getLogger(MedicineService.class.getName()).log(Level.SEVERE, null, ex);
+				 if(ex.getClass().equals(DuplicatedMedicineCodeException.class)) {
+					 result.rejectValue("name", "duplicate", "already exists");
+				 }
+				 if(ex.getClass().equals(PastMedicineDateException.class)) {
+					 result.rejectValue("name", "past", "past date");
+				 }
+				 if(ex.getClass().equals(WrongMedicineCodeException.class)) {
+					 result.rejectValue("name", "pattern", "Must match pattern");
+				 }
+				 return VIEWS_MEDICINE_CREATE_OR_UPDATE_FORM;
 			}
-			if(invalidDate){
-				messages.add("Date is before today");
-			}
-			if(invalidCode || invalidDate) {
-				modelMap.addAttribute("messages", messages);
-				return VIEWS_MEDICINE_CREATE_OR_UPDATE_FORM;
-			} else {
-			this.medicineService.saveMedicine(medicine);
-			return "redirect:/medicines/" + medicine.getId();	
-			}
+			return "redirect:/medicines";	
 		}
 	}
-	
+		
 	@GetMapping("/{medicineId}")
 	public ModelAndView showMedicine(@PathVariable("medicineId") int medicineId) {
 		

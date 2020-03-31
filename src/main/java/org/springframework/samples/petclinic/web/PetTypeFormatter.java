@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.Formatter;
 import org.springframework.samples.petclinic.model.PetType;
 import org.springframework.samples.petclinic.service.PetService;
-import org.springframework.samples.petclinic.service.VetService;
 import org.springframework.stereotype.Component;
 
 /**
@@ -46,8 +45,9 @@ public class PetTypeFormatter implements Formatter<PetType> {
 
 	private final PetService peService;
 
-	@Autowired
+  @Autowired
 	public PetTypeFormatter(PetService petService) {
+		super();
 		this.peService = petService;
 	}
 

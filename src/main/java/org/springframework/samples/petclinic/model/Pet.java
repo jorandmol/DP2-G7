@@ -15,9 +15,12 @@
  */
 package org.springframework.samples.petclinic.model;
 
-import org.springframework.beans.support.MutableSortDefinition;
-import org.springframework.beans.support.PropertyComparator;
-import org.springframework.format.annotation.DateTimeFormat;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -27,14 +30,15 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
+import org.springframework.beans.support.MutableSortDefinition;
+import org.springframework.beans.support.PropertyComparator;
+import org.springframework.format.annotation.DateTimeFormat;
 /**
  * Simple business object representing a pet.
  *
@@ -63,6 +67,9 @@ public class Pet extends NamedEntity {
 	
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "pet", fetch = FetchType.EAGER)
 	private Set<Appointment> appointments;
+
+  @OneToMany(cascade = CascadeType.ALL, mappedBy = "pet", fetch = FetchType.EAGER)
+	private Set<Stay> stays;
 
 	public void setBirthDate(LocalDate birthDate) {
 		this.birthDate = birthDate;
@@ -109,7 +116,7 @@ public class Pet extends NamedEntity {
 		getVisitsInternal().add(visit);
 		visit.setPet(this);
 	}
-	
+
 	protected Set<Appointment> getAppointmentsInternal() {
 		if (this.appointments == null) {
 			this.appointments = new HashSet<Appointment>();
@@ -129,6 +136,27 @@ public class Pet extends NamedEntity {
 	
 	public void deleteAppointment(Appointment appointment) {
 		getAppointmentsInternal().remove(appointment);
+
+	public void addStay(Stay stay) {
+		getStaysInternal().add(stay);
+		stay.setPet(this);
+	}
+
+	private Set<Stay> getStaysInternal() {
+		if (this.stays == null) {
+			this.stays = new HashSet<>();
+		}
+		return this.stays;
+	}
+
+	public List<Stay> getStays() {
+		List<Stay> sortedStances = new ArrayList<>(getStaysInternal());
+		PropertyComparator.sort(sortedStances, new MutableSortDefinition("registerDate", false, false));
+		return Collections.unmodifiableList(sortedStances);
+	}
+	
+	public void deleteStay(Stay stay) {
+		this.stays.remove(stay);
 	}
 
 }

@@ -26,6 +26,10 @@
             <th>Telephone</th>
             <td><c:out value="${owner.telephone}"/></td>
         </tr>
+        <tr>
+            <th>Username</th>
+            <td><c:out value="${owner.user.username}"/></td>
+        </tr>
     </table>
 
     <spring:url value="{ownerId}/edit" var="editUrl">
@@ -112,6 +116,13 @@
                             </tr>
                         </c:forEach>
                         <tr>
+                            <td>
+                                <spring:url value="/owners/{ownerId}/pets/{petId}/stays" var="stayUrl">
+                                    <spring:param name="ownerId" value="${owner.id}"/>
+                                    <spring:param name="petId" value="${pet.id}"/>
+                                </spring:url>
+                                <a href="${fn:escapeXml(stayUrl)}">Stays</a>
+                            </td>
                             <td>
                                 <spring:url value="/owners/{ownerId}/pets/{petId}/edit" var="petUrl">
                                     <spring:param name="ownerId" value="${owner.id}"/>

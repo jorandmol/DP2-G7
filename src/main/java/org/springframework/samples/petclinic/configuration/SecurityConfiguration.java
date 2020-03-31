@@ -10,7 +10,6 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -37,9 +36,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.antMatchers(HttpMethod.GET, "/","/oups").permitAll()
 				.antMatchers("/users/new").permitAll()
 				.antMatchers("/admin/**").hasAnyAuthority("admin")
-				.antMatchers("/owners/**").hasAnyAuthority("owner","admin")		
+				.antMatchers("/banners/**").hasAnyAuthority("admin")
+				.antMatchers("/owners/**").hasAnyAuthority("admin","owner")				
+				.antMatchers("/vets/**").hasAnyAuthority("admin","veterinarian")
+				.antMatchers("/users/**").hasAnyAuthority("owner","veterinarian")
+				.antMatchers(HttpMethod.POST,"/owners/**").hasAnyAuthority("admin")
 				.antMatchers("/medicines/**").hasAnyAuthority("admin")	
-				.antMatchers("/vets/**").authenticated()
+				.antMatchers("/stays/**").hasAnyAuthority("owner","admin")
+				.antMatchers("/pet-type/**").hasAnyAuthority("admin")
 				.anyRequest().denyAll()
 				.and()
 				 	.formLogin()

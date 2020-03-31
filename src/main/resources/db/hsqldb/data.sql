@@ -1,19 +1,47 @@
--- One admin user, named admin1 with passwor 4dm1n and authority admin
+-- One admin user, named admin1 with password 4dm1n and authority admin
 INSERT INTO users(username,password,enabled) VALUES ('admin1','4dm1n',TRUE);
 INSERT INTO authorities VALUES ('admin1','admin');
--- One owner user, named owner1 with passwor 0wn3r
-INSERT INTO users(username,password,enabled) VALUES ('owner1','0wn3r',TRUE);
+-- One owner user, named owner1 with password 0wn3r
+INSERT INTO users(username,password,enabled) VALUES ('owner1','0wn3333r_1',TRUE);
 INSERT INTO authorities VALUES ('owner1','owner');
--- One vet user, named vet1 with passwor v3t
-INSERT INTO users(username,password,enabled) VALUES ('vet1','v3t',TRUE);
+INSERT INTO users(username,password,enabled) VALUES ('owner2','0wn3333r_2',TRUE);
+INSERT INTO authorities VALUES ('owner2','owner');
+INSERT INTO users(username,password,enabled) VALUES ('owner3','0wn3333r_3',TRUE);
+INSERT INTO authorities VALUES ('owner3','owner');
+INSERT INTO users(username,password,enabled) VALUES ('owner4','0wn3333r_4',TRUE);
+INSERT INTO authorities VALUES ('owner4','owner');
+INSERT INTO users(username,password,enabled) VALUES ('owner5','0wn3333r_5',TRUE);
+INSERT INTO authorities VALUES ('owner5','owner');
+INSERT INTO users(username,password,enabled) VALUES ('owner6','0wn3333r_6',TRUE);
+INSERT INTO authorities VALUES ('owner6','owner');
+INSERT INTO users(username,password,enabled) VALUES ('owner7','0wn3333r_7',TRUE);
+INSERT INTO authorities VALUES ('owner7','owner');
+INSERT INTO users(username,password,enabled) VALUES ('owner8','0wn3333r_8',TRUE);
+INSERT INTO authorities VALUES ('owner8','owner');
+INSERT INTO users(username,password,enabled) VALUES ('owner9','0wn3333r_9',TRUE);
+INSERT INTO authorities VALUES ('owner9','owner');
+INSERT INTO users(username,password,enabled) VALUES ('owner10','0wn3333r_10',TRUE);
+INSERT INTO authorities VALUES ('owner10','owner');
+-- One vet user, named vet1 with password v3t
+INSERT INTO users(username,password,enabled) VALUES ('vet1','v3terinarian_1',TRUE);
 INSERT INTO authorities VALUES ('vet1','veterinarian');
+INSERT INTO users(username,password,enabled) VALUES ('vet2','v3terinarian_2',TRUE);
+INSERT INTO authorities VALUES ('vet2','veterinarian');
+INSERT INTO users(username,password,enabled) VALUES ('vet3','v3terinarian_3',TRUE);
+INSERT INTO authorities VALUES ('vet3','veterinarian');
+INSERT INTO users(username,password,enabled) VALUES ('vet4','v3terinarian_4',TRUE);
+INSERT INTO authorities VALUES ('vet4','veterinarian');
+INSERT INTO users(username,password,enabled) VALUES ('vet5','v3terinarian_5',TRUE);
+INSERT INTO authorities VALUES ('vet5','veterinarian');
+INSERT INTO users(username,password,enabled) VALUES ('vet6','v3terinarian_6',TRUE);
+INSERT INTO authorities VALUES ('vet6','veterinarian');
 
-INSERT INTO vets VALUES (1, 'James', 'Carter');
-INSERT INTO vets VALUES (2, 'Helen', 'Leary');
-INSERT INTO vets VALUES (3, 'Linda', 'Douglas');
-INSERT INTO vets VALUES (4, 'Rafael', 'Ortega');
-INSERT INTO vets VALUES (5, 'Henry', 'Stevens');
-INSERT INTO vets VALUES (6, 'Sharon', 'Jenkins');
+INSERT INTO vets VALUES (1, 'James', 'Carter', '110 W. Liberty St.', 'Madison', '608555102', 'vet1');
+INSERT INTO vets VALUES (2, 'Helen', 'Leary','110 W. Liberty St.', 'Madison', '608555102', 'vet2');
+INSERT INTO vets VALUES (3, 'Linda', 'Douglas', '110 W. Liberty St.', 'Madison', '608555102', 'vet3');
+INSERT INTO vets VALUES (4, 'Rafael', 'Ortega', '110 W. Liberty St.', 'Madison', '608555102', 'vet4');
+INSERT INTO vets VALUES (5, 'Henry', 'Stevens', '110 W. Liberty St.', 'Madison', '608555102', 'vet5');
+INSERT INTO vets VALUES (6, 'Sharon', 'Jenkins', '110 W. Liberty St.', 'Madison', '608555102', 'vet6');
 
 INSERT INTO specialties VALUES (1, 'radiology');
 INSERT INTO specialties VALUES (2, 'surgery');
@@ -32,16 +60,16 @@ INSERT INTO types VALUES (4, 'snake');
 INSERT INTO types VALUES (5, 'bird');
 INSERT INTO types VALUES (6, 'hamster');
 
-INSERT INTO owners VALUES (1, 'George', 'Franklin', '110 W. Liberty St.', 'Madison', '6085551023', 'owner1');
-INSERT INTO owners VALUES (2, 'Betty', 'Davis', '638 Cardinal Ave.', 'Sun Prairie', '6085551749', 'owner1');
-INSERT INTO owners VALUES (3, 'Eduardo', 'Rodriquez', '2693 Commerce St.', 'McFarland', '6085558763', 'owner1');
-INSERT INTO owners VALUES (4, 'Harold', 'Davis', '563 Friendly St.', 'Windsor', '6085553198', 'owner1');
-INSERT INTO owners VALUES (5, 'Peter', 'McTavish', '2387 S. Fair Way', 'Madison', '6085552765', 'owner1');
-INSERT INTO owners VALUES (6, 'Jean', 'Coleman', '105 N. Lake St.', 'Monona', '6085552654', 'owner1');
-INSERT INTO owners VALUES (7, 'Jeff', 'Black', '1450 Oak Blvd.', 'Monona', '6085555387', 'owner1');
-INSERT INTO owners VALUES (8, 'Maria', 'Escobito', '345 Maple St.', 'Madison', '6085557683', 'owner1');
-INSERT INTO owners VALUES (9, 'David', 'Schroeder', '2749 Blackhawk Trail', 'Madison', '6085559435', 'owner1');
-INSERT INTO owners VALUES (10, 'Carlos', 'Estaban', '2335 Independence La.', 'Waunakee', '6085555487', 'owner1');
+INSERT INTO owners VALUES (1, 'George', 'Franklin', '110 W. Liberty St.', 'Madison', '608555102', 'owner1');
+INSERT INTO owners VALUES (2, 'Betty', 'Davis', '638 Cardinal Ave.', 'Sun Prairie', '608555174', 'owner2');
+INSERT INTO owners VALUES (3, 'Eduardo', 'Rodriquez', '2693 Commerce St.', 'McFarland', '608555876', 'owner3');
+INSERT INTO owners VALUES (4, 'Harold', 'Davis', '563 Friendly St.', 'Windsor', '608555319', 'owner4');
+INSERT INTO owners VALUES (5, 'Peter', 'McTavish', '2387 S. Fair Way', 'Madison', '608555276', 'owner5');
+INSERT INTO owners VALUES (6, 'Jean', 'Coleman', '105 N. Lake St.', 'Monona', '608555265', 'owner6');
+INSERT INTO owners VALUES (7, 'Jeff', 'Black', '1450 Oak Blvd.', 'Monona', '608555538', 'owner7');
+INSERT INTO owners VALUES (8, 'Maria', 'Escobito', '345 Maple St.', 'Madison', '608555768', 'owner8');
+INSERT INTO owners VALUES (9, 'David', 'Schroeder', '2749 Blackhawk Trail', 'Madison', '608555943', 'owner9');
+INSERT INTO owners VALUES (10, 'Carlos', 'Estaban', '2335 Independence La.', 'Waunakee', '608555548', 'owner10');
 
 INSERT INTO pets(id,name,birth_date,type_id,owner_id) VALUES (1, 'Leo', '2010-09-07', 1, 1);
 INSERT INTO pets(id,name,birth_date,type_id,owner_id) VALUES (2, 'Basil', '2012-08-06', 6, 2);
@@ -84,3 +112,14 @@ INSERT INTO appointments(id,appointment_date,appointment_request_date,descriptio
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (5,'2020-04-01','2020-03-27','Revisión fractura',3,3,3);
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (6,'2020-04-02','2020-03-27','Cita médica',2,2,2);
 
+INSERT INTO banners(id, picture, slogan, target_url, organization_name, init_colab_date, end_colab_date) VALUES (1, 'https://pbs.twimg.com/media/ETaS5ThXsAIJST1.jpg', '#YoMeQuedoEnCasa', 'https://twitter.com/asoc_recal?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor', 'Recal: Refugio Canino', '2020-01-01', '2021-01-01');
+INSERT INTO banners(id, picture, slogan, target_url, organization_name, init_colab_date, end_colab_date) VALUES (2, 'https://elrefugio.org/contenido/paginas/El-Refugio-ProyectoEdencabeceroweb.jpg', 'La vida no es eterna, pero el amor sí', 'https://elrefugio.org/default.aspx', 'elrefugio.org', '2019-10-01', '2020-10-01');
+INSERT INTO banners(id, picture, slogan, target_url, organization_name, init_colab_date, end_colab_date) VALUES (3, 'https://scoobymedina.org/cache/resized/ac3a07da9000a7824d41c97f4d99d4ff.jpg', 'No compres y adopta ¡Pon color a sus vidas!', 'https://scoobymedina.org/es/', 'Protectora y Santuario Scooby', '2020-02-01', '2022-02-01');
+INSERT INTO banners(id, picture, slogan, target_url, organization_name, init_colab_date, end_colab_date) VALUES (4, 'https://www.elhogar-animalsanctuary.org/wp-content/uploads/2016/10/fondo-web-2.jpg', '¡El amor nos cambia la vida a todos!', 'https://www.elhogar-animalsanctuary.org/el-santuario-2/', 'Fundación El Hogar', '2020-03-01', '2021-03-01');
+
+INSERT INTO medicines VALUES (1, 'Paracetamol', 'BAY-2356', 'Antinflamatorio', '2021-07-04');
+INSERT INTO medicines VALUES (2, 'Pet Dalsy', 'BOT-334', 'Ideal para cachorros', '2024-03-04');
+INSERT INTO medicines VALUES (3, 'Ibuprofeno', 'IUP-004', 'Elimina síntomas de gripe', '2022-10-14');
+
+INSERT INTO stances(id,pet_id,register_date,release_date) VALUES (1,7, '2020-10-01', '2020-10-05');
+INSERT INTO stances(id,pet_id,register_date,release_date) VALUES (2,8, '2020-10-01', '2020-10-05');

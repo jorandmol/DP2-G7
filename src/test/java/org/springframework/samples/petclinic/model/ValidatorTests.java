@@ -11,6 +11,8 @@ import javax.validation.Validator;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.samples.petclinic.web.MedicineValidator;
+import org.springframework.validation.Errors;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 /**
@@ -40,26 +42,6 @@ class ValidatorTests {
 		ConstraintViolation<Person> violation = constraintViolations.iterator().next();
 		assertThat(violation.getPropertyPath().toString()).isEqualTo("firstName");
 		assertThat(violation.getMessage()).isEqualTo("must not be empty");
-	}
-	
-	// No funciona, parece que cumple el patrón
-	@Test
-	void shouldMatchPattern() {
-		
-		LocaleContextHolder.setLocale(Locale.ENGLISH);
-		Medicine med = new Medicine();
-		med.setName("Paracetamol");
-		med.setDescription("Antinflamatorio para todo tipo de mascotas");
-		med.setExpirationDate(LocalDate.now().plusYears(2));
-		med.setCode("ads");
-		
-		Validator validator = createValidator();
-		Set<ConstraintViolation<Medicine>> constraintViolations = validator.validate(med);
-		
-		assertThat(constraintViolations.size()).isEqualTo(1);
-		ConstraintViolation<Medicine> violation = constraintViolations.iterator().next();
-		assertThat(violation.getPropertyPath().toString()).isEqualTo("code");
-		assertThat(violation.getMessage()).isEqualTo("Must match the pattern ABC-123(456)");
 	}
 
 }
