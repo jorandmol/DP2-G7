@@ -33,9 +33,5 @@ import org.springframework.samples.petclinic.repository.VetRepository;
  */
 public interface SpringDataVetRepository extends VetRepository, Repository<Vet, Integer> {
 
-	@Query("SELECT specialty FROM Specialty specialty ORDER BY specialty.name")
-	List<Specialty> findSpecialty() throws DataAccessException;
 	
-	@Query("SELECT vet FROM Vet vet WHERE vet.user.username = :username")
-	public Vet findByUsername(@Param("username") String username);
 }

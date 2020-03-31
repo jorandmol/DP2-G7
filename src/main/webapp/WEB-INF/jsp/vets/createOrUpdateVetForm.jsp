@@ -7,9 +7,7 @@
 <%@ taglib prefix="petclinic" tagdir="/WEB-INF/tags" %>
 
 <petclinic:layout pageName="vets">
-    	<c:if test="${!edit}">
-    		<h2> New </h2>
-        </c:if><h2>Vet</h2>
+    	<h2><c:if test="${!edit}">New </c:if>Vet</h2>
     <form:form modelAttribute="vet" class="form-horizontal" id="add-vet-form">
         <div class="form-group has-feedback">
             <petclinic:inputField label="First Name" name="firstName"/>

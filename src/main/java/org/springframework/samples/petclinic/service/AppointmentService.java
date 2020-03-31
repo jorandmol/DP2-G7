@@ -2,6 +2,8 @@
 package org.springframework.samples.petclinic.service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,8 @@ import org.springframework.samples.petclinic.repository.VetRepository;
 import org.springframework.samples.petclinic.service.exceptions.VeterinarianNotAvailableException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.sun.org.apache.regexp.internal.recompile;
 
 @Service
 public class AppointmentService {
@@ -73,5 +77,12 @@ public class AppointmentService {
 	        appointment.setAppointmentRequestDate(date);
 	        this.appointmentRepository.save(appointment);
         }
+    }
+    
+    @Transactional
+    public Collection<Appointment> getAllAppointments() {
+    	Collection<Appointment> appointments = new ArrayList<Appointment>();
+    	this.appointmentRepository.findAll().forEach(appointments::add);
+    	return appointments;
     }
 }

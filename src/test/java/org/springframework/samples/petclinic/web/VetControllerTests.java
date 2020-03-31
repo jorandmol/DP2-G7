@@ -1,5 +1,6 @@
 package org.springframework.samples.petclinic.web;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.xml.HasXPath.hasXPath;
@@ -12,7 +13,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.assertj.core.util.Lists;
@@ -221,6 +221,7 @@ class VetControllerTests {
 				.param("user.password", "str0ng-passw0rd"))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:/vets/{vetId}"));
+				
 	}
 
 	@WithMockUser(value = "spring")

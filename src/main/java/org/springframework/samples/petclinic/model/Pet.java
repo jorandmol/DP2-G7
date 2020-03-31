@@ -136,6 +136,8 @@ public class Pet extends NamedEntity {
 	
 	public void deleteAppointment(Appointment appointment) {
 		getAppointmentsInternal().remove(appointment);
+		
+	}
 
 	public void addStay(Stay stay) {
 		getStaysInternal().add(stay);

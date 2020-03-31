@@ -63,24 +63,16 @@ public class AppointmentController {
 	}
 
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/appointments/new")
-	public String initNewAppointmentForm(final Appointment appointment, @PathVariable("ownerId") final int ownerId, @PathVariable("petId") final int petId) {
-	    if (appointment.getPet().getOwner().getId().equals(appointment.getOwner().getId())) {
+	public String initNewAppointmentForm( @PathVariable("ownerId") final int ownerId, @PathVariable("petId") final int petId) {
             return VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
-        } else {
-	        return "redirect:/oups";
-        }
 	}
 
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/edit")
 	public String initAppointmentEditForm(@PathVariable("appointmentId") final int appointmentId, @PathVariable("petId") final int petId, @PathVariable("ownerId") final int ownerId, ModelMap modelMap) {
         Appointment appointment = this.appointmentService.getAppointmentById(appointmentId);
-        if (appointment.getPet().getId().equals(petId) && appointment.getOwner().getId().equals(ownerId)) {
             modelMap.put("appointment", appointment);
             modelMap.put("edit", "true");
 	        return VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
-        } else {
-            return "redirect:/oups";
-        }
     }
 
 	@PostMapping(value = "/owners/{ownerId}/pets/{petId}/appointments/new")
@@ -90,11 +82,7 @@ public class AppointmentController {
 			return VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
 		} else {
             try {
-                if (appointment.getPet().getOwner().getId().equals(appointment.getOwner().getId())) {
                     this.appointmentService.saveAppointment(appointment, vetId);
-                } else {
-                    return "redirect:/oups";
-                }
             } catch (VeterinarianNotAvailableException e) {
                 // TODO internacionalizar el mensaje de error
                 modelMap.put("vetError", "Este veterinario ya tiene el máximo de citas para ese día");

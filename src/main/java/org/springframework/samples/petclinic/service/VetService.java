@@ -59,7 +59,7 @@ public class VetService {
 
 	@Transactional
 	public void saveVet(Vet vet) throws DataAccessException {
-		//creating owner
+		//creating vet
 		vetRepository.save(vet);		
 		//creating user
 		userService.saveUser(vet.getUser());

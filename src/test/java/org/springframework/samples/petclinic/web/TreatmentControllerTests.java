@@ -20,6 +20,7 @@ import org.springframework.samples.petclinic.configuration.SecurityConfiguration
 import org.springframework.samples.petclinic.model.Medicine;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.Treatment;
+import org.springframework.samples.petclinic.service.BannerService;
 import org.springframework.samples.petclinic.service.TreatmentService;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -41,6 +42,9 @@ public class TreatmentControllerTests {
 	
 	@MockBean
 	private TreatmentService treatmentService;
+	
+	@MockBean
+	private BannerService bannerService;
 	
 	@Autowired
 	private MockMvc mockMvc;

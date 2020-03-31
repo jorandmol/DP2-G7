@@ -10,6 +10,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -23,10 +24,12 @@ public class Appointment extends BaseEntity {
 	@Column(name = "appointment_date")
 	@DateTimeFormat(pattern = "yyyy/MM/dd")
 	@FutureOrPresent
+	@NotNull
 	private LocalDate	appointmentDate;
 
 	@Column(name = "appointment_request_date")
 	@DateTimeFormat(pattern = "yyyy/MM/dd")
+	@NotNull
 	private LocalDate	appointmentRequestDate;
 
 	@Column(name = "description")
