@@ -26,6 +26,10 @@
             <th>Telephone</th>
             <td><c:out value="${owner.telephone}"/></td>
         </tr>
+        <tr>
+            <th>Username</th>
+            <td><c:out value="${owner.user.username}"/></td>
+        </tr>
     </table>
 
     <spring:url value="{ownerId}/edit" var="editUrl">
@@ -41,7 +45,7 @@
     <br/>
     <br/>
     <br/>
-    <h2>Pets and Visits</h2>
+    <h2>Pets</h2>
 
     <table class="table table-striped">
         <c:forEach var="pet" items="${owner.pets}">
@@ -55,6 +59,29 @@
                         <dd><petclinic:localDate date="${pet.birthDate}" pattern="yyyy-MM-dd"/></dd>
                         <dt>Type</dt>
                         <dd><c:out value="${pet.type.name}"/></dd>
+                        <dt>
+                        	<spring:url value="/owners/{ownerId}/pets/{petId}/edit" var="petUrl">
+                            	<spring:param name="ownerId" value="${owner.id}"/>
+                                <spring:param name="petId" value="${pet.id}"/>
+                            </spring:url>
+                                <a href="${fn:escapeXml(petUrl)}">Edit Pet</a>
+                       	</dt>
+                       	<br>
+                       	</br>
+                        <dt>
+                        	<spring:url value="/owners/{ownerId}/pets/{petId}/treatments" var="treatmentsUrl">
+       							<spring:param name="ownerId" value="${owner.id}"/>
+       							<spring:param name="petId" value="${pet.id}"/>
+    						</spring:url>
+    						<a href="${fn:escapeXml(treatmentsUrl)}">Treatments</a>
+                        </dt>
+                        <dt>
+                        	<spring:url value="/owners/{ownerId}/pets/{petId}/stays" var="stayUrl">
+                            	<spring:param name="ownerId" value="${owner.id}"/>
+                                <spring:param name="petId" value="${pet.id}"/>
+                            </spring:url>
+                                <a href="${fn:escapeXml(stayUrl)}">Stays</a>
+                        </dt>
                     </dl>
                 </td>
                 <td valign="top">
@@ -73,25 +100,59 @@
                         </c:forEach>
                         <tr>
                             <td>
-                                <spring:url value="/owners/{ownerId}/pets/{petId}/edit" var="petUrl">
-                                    <spring:param name="ownerId" value="${owner.id}"/>
-                                    <spring:param name="petId" value="${pet.id}"/>
-                                </spring:url>
-                                <a href="${fn:escapeXml(petUrl)}">Edit Pet</a>
-                            </td>
-                            <td>
                                 <spring:url value="/owners/{ownerId}/pets/{petId}/visits/new" var="visitUrl">
                                     <spring:param name="ownerId" value="${owner.id}"/>
                                     <spring:param name="petId" value="${pet.id}"/>
                                 </spring:url>
-                                <a href="${fn:escapeXml(visitUrl)}">Add Visit</a>
+                                <a href="${fn:escapeXml(visitUrl)}" class="btn btn-default">Add Visit</a>
                             </td>
                         </tr>
                     </table>
                 </td>
+                <td valign="top">
+                    <table class="table-condensed">
+                		<thead>
+                        	<tr>
+                            	<th>Appointment Date</th>
+                            	<th>Description</th>
+                        	</tr>
+                       	</thead>
+                        	<c:forEach var="appointment" items="${pet.appointments}">
+                            	<tr>
+                                	<td><petclinic:localDate date="${appointment.appointmentDate}" pattern="yyyy-MM-dd"/></td>
+                                	<td><c:out value="${appointment.description}"/></td>
+                                	<td>
+                                    	<spring:url value="/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/edit" var="editAppointmentUrl">
+                                        	<spring:param name="ownerId" value="${owner.id}"/>
+                                        	<spring:param name="petId" value="${pet.id}"></spring:param>
+                                        	<spring:param name="appointmentId" value="${appointment.id}"></spring:param>
+                                    	</spring:url>
+                                    <a href="${fn:escapeXml(editAppointmentUrl)}">Edit</a>
+                                	</td>
+                                	<td>
+                                		<spring:url value="/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete" var="deleteAppointmentUrl">
+        									<spring:param name="ownerId" value="${owner.id}"/>
+        									<spring:param name="petId" value="${pet.id}"></spring:param>
+        									<spring:param name="appointmentId" value="${appointment.id}"></spring:param>
+    									</spring:url>
+    									<a href="${fn:escapeXml(deleteAppointmentUrl)}">Delete</a>
+                                	</td>
+                            	</tr>
+                        	</c:forEach>
+                        		<tr>
+                            		<td>
+                                		<spring:url value="/owners/{ownerId}/pets/{petId}/appointments/new" var="appointmentUrl">
+                                    		<spring:param name="ownerId" value="${owner.id}"/>
+                                    		<spring:param name="petId" value="${pet.id}"/>
+                                		</spring:url>
+                                		<a href="${fn:escapeXml(appointmentUrl)}" class="btn btn-default">Add Appointment</a>
+                            		</td>
+                            	</tr>
+                        </table>
+                	<span class="error-text"> <c:out value="${errors}"></c:out> </span>
+            	</td>
             </tr>
 
         </c:forEach>
     </table>
-
 </petclinic:layout>

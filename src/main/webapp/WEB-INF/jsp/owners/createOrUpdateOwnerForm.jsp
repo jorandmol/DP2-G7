@@ -7,9 +7,9 @@
 <%@ taglib prefix="petclinic" tagdir="/WEB-INF/tags" %>
 
 <petclinic:layout pageName="owners">
-    <h2>
-        <c:if test="${owner['new']}">New </c:if> Owner
-    </h2>
+    <c:if test="${!edit}">
+    	<h2> New </h2>
+    </c:if><h2>Owner</h2>
     <form:form modelAttribute="owner" class="form-horizontal" id="add-owner-form">
         <div class="form-group has-feedback">
             <petclinic:inputField label="First Name" name="firstName"/>
@@ -23,7 +23,7 @@
         <div class="form-group">
             <div class="col-sm-offset-2 col-sm-10">
                 <c:choose>
-                    <c:when test="${owner['new']}">
+                    <c:when test="${!edit}">
                         <button class="btn btn-default" type="submit">Add Owner</button>
                     </c:when>
                     <c:otherwise>
