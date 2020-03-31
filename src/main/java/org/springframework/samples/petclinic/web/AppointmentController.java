@@ -116,7 +116,7 @@ public class AppointmentController {
                 appointmentToUpdate.setAppointmentDate(appointment.getAppointmentDate());
                 this.appointmentService.editAppointment(appointmentToUpdate);
             } catch (VeterinarianNotAvailableException e) {
-                // TODO internacionalizar el mensaje de error
+
                 modelMap.put("vetError", "Este veterinario ya tiene el máximo de citas para ese día");
                 return VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
             }
