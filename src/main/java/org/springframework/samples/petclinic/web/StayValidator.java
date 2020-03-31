@@ -3,7 +3,6 @@ package org.springframework.samples.petclinic.web;
 import java.time.LocalDate;
 
 import org.springframework.samples.petclinic.model.Stay;
-import org.springframework.samples.petclinic.repository.StayRepository;
 import org.springframework.samples.petclinic.service.PetService;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;

@@ -1,6 +1,5 @@
 package org.springframework.samples.petclinic.web;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.xml.HasXPath.hasXPath;

@@ -16,14 +16,8 @@
 package org.springframework.samples.petclinic.web;
 
 import java.time.LocalDate;
-import java.util.Set;
 
-import javax.validation.ConstraintViolation;
-
-import org.jboss.logging.Logger;
-import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.samples.petclinic.model.Medicine;
-import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
