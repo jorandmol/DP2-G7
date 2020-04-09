@@ -37,4 +37,38 @@
         </c:forEach>
         </tbody>
     </table>
+    
+     <h2>Treatments Done</h2>
+    
+    <table id="treatmentsTable" class="table table-striped">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Medicines</th>
+            <th>Time Limit</th>
+        </tr>
+        </thead>
+        <tbody>
+        
+        <c:forEach items="${treatmentsDone}" var="treatmentDone">
+            <tr>
+                <td>
+                    <c:out value="${treatmentDone.name}"/>
+                </td>
+                <td>
+                    <c:out value="${treatmentDone.description} "/>
+                </td>
+                <td>
+                	<c:forEach var="medicine" items="${treatmentDone.medicines}">
+                        <c:out value="${medicine.name} "/>
+                    </c:forEach>
+                </td>
+               	<td>
+               		<c:out value="${treatmentDone.timeLimit}"></c:out>
+               	</td>
+            </tr>
+        </c:forEach>
+        </tbody>
+    </table>
 </petclinic:layout>

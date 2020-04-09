@@ -24,8 +24,10 @@ public class TreatmentController {
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/treatments")
 	public String showTreatments(@PathVariable final int ownerId, @PathVariable final int petId, final Map<String, Object> model) {
 		List<Treatment> treatments = this.treatmentService.findTreatmentsByPet(petId);
+		List<Treatment> treatmentsDone = this.treatmentService.findTreatmentsDoneByPet(petId);
 		
 		model.put("treatments", treatments);
+		model.put("treatmentsDone", treatmentsDone);
 		return "treatments/listTreatments";
 	}
 
