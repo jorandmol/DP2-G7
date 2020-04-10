@@ -23,13 +23,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.Stay;
 import org.springframework.samples.petclinic.service.PetService;
+import org.springframework.samples.petclinic.service.exceptions.MaximumStaysReached;
+import org.springframework.samples.petclinic.service.exceptions.StayAlreadyConfirmed;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 /**
  * @author Juergen Hoeller
@@ -58,21 +63,22 @@ public class StayController {
 	}
 
 	/**
-	 * Called before each and every @GetMapping or @PostMapping annotated method. 2 goals:
-	 * - Make sure we always have fresh data - Since we do not use the session scope, make
-	 * sure that Pet object always has an id (Even though id is not part of the form
-	 * fields)
+	 * Called before each and every @GetMapping or @PostMapping annotated method. 2
+	 * goals: - Make sure we always have fresh data - Since we do not use the
+	 * session scope, make sure that Pet object always has an id (Even though id is
+	 * not part of the form fields)
+	 * 
 	 * @param petId
 	 * @return Pet
 	 */
-	
+
 	@GetMapping(value = "/owners/*/pets/{petId}/stays")
 	public String initStayList(@PathVariable("petId") int petId, Map<String, Object> model) {
 		model.put("stays", this.petService.findPetById(petId).getStays());
 		model.put("pet", this.petService.findPetById(petId));
 		return "pets/staysList";
 	}
-	
+
 //	@ModelAttribute("stay")
 //	public Stay loadPetWithStay(@PathVariable("petId") int petId) {
 //		Pet pet = this.petService.findPetById(petId);
@@ -80,7 +86,7 @@ public class StayController {
 //		pet.addStay(stay);
 //		return stay;
 //	}
-	
+
 	// Spring MVC calls method loadPetWithStay(...) before initNewStayForm is called
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/stays/new")
 	public String initNewStayForm(@PathVariable("petId") int petId, Map<String, Object> model) {
@@ -91,27 +97,47 @@ public class StayController {
 		return "pets/createOrUpdateStayForm";
 	}
 
-	// Spring MVC calls method loadPetWithStay(...) before processNewStayForm is called
+	// Spring MVC calls method loadPetWithStay(...) before processNewStayForm is
+	// called
 	@PostMapping(value = "/owners/{ownerId}/pets/{petId}/stays/new")
 	public String processNewStayForm(@Valid Stay stay, BindingResult result, @PathVariable("petId") int petId) {
 		if (result.hasErrors()) {
 			return "pets/createOrUpdateStayForm";
-		}
-		else {
-			Pet pet = this.petService.findPetById(petId);
-			stay.setPet(pet);
-			this.petService.saveStay(stay);
+		} else {
+			try {
+				Pet pet = this.petService.findPetById(petId);
+				stay.setPet(pet);
+				this.petService.saveStay(stay);
+			} catch (MaximumStaysReached ex) {
+
+				if (ex.getClass().equals(MaximumStaysReached.class)) {
+					result.rejectValue("releaseDate", "There exists already a Stay", "There exists already a Stay");
+				}
+				return "pets/createOrUpdateStayForm";
+			}
+
 			return "redirect:/owners/{ownerId}/pets/{petId}/stays";
 		}
 	}
-	
+
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/stays/{stayId}/delete")
-	public String processDeleteForm(@PathVariable("stayId") int stayId, @PathVariable("ownerId") int ownerId, @PathVariable("petId") int petId) {
-		Pet pet = petService.findPetById(petId);
-		Stay stay = petService.findStayById(stayId);
-		pet.deleteStay(stay);
-		this.petService.deleteStay(stay);
+	public String processDeleteForm(@PathVariable("stayId") int stayId, @PathVariable("ownerId") int ownerId,
+			@PathVariable("petId") int petId, ModelMap model) {
+
+		try {
+			Pet pet = petService.findPetById(petId);
+			Stay stay = petService.findStayById(stayId);
+			pet.deleteStay(stay);
+			this.petService.deleteStay(stay);
+		} catch (StayAlreadyConfirmed ex) {
+			if (ex.getClass().equals(StayAlreadyConfirmed.class)) {
+			ModelAndView mav = new ModelAndView("redirect:/owners/{ownerId}/pets/{petId}/stays");
+			mav.addObject(this.petService.findStayById(stayId));
+		    model.addAttribute("errors", "You cant delete a stay already confirmed");
+			}
+		}
 		return "redirect:/owners/{ownerId}/pets/{petId}/stays";
+
 	}
 
 }

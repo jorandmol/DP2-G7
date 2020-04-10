@@ -15,8 +15,11 @@
  */
 package org.springframework.samples.petclinic.service;
 
-
+import java.time.Duration;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
+import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -27,7 +30,12 @@ import org.springframework.samples.petclinic.model.Visit;
 import org.springframework.samples.petclinic.repository.PetRepository;
 import org.springframework.samples.petclinic.repository.StayRepository;
 import org.springframework.samples.petclinic.repository.VisitRepository;
+import org.springframework.samples.petclinic.service.exceptions.DuplicatedMedicineCodeException;
 import org.springframework.samples.petclinic.service.exceptions.DuplicatedPetNameException;
+import org.springframework.samples.petclinic.service.exceptions.MaximumStaysReached;
+import org.springframework.samples.petclinic.service.exceptions.PastMedicineDateException;
+import org.springframework.samples.petclinic.service.exceptions.StayAlreadyConfirmed;
+import org.springframework.samples.petclinic.service.exceptions.WrongMedicineCodeException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -42,14 +50,13 @@ import org.springframework.util.StringUtils;
 public class PetService {
 
 	private PetRepository petRepository;
-	
+
 	private VisitRepository visitRepository;
-	
+
 	private StayRepository stayRepository;
 
 	@Autowired
-	public PetService(PetRepository petRepository,
-			VisitRepository visitRepository, StayRepository stayRepository) {
+	public PetService(PetRepository petRepository, VisitRepository visitRepository, StayRepository stayRepository) {
 		this.petRepository = petRepository;
 		this.visitRepository = visitRepository;
 		this.stayRepository = stayRepository;
@@ -59,7 +66,7 @@ public class PetService {
 	public Collection<PetType> findPetTypes() throws DataAccessException {
 		return petRepository.findPetTypes();
 	}
-	
+
 	@Transactional
 	public void saveVisit(Visit visit) throws DataAccessException {
 		visitRepository.save(visit);
@@ -72,22 +79,28 @@ public class PetService {
 
 	@Transactional(rollbackFor = DuplicatedPetNameException.class)
 	public void savePet(Pet pet) throws DataAccessException, DuplicatedPetNameException {
-			Pet otherPet=pet.getOwner().getPetwithIdDifferent(pet.getName(), pet.getId());
-            if (StringUtils.hasLength(pet.getName()) &&  (otherPet!= null && otherPet.getId()!=pet.getId())) {            	
-            	throw new DuplicatedPetNameException();
-            }else
-                petRepository.save(pet);                
+		Pet otherPet = pet.getOwner().getPetwithIdDifferent(pet.getName(), pet.getId());
+		if (StringUtils.hasLength(pet.getName()) && (otherPet != null && otherPet.getId() != pet.getId())) {
+			throw new DuplicatedPetNameException();
+		} else
+			petRepository.save(pet);
 	}
-
 
 	public Collection<Visit> findVisitsByPetId(int petId) {
 		return visitRepository.findByPetId(petId);
 	}
 
 	@Transactional
-	public void saveStay(Stay stay) {
-		stayRepository.save(stay);
-		
+	public void saveStay(Stay stay) throws MaximumStaysReached {
+
+		Boolean dayExists = this.stayRepository.numOfStaysThatDates(stay.getRegisterDate(), stay.getReleaseDate(),
+				stay.getPet().getId()) > 0;
+		if (dayExists) {
+			throw new MaximumStaysReached();
+		} else {
+			stayRepository.save(stay);
+		}
+
 	}
 
 	@Transactional(readOnly = true)
@@ -96,23 +109,17 @@ public class PetService {
 	}
 
 	@Transactional
-	public void deleteStay(Stay stay) {
-		Pet pet = stay.getPet();
-		pet.deleteStay(stay);
-		stayRepository.delete(stay);
+	public void deleteStay(Stay stay) throws StayAlreadyConfirmed {
+		if (stay.getStatus().equals(true)) {
+			throw new StayAlreadyConfirmed();
+		} else {
+			Pet pet = stay.getPet();
+			pet.deleteStay(stay);
+			stayRepository.delete(stay);
+		}
 	}
-	
+
 	public Collection<Stay> findStaysByPetId(int petId) {
 		return stayRepository.findByPetId(petId);
 	}
-
-//	public Boolean existsStayInThatDates(Stay s) {
-//		Date rgDate = Date.from(s.getRegisterDate().atStartOfDay()
-//			      .atZone(ZoneId.systemDefault())
-//			      .toInstant());
-//		Date rlDate = Date.from(s.getReleaseDate().atStartOfDay()
-//			      .atZone(ZoneId.systemDefault())
-//			      .toInstant());
-//		return this.stayRepository.numOfStaysThatDates(rgDate, rlDate) > 0;
-//	}
 }
