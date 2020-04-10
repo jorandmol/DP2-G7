@@ -93,9 +93,7 @@ public class AppointmentController {
 			return AppointmentController.VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
 		} else {
 			try {
-				Appointment appointmentToUpdate = this.appointmentService.getAppointmentById(appointmentId);
-				appointmentToUpdate.setAppointmentDate(appointment.getAppointmentDate());
-				this.appointmentService.editAppointment(appointmentToUpdate);
+				this.appointmentService.editAppointment(appointment);
 			} catch (VeterinarianNotAvailableException e) {
 				modelMap.put("vetError", "Este veterinario ya tiene el máximo de citas para ese día");
 				return AppointmentController.VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;

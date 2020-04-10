@@ -31,7 +31,7 @@ public class AppointmentService {
 
 	@Transactional
 	public void saveAppointment(final Appointment appointment, Integer vetId) throws VeterinarianNotAvailableException {
-		if (countAppointmentsByVetAndDay(vetId, appointment.getAppointmentDate()) > 3) {
+		if (!isPossibleAppointment(appointment, vetId)) {
 		    throw new VeterinarianNotAvailableException();
         } else {
             Vet vet = this.vetRepository.findById(vetId).get();
@@ -47,7 +47,6 @@ public class AppointmentService {
 		this.appointmentRepository.delete(appointment);
 	}
 
-	@Transactional
     public int countAppointmentsByVetAndDay(int vetId, LocalDate date) {
 	    return this.appointmentRepository.countAppointmentsByVetAndDay(vetId, date);
     }
@@ -64,21 +63,35 @@ public class AppointmentService {
     @Transactional
     public void editAppointment(final Appointment appointment) throws VeterinarianNotAvailableException {
 	    int vetId = appointment.getVet().getId();
+	    Appointment appointmentToUpdate = this.appointmentRepository.findById(appointment.getId()).get();
 	    LocalDate newDate = appointment.getAppointmentDate();
-	    if (countAppointmentsByVetAndDay(vetId, newDate) > 3) {
+	    if (!isPossibleAppointment(appointment, vetId) && !appointmentToUpdate.getAppointmentDate()
+            .equals(appointment.getAppointmentDate())) {
 	        throw  new VeterinarianNotAvailableException();
         } else {
+            appointmentToUpdate.setAppointmentDate(appointment.getAppointmentDate());
 	        LocalDate date = LocalDate.now();
 	        appointment.setAppointmentDate(newDate);
 	        appointment.setAppointmentRequestDate(date);
 	        this.appointmentRepository.save(appointment);
         }
     }
-    
+
     @Transactional
     public Collection<Appointment> getAllAppointments() {
     	Collection<Appointment> appointments = new ArrayList<Appointment>();
     	this.appointmentRepository.findAll().forEach(appointments::add);
     	return appointments;
+    }
+
+    private boolean isPossibleAppointment(Appointment appointment, Integer vetId) {
+	    LocalDate appointmentDate = appointment.getAppointmentDate();
+	    int petId = appointment.getPet().getId();
+        return countAppointmentsByPetAndDay(petId, appointmentDate) == 0 &&
+            countAppointmentsByVetAndDay(vetId, appointmentDate) < 6;
+    }
+
+    private int countAppointmentsByPetAndDay(int petId, LocalDate date) {
+        return this.appointmentRepository.countAppointmentsByPetAndDay(petId, date);
     }
 }

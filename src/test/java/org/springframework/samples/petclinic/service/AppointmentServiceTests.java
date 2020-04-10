@@ -22,10 +22,10 @@ public class AppointmentServiceTests {
 
 	@Autowired
 	protected AppointmentService appointmentService;
-	
+
 	@Autowired
 	private OwnerService ownerService;
-	
+
 	@Test
 	@Transactional
 	void shouldDeleteAppointment() {
@@ -35,7 +35,7 @@ public class AppointmentServiceTests {
 
 		assertThat(this.appointmentService.getAppointmentById(1)).isEqualTo(null);
 	}
-	
+
 	@Test
 	@Transactional
 	void shouldSaveAppointment() {
@@ -67,13 +67,13 @@ public class AppointmentServiceTests {
 		assertThat(count3).isEqualTo(3);
 		assertThat(count0).isEqualTo(0);
 	}
-	
+
 	@Test
 	@Transactional
 	void shouldEditAppointment() {
 		Appointment appointmentToUpdate= this.appointmentService.getAppointmentById(1);
 		System.out.println(appointmentToUpdate);
-		LocalDate newAppointmentDate= appointmentToUpdate.getAppointmentDate().plusDays(5);
+		LocalDate newAppointmentDate= appointmentToUpdate.getAppointmentDate().plusDays(15);
 		appointmentToUpdate.setAppointmentDate(newAppointmentDate);
 
 		try {
@@ -81,9 +81,9 @@ public class AppointmentServiceTests {
 		}catch(VeterinarianNotAvailableException e){
 			Logger.getLogger(AppointmentServiceTests.class.getName()).log(Level.SEVERE, null, e);
 		}
-		
+
 		assertThat(this.appointmentService.getAppointmentById(1).getAppointmentDate()).isEqualTo(newAppointmentDate);
 	}
-	
-	
+
+
 }

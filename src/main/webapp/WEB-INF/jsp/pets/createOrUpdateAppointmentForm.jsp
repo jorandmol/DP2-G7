@@ -54,13 +54,8 @@
                     </c:when>
                     <c:otherwise>
                         <petclinic:inputField label="Date" name="appointmentDate"/>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label">Description</label>
-                            <div class="col-sm-10">
-                                <p><c:out value="${appointment.description}" /></p>
-                                <input type="hidden" name="description" value="${appointment.description}">
-                            </div>
-                        </div>
+                        <petclinic:inputField label="Description" name="description"/>
+                        <input type="hidden" name="id" value="${appointment.id}">
                         <div class="form-group">
                             <label class="col-sm-2 control-label">Vet</label>
                             <div class="col-sm-10">
