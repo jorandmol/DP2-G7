@@ -79,7 +79,7 @@ public class AppointmentController {
 			try {
 				this.appointmentService.saveAppointment(appointment, vetId);
 			} catch (VeterinarianNotAvailableException e) {
-				modelMap.put("vetError", "Este veterinario ya tiene el máximo de citas para ese día");
+				modelMap.put("vetError", "Imposible realizar una cita con esos datos");
 				return AppointmentController.VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
 			}
 			return "redirect:/owners/{ownerId}";
@@ -95,7 +95,7 @@ public class AppointmentController {
 			try {
 				this.appointmentService.editAppointment(appointment);
 			} catch (VeterinarianNotAvailableException e) {
-				modelMap.put("vetError", "Este veterinario ya tiene el máximo de citas para ese día");
+				modelMap.put("vetError", "Imposible realizar una cita con esos datos");
 				return AppointmentController.VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
 			}
 		}
