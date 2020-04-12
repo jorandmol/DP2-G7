@@ -27,4 +27,14 @@ public class TreatmentServiceTests {
 		assertThat(treatment.getTimeLimit()).isEqualTo(LocalDate.of(2020, 07, 27));
 		assertThat(treatment.getPet().getId()).isEqualTo(1);
 	}
+	
+	@Test
+	void shouldFindTreatmentsDoneById() {
+		List<Treatment> treatments = this.treatmentService.findTreatmentsDoneByPet(1);
+		
+		Treatment treatment = treatments.get(0);
+		assertThat(treatment.getId()).isEqualTo(3);
+		assertThat(treatment.getTimeLimit()).isEqualTo(LocalDate.of(2020, 01, 27));
+		assertThat(treatment.getPet().getId()).isEqualTo(1);
+	}
 }
