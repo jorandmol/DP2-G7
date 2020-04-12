@@ -33,6 +33,8 @@ import org.springframework.samples.petclinic.model.PetType;
 import org.springframework.samples.petclinic.model.Stay;
 import org.springframework.samples.petclinic.model.Visit;
 import org.springframework.samples.petclinic.service.exceptions.DuplicatedPetNameException;
+import org.springframework.samples.petclinic.service.exceptions.MaximumStaysReached;
+import org.springframework.samples.petclinic.service.exceptions.StayAlreadyConfirmed;
 import org.springframework.samples.petclinic.util.EntityUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -234,10 +236,10 @@ class PetServiceTests {
 		pet7.addStay(stay);
 		stay.setRegisterDate(LocalDate.now());
 		stay.setReleaseDate(LocalDate.now().plusDays(3));
-		this.petService.saveStay(stay);
             try {
+            	this.petService.saveStay(stay);
                 this.petService.savePet(pet7);
-            } catch (DuplicatedPetNameException ex) {
+            } catch (DuplicatedPetNameException | MaximumStaysReached ex) {
                 Logger.getLogger(PetServiceTests.class.getName()).log(Level.SEVERE, null, ex);
             }
 
@@ -268,7 +270,12 @@ class PetServiceTests {
 		Stay stay = this.petService.findStayById(1);
 		Pet pet = this.petService.findPetById(7);
 		int numStays = pet.getStays().size();
-		this.petService.deleteStay(stay);
+		try {
+			this.petService.deleteStay(stay);
+		} catch (StayAlreadyConfirmed e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		assertThat(this.petService.findStayById(1)).isEqualTo(null);
 		assertThat(pet.getStays().size()).isEqualTo(numStays - 1);

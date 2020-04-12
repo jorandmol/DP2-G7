@@ -28,6 +28,9 @@
 
 
     <h2>Stays</h2>
+    <div>
+    <span class="error-text"> <c:out value="${errors}"></c:out> </span>
+    </div>
     <table id="medicinesTable" class="table table-striped">
         <thead>
         <tr>
@@ -67,5 +70,4 @@
 		<a class="btn btn-default" href='<spring:url value="/owners/${pet.owner.id}/pets/${pet.id}/stays/new" htmlEscape="true"/>'>New stay</a>
       </sec:authorize>  		
     </div>
-    <span class="error-text"> <c:out value="${errors}"></c:out> </span>
 </petclinic:layout>
