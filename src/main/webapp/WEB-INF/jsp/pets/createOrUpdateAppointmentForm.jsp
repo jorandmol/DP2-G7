@@ -59,12 +59,8 @@
                         <div class="form-group">
                             <label class="col-sm-2 control-label">Vet</label>
                             <div class="col-sm-10">
-                                <select name="vet" class="form-control" readonly>
-                                    <c:forEach items="${vets}" var="vet">
-                                        <c:if test="${appointment.vet.id == vet.id}">
-                                            <option value="${vet.id}" selected>${vet.firstName}&nbsp;${vet.lastName}</option>
-                                        </c:if>
-                                    </c:forEach>
+                                <select name="vet" class="form-control" disabled>
+                                	<option value="${appointment.vet.id}" selected>${appointment.vet.firstName}&nbsp;${appointment.vet.lastName}</option>
                                 </select>
                             </div>
                         </div>
@@ -74,7 +70,6 @@
 
             <div class="form-group">
                 <div class="col-sm-offset-2 col-sm-10">
-                    <!-- <input type="hidden" name="petId" value="${appointment.pet.id}"/> -->
                     <button class="btn btn-default" type="submit">
                     <c:choose>
                         <c:when test="${!edit}">New</c:when>

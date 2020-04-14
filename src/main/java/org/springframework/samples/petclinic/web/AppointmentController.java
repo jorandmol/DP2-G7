@@ -43,15 +43,15 @@ public class AppointmentController {
 	private VetService			vetService;
 
 
-	@ModelAttribute("appointment")
-	public Appointment loadPetWithAppointment(@PathVariable("ownerId") final int ownerId, @PathVariable("petId") final int petId) {
-		Owner owner = this.ownerService.findOwnerById(ownerId);
-		Pet pet = this.petService.findPetById(petId);
-		Appointment appointment = new Appointment();
-		appointment.setOwner(owner);
-		appointment.setPet(pet);
-		return appointment;
-	}
+//	@ModelAttribute("appointment")
+//	public Appointment loadPetWithAppointment(@PathVariable("ownerId") final int ownerId, @PathVariable("petId") final int petId) {
+//		Owner owner = this.ownerService.findOwnerById(ownerId);
+//		Pet pet = this.petService.findPetById(petId);
+//		Appointment appointment = new Appointment();
+//		appointment.setOwner(owner);
+//		appointment.setPet(pet);
+//		return appointment;
+//	}
 
 	@ModelAttribute("vets")
 	public Collection<Vet> loadVets() {
@@ -59,7 +59,14 @@ public class AppointmentController {
 	}
 
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/appointments/new")
-	public String initNewAppointmentForm(@PathVariable("ownerId") final int ownerId, @PathVariable("petId") final int petId) {
+	public String initNewAppointmentForm(@PathVariable("ownerId") final int ownerId, @PathVariable("petId") final int petId, ModelMap model) {
+		Appointment appointment = new Appointment();
+		Owner owner = this.ownerService.findOwnerById(ownerId);
+		Pet pet = this.petService.findPetById(petId);
+		appointment.setOwner(owner);
+		appointment.setPet(pet);
+		appointment.setVet(new Vet());
+		model.put("appointment", appointment);
 		return AppointmentController.VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
 	}
 
@@ -77,6 +84,9 @@ public class AppointmentController {
 			return AppointmentController.VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
 		} else {
 			try {
+				System.out.println(vetId);
+				System.out.println(appointment);
+				System.out.println(appointment.getVet().getFirstName() + " " + appointment.getVet().getLastName());
 				this.appointmentService.saveAppointment(appointment, vetId);
 			} catch (VeterinarianNotAvailableException e) {
 				modelMap.put("vetError", "Imposible realizar una cita con esos datos");
@@ -90,6 +100,7 @@ public class AppointmentController {
 	public String processAppointmentEditForm(@Valid final Appointment appointment, final BindingResult result, @PathVariable("appointmentId") final int appointmentId, final ModelMap modelMap) {
 		modelMap.put("edit", true);
 		if (result.hasErrors()) {
+			System.out.println(result.getAllErrors());
 			return AppointmentController.VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
 		} else {
 			try {

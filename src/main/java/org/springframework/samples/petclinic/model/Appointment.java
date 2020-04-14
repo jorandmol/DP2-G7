@@ -44,6 +44,7 @@ public class Appointment extends BaseEntity {
 	private Pet			pet;
 
 	@ManyToOne
+	@JoinColumn(name = "vet_id")
 	private Vet			vet;
 
 }

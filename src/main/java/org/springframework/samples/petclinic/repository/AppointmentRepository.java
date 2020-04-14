@@ -1,21 +1,26 @@
 
 package org.springframework.samples.petclinic.repository;
 
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.samples.petclinic.model.Appointment;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.Collection;
 
 @Repository
-public interface AppointmentRepository extends CrudRepository<Appointment, Integer> {
+public interface AppointmentRepository {
 
-	@Query("SELECT COUNT(a) FROM Appointment a WHERE a.vet.id=:vetId AND a.appointmentDate=:date")
+	Appointment findById(int id);
+	
     int countAppointmentsByVetAndDay(@Param("vetId") int vetId, @Param("date") LocalDate date);
 
-	@Query("SELECT COUNT(a) FROM Appointment a WHERE a.pet.id=:petId AND a.appointmentDate=:date")
     int countAppointmentsByPetAndDay(@Param("petId") int petId, @Param("date") LocalDate date);
+    
+    void save(Appointment appointment);
+    
+    void delete(Appointment appointment);
+    
+    Collection<Appointment> findAll();
 
 }
