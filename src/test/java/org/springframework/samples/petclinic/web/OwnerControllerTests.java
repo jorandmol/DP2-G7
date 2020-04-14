@@ -201,7 +201,6 @@ class OwnerControllerTests {
 				.param("address", "123 Caramel Street")
 				.param("city", "London")
 				.param("telephone", "016162915")
-				.param("user.username", "joebloggs")
 				.param("user.password", "str0ng-passw0rd"))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:/owners/{ownerId}"));
@@ -216,7 +215,6 @@ class OwnerControllerTests {
 				.param("address", "123 Caramel Street")
 				.param("city", "London")
 				.param("telephone", "123456")
-				.param("user.username", "owner25")
 				.param("user.password", "noNumbersPass_"))
 				.andExpect(status().isOk())
 				.andExpect(model().attributeHasErrors("owner"))

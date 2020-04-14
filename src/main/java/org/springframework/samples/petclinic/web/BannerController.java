@@ -26,34 +26,33 @@ public class BannerController {
 
 	@Autowired
 	private final BannerService bannerService;
-	
+
 	private static final String VIEWS_BANNER_CREATE_FORM = "banners/createBannerForm";
 
 	@Autowired
 	public BannerController(BannerService bannerService) {
-			this.bannerService=bannerService;
+		this.bannerService = bannerService;
 	}
-	
+
 	@InitBinder("banner")
 	public void initPetBinder(WebDataBinder dataBinder) {
 		dataBinder.setValidator(new BannerValidator());
 	}
 
-	
 	@GetMapping(value = { "/banners" })
 	public String showBannersList(Map<String, Object> model) {
-		Collection<Banner> banners= this.bannerService.findBanners();
+		Collection<Banner> banners = this.bannerService.findBanners();
 		model.put("banners", banners);
 		return "banners/bannersList";
 	}
-	
+
 	@GetMapping(value = "/banners/new")
 	public String initCreationForm(ModelMap model) {
 		Banner banner = new Banner();
 		model.put("banner", banner);
 		return VIEWS_BANNER_CREATE_FORM;
 	}
-	
+
 	@PostMapping(value = "/banners/new")
 	public String processCreationFrom(@Valid Banner banner, BindingResult result, ModelMap model) {
 		if (result.hasErrors()) {
@@ -65,33 +64,31 @@ public class BannerController {
 		}
 		return "redirect:/banners";
 	}
-	
+
 	@GetMapping(value = "/banners/{bannerId}/delete")
 	public String processDeleteBanner(@PathVariable("bannerId") int bannerId, ModelMap model) {
-		
-        
-        model.addAttribute("banners", this.bannerService.findBanners());
 
-        Banner banner= this.bannerService.findBannerById(bannerId);
-        
-        if(!banner.getEndColabDate().isBefore(LocalDate.now())){
-        	model.addAttribute("error", "cannot be deleted if the collaboration end date has not expired");
+		model.addAttribute("banners", this.bannerService.findBanners());
 
-        } else {
-      
-    		this.bannerService.deleteBannerById(bannerId);
-        }
-        
-        return "banners/bannersList";
-}
-	
+		Banner banner = this.bannerService.findBannerById(bannerId);
+
+		if (!banner.getEndColabDate().isBefore(LocalDate.now())) {
+			model.addAttribute("error", "cannot be deleted if the collaboration end date has not expired");
+			return "banners/bannersList";
+		} else {
+			this.bannerService.deleteBannerById(bannerId);
+			return "redirect:/banners";
+
+		}
+
+	}
+
 	@ModelAttribute("bannerPhoto")
 	public Banner getBanner() {
-		
+
 		Banner result = this.bannerService.findRandomBanner();
 
 		return result;
 	}
-	
+
 }
-		
