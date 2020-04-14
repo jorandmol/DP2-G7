@@ -117,5 +117,5 @@ INSERT INTO banners(id, picture, slogan, target_url, organization_name, init_col
 INSERT INTO banners(id, picture, slogan, target_url, organization_name, init_colab_date, end_colab_date) VALUES (3, 'https://scoobymedina.org/cache/resized/ac3a07da9000a7824d41c97f4d99d4ff.jpg', 'No compres y adopta ¡Pon color a sus vidas!', 'https://scoobymedina.org/es/', 'Protectora y Santuario Scooby', '2020-02-01', '2022-02-01');
 INSERT INTO banners(id, picture, slogan, target_url, organization_name, init_colab_date, end_colab_date) VALUES (4, 'https://www.elhogar-animalsanctuary.org/wp-content/uploads/2016/10/fondo-web-2.jpg', '¡El amor nos cambia la vida a todos!', 'https://www.elhogar-animalsanctuary.org/el-santuario-2/', 'Fundación El Hogar', '2020-03-01', '2021-03-01');
 
-INSERT INTO stances(id,pet_id,register_date,release_date) VALUES (1,7, '2020-10-01', '2020-10-05');
-INSERT INTO stances(id,pet_id,register_date,release_date) VALUES (2,8, '2020-10-01', '2020-10-05');
+INSERT INTO stays(id,pet_id,register_date,release_date,status) VALUES (1,1, '2020-10-01', '2020-10-05',true);
+INSERT INTO stays(id,pet_id,register_date,release_date,status) VALUES (2,2, '2020-10-01', '2020-10-05',null);

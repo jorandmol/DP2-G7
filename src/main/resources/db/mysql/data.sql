@@ -56,5 +56,5 @@ INSERT IGNORE INTO medicines VALUES (1, 'Paracetamol', '2021-07-04', 'Antinflama
 INSERT IGNORE INTO medicines VALUES (2, 'Pet Dalsy', 'BOT-334', 'Ideal para cachorros', '2024-03-04');
 INSERT IGNORE INTO medicines VALUES (3, 'Ibuprofeno', '2022-10-14', 'Elimina síntomas de gripe', 'IUP-004');
 
-INSERT IGNORE INTO stances(id,pet_id,registerDate,releaseDate) VALUES (1,7,'2020-10-01','2020-10-05');
-INSERT IGNORE INTO stances(id,pet_id,registerDate,releaseDate) VALUES (2,8,'2020-10-01','2020-10-05');
+INSERT IGNORE INTO stays(id,pet_id,register_date,release_date,status) VALUES (1,1, '2020-10-01', '2020-10-05',true);
+INSERT IGNORE INTO stays(id,pet_id,register_date,release_date,status) VALUES (2,1, '2020-10-07', '2020-10-08',null);
