@@ -61,10 +61,6 @@ public class VetValidator implements Validator {
 		if (vet.getCity().isEmpty() || vet.getCity() == null) {
 			errors.rejectValue("city", "empty", "cannot be empty");
 		}
-		
-		if (vet.getUser().getUsername().isEmpty() || vet.getUser().getUsername() == null) {
-			errors.rejectValue("user.username", "empty", "cannot be empty");
-		}
 
 		if (password.isEmpty() || password == null) {
 			errors.rejectValue("user.password", "empty", "cannot be empty");
