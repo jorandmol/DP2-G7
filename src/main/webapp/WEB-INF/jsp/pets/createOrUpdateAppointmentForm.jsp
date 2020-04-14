@@ -64,6 +64,7 @@
                                 </select>
                             </div>
                         </div>
+                        <input type="hidden" name="vet" value="${appointment.vet.id}">
                     </c:otherwise>
                 </c:choose>
             </div>

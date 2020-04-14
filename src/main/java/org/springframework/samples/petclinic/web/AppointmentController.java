@@ -43,15 +43,15 @@ public class AppointmentController {
 	private VetService			vetService;
 
 
-//	@ModelAttribute("appointment")
-//	public Appointment loadPetWithAppointment(@PathVariable("ownerId") final int ownerId, @PathVariable("petId") final int petId) {
-//		Owner owner = this.ownerService.findOwnerById(ownerId);
-//		Pet pet = this.petService.findPetById(petId);
-//		Appointment appointment = new Appointment();
-//		appointment.setOwner(owner);
-//		appointment.setPet(pet);
-//		return appointment;
-//	}
+	@ModelAttribute("appointment")
+	public Appointment loadPetWithAppointment(@PathVariable("ownerId") final int ownerId, @PathVariable("petId") final int petId) {
+		Owner owner = this.ownerService.findOwnerById(ownerId);
+		Pet pet = this.petService.findPetById(petId);
+		Appointment appointment = new Appointment();
+		appointment.setOwner(owner);
+		appointment.setPet(pet);
+		return appointment;
+	}
 
 	@ModelAttribute("vets")
 	public Collection<Vet> loadVets() {
@@ -60,13 +60,6 @@ public class AppointmentController {
 
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/appointments/new")
 	public String initNewAppointmentForm(@PathVariable("ownerId") final int ownerId, @PathVariable("petId") final int petId, ModelMap model) {
-		Appointment appointment = new Appointment();
-		Owner owner = this.ownerService.findOwnerById(ownerId);
-		Pet pet = this.petService.findPetById(petId);
-		appointment.setOwner(owner);
-		appointment.setPet(pet);
-		appointment.setVet(new Vet());
-		model.put("appointment", appointment);
 		return AppointmentController.VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
 	}
 
