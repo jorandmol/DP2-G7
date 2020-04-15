@@ -3,6 +3,7 @@ package org.springframework.samples.petclinic.web;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -16,6 +17,7 @@ import org.springframework.samples.petclinic.service.OwnerService;
 import org.springframework.samples.petclinic.service.PetService;
 import org.springframework.samples.petclinic.service.VetService;
 import org.springframework.samples.petclinic.service.exceptions.VeterinarianNotAvailableException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -28,7 +30,8 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 public class AppointmentController {
 
-	private static final String	VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM	= "pets/createOrUpdateAppointmentForm";
+	private static final String	VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM = "pets/createOrUpdateAppointmentForm";	
+	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
 
 	@Autowired
 	private AppointmentService	appointmentService;
@@ -59,53 +62,68 @@ public class AppointmentController {
 	}
 
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/appointments/new")
-	public String initNewAppointmentForm(@PathVariable("ownerId") final int ownerId, @PathVariable("petId") final int petId, ModelMap model) {
-		return AppointmentController.VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
+	public String initNewAppointmentForm(@PathVariable("ownerId") final int ownerId, @PathVariable("petId") final int petId) {
+		if (securityAccessRequestAppointment(ownerId, petId)) {
+			return VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
+		} else {
+			return REDIRECT_TO_OUPS;
+		}
 	}
 
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/edit")
 	public String initAppointmentEditForm(@PathVariable("appointmentId") final int appointmentId, @PathVariable("petId") final int petId, @PathVariable("ownerId") final int ownerId, final ModelMap modelMap) {
-		Appointment appointment = this.appointmentService.getAppointmentById(appointmentId);
-		modelMap.put("appointment", appointment);
-		modelMap.put("edit", true);
-		return AppointmentController.VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
+		if (securityAccessRequestAppointment(ownerId, petId)) {
+			Appointment appointment = this.appointmentService.getAppointmentById(appointmentId);
+			modelMap.put("appointment", appointment);
+			modelMap.put("edit", true);
+			return VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;			
+		} else {
+			return REDIRECT_TO_OUPS;
+		}
 	}
 
 	@PostMapping(value = "/owners/{ownerId}/pets/{petId}/appointments/new")
-	public String processNewAppointmentForm(@Valid final Appointment appointment, final BindingResult result, @ModelAttribute("vet") final Integer vetId, final ModelMap modelMap) {
-		if (result.hasErrors()) {
-			return AppointmentController.VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
+	public String processNewAppointmentForm(@Valid final Appointment appointment, final BindingResult result, @PathVariable("petId") final int petId, @PathVariable("ownerId") final int ownerId,
+			@ModelAttribute("vet") final Integer vetId, final ModelMap modelMap) {
+		if (securityAccessRequestAppointment(ownerId, petId)) {
+			if (result.hasErrors()) {
+				return VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
+			} else {
+				try {
+					this.appointmentService.saveAppointment(appointment, vetId);
+				} catch (VeterinarianNotAvailableException e) {
+					modelMap.put("vetError", "Imposible realizar una cita con esos datos");
+					return VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
+				}
+				return "redirect:/owners/{ownerId}";
+			}	
 		} else {
-			try {
-				System.out.println(vetId);
-				System.out.println(appointment);
-				System.out.println(appointment.getVet().getFirstName() + " " + appointment.getVet().getLastName());
-				this.appointmentService.saveAppointment(appointment, vetId);
-			} catch (VeterinarianNotAvailableException e) {
-				modelMap.put("vetError", "Imposible realizar una cita con esos datos");
-				return AppointmentController.VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
-			}
-			return "redirect:/owners/{ownerId}";
+			return REDIRECT_TO_OUPS;
 		}
 	}
 
 	@PostMapping(value = "/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/edit")
-	public String processAppointmentEditForm(@Valid final Appointment appointment, final BindingResult result, @PathVariable("appointmentId") final int appointmentId, final ModelMap modelMap) {
-		modelMap.put("edit", true);
-		if (result.hasErrors()) {
-			System.out.println(result.getAllErrors());
-			return AppointmentController.VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
-		} else {
-			try {
-				this.appointmentService.editAppointment(appointment);
-			} catch (VeterinarianNotAvailableException e) {
-				modelMap.put("vetError", "Imposible realizar una cita con esos datos");
-				return AppointmentController.VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
+	public String processAppointmentEditForm(@Valid final Appointment appointment, final BindingResult result, @PathVariable("petId") final int petId, @PathVariable("ownerId") final int ownerId,
+			@PathVariable("appointmentId") final int appointmentId, final ModelMap modelMap) {
+		if (securityAccessRequestAppointment(ownerId, petId)) {
+			modelMap.put("edit", true);
+			if (result.hasErrors()) {
+				return VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
+			} else {
+				try {
+					this.appointmentService.editAppointment(appointment);
+				} catch (VeterinarianNotAvailableException e) {
+					modelMap.put("vetError", "Imposible realizar una cita con esos datos");
+					return VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
+				}
 			}
+			return "redirect:/owners/{ownerId}";			
+		} else {
+			return REDIRECT_TO_OUPS;
 		}
-		return "redirect:/owners/{ownerId}";
 	}
 
+	// TODO Implementar el filtro de securityAccessRequestAppointment
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete")
 	public ModelAndView deleteAppointment(@PathVariable("ownerId") final int ownerId, @PathVariable("appointmentId") final int appointmentId, @PathVariable("petId") final int petId, final ModelMap model) {
 		Appointment appointment = this.appointmentService.getAppointmentById(appointmentId);
@@ -122,4 +140,23 @@ public class AppointmentController {
 		}
 		return mav;
 	}
+	
+	private boolean securityAccessRequestAppointment(int ownerId, int petId) {
+		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+				.collect(Collectors.toList()).get(0).toString();
+		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+		Owner owner = this.ownerService.findOwnerById(ownerId);
+		Pet pet = this.petService.findPetById(petId);
+		
+		boolean isHisPet = false;
+		String ownerUsername = null;
+		if (owner != null) {
+			isHisPet = owner.getPets().contains(pet);
+			ownerUsername = owner.getUser().getUsername();
+		}
+
+		return authority.equals("owner") && username.equals(ownerUsername) && isHisPet;
+	}
+	
 }
