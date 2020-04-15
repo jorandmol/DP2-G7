@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 @ControllerAdvice
 public class BannerController {
 
-	@Autowired
 	private final BannerService bannerService;
 
 	private static final String VIEWS_BANNER_CREATE_FORM = "banners/createBannerForm";

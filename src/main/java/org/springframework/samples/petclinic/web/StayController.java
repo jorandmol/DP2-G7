@@ -80,7 +80,7 @@ public class StayController {
 	 */
 
 	
-	private Boolean securityAccessRequestAppointment(Integer ownerId, Integer petId) {
+	private Boolean securityAccessRequest(Integer ownerId, Integer petId) {
 		Boolean res = false;
 		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
 				.collect(Collectors.toList()).get(0).toString();
@@ -97,13 +97,13 @@ public class StayController {
 	}
 	
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/stays")
-	public String initStayList(@PathVariable("ownerId") int ownerId, @PathVariable("petId") int petId, Map<String, Object> model) {
+	public String initStayList(@PathVariable("ownerId") int ownerId, @PathVariable("petId") int petId, ModelMap model) {
 		// Esta lista también puede ser accedida por el administrador
 		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
 				.collect(Collectors.toList()).get(0).toString();
 		
-		if(this.securityAccessRequestAppointment(ownerId, petId) || authority.equals("admin")) {
-			model.put("stays", this.petService.findPetById(petId).getStays());
+		if(this.securityAccessRequest(ownerId, petId) || authority.equals("admin")) {
+			model.put("stays", this.petService.findStaysByPetId(petId));
 			model.put("pet", this.petService.findPetById(petId));
 			return "pets/staysList";
 		} else {
@@ -113,7 +113,7 @@ public class StayController {
 
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/stays/new")
 	public String initNewStayForm(@PathVariable("ownerId") int ownerId, @PathVariable("petId") int petId, Map<String, Object> model) {
-		if(this.securityAccessRequestAppointment(ownerId, petId)) {
+		if(this.securityAccessRequest(ownerId, petId)) {
 			Stay stay = new Stay();
 			Pet pet = this.petService.findPetById(petId);
 			pet.addStay(stay);
@@ -126,7 +126,7 @@ public class StayController {
 
 	@PostMapping(value = "/owners/{ownerId}/pets/{petId}/stays/new")
 	public String processNewStayForm(@Valid Stay stay, BindingResult result, @PathVariable("ownerId") int ownerId, @PathVariable("petId") int petId) {
-		if(this.securityAccessRequestAppointment(ownerId, petId)) {
+		if(this.securityAccessRequest(ownerId, petId)) {
 			if (result.hasErrors()) {
 				return "pets/createOrUpdateStayForm";
 			} else {
@@ -156,7 +156,7 @@ public class StayController {
 		mav.addObject("pet", this.petService.findPetById(petId));
 		
 		Boolean isYourStay = stay.getPet().getOwner().getId().equals(ownerId);
-		if(this.securityAccessRequestAppointment(ownerId, petId) && isYourStay) {
+		if(this.securityAccessRequest(ownerId, petId) && isYourStay) {
 			try {
 				pet.deleteStay(stay);
 				this.petService.deleteStay(stay);
