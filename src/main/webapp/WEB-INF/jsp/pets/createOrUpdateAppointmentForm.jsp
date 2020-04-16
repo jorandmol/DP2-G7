@@ -62,6 +62,7 @@
                                 <select name="vet" class="form-control" disabled>
                                 	<option value="${appointment.vet.id}" selected>${appointment.vet.firstName}&nbsp;${appointment.vet.lastName}</option>
                                 </select>
+                                <c:out value="${vetError}" />
                             </div>
                         </div>
                         <input type="hidden" name="vet" value="${appointment.vet.id}">

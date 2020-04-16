@@ -25,13 +25,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class AppointmentController {
 
 	private static final String	VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM = "pets/createOrUpdateAppointmentForm";	
 	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
+	private static final String REDIRECT_TO_OWNER_DETAILS = "redirect:/owners/{ownerId}";
 
 	@Autowired
 	private AppointmentService	appointmentService;
@@ -71,7 +71,7 @@ public class AppointmentController {
 	}
 
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/edit")
-	public String initAppointmentEditForm(@PathVariable("appointmentId") final int appointmentId, @PathVariable("petId") final int petId, @PathVariable("ownerId") final int ownerId, final ModelMap modelMap) {
+	public String initAppointmentEditForm(@PathVariable("appointmentId") final int appointmentId, @PathVariable("petId") final int petId, @PathVariable("ownerId") final int ownerId, final ModelMap modelMap) {		
 		if (securityAccessRequestAppointment(ownerId, petId)) {
 			Appointment appointment = this.appointmentService.getAppointmentById(appointmentId);
 			modelMap.put("appointment", appointment);
@@ -84,7 +84,7 @@ public class AppointmentController {
 
 	@PostMapping(value = "/owners/{ownerId}/pets/{petId}/appointments/new")
 	public String processNewAppointmentForm(@Valid final Appointment appointment, final BindingResult result, @PathVariable("petId") final int petId, @PathVariable("ownerId") final int ownerId,
-			@ModelAttribute("vet") final Integer vetId, final ModelMap modelMap) {
+			@ModelAttribute("vet") final Integer vetId, final ModelMap modelMap) {	
 		if (securityAccessRequestAppointment(ownerId, petId)) {
 			if (result.hasErrors()) {
 				return VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
@@ -95,7 +95,7 @@ public class AppointmentController {
 					modelMap.put("vetError", "Imposible realizar una cita con esos datos");
 					return VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
 				}
-				return "redirect:/owners/{ownerId}";
+				return REDIRECT_TO_OWNER_DETAILS;
 			}	
 		} else {
 			return REDIRECT_TO_OUPS;
@@ -104,7 +104,7 @@ public class AppointmentController {
 
 	@PostMapping(value = "/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/edit")
 	public String processAppointmentEditForm(@Valid final Appointment appointment, final BindingResult result, @PathVariable("petId") final int petId, @PathVariable("ownerId") final int ownerId,
-			@PathVariable("appointmentId") final int appointmentId, final ModelMap modelMap) {
+			@PathVariable("appointmentId") final int appointmentId, final ModelMap modelMap) {	
 		if (securityAccessRequestAppointment(ownerId, petId)) {
 			modelMap.put("edit", true);
 			if (result.hasErrors()) {
@@ -117,28 +117,34 @@ public class AppointmentController {
 					return VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
 				}
 			}
-			return "redirect:/owners/{ownerId}";			
+			return REDIRECT_TO_OWNER_DETAILS;			
 		} else {
 			return REDIRECT_TO_OUPS;
 		}
 	}
 
-	// TODO Implementar el filtro de securityAccessRequestAppointment
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete")
-	public ModelAndView deleteAppointment(@PathVariable("ownerId") final int ownerId, @PathVariable("appointmentId") final int appointmentId, @PathVariable("petId") final int petId, final ModelMap model) {
+	public String deleteAppointment(@PathVariable("ownerId") final int ownerId, @PathVariable("appointmentId") final int appointmentId, @PathVariable("petId") final int petId, final ModelMap model) {
 		Appointment appointment = this.appointmentService.getAppointmentById(appointmentId);
-		Pet pet = this.petService.findPetById(petId);
-		ModelAndView mav = new ModelAndView("owners/ownerDetails");
-		mav.addObject(this.ownerService.findOwnerById(ownerId));
-
-		if (appointment.getAppointmentDate().minusDays(2).isEqual(LocalDate.now()) || appointment.getAppointmentDate().minusDays(2).isBefore(LocalDate.now())) {
-			model.addAttribute("errors", "No se puede cancelar una cita con 2 dias o menos de antelación");
-
+		boolean isYourAppointment = appointment.getOwner().getId().equals(ownerId);
+		
+		if (this.securityAccessRequestAppointment(ownerId, petId) && isYourAppointment) {
+			Pet pet = this.petService.findPetById(petId);
+			Owner owner = this.ownerService.findOwnerById(ownerId);
+			
+			if (appointment.getAppointmentDate().minusDays(2).isEqual(LocalDate.now()) || appointment.getAppointmentDate().minusDays(2).isBefore(LocalDate.now())) {
+				model.addAttribute("errors", "No se puede cancelar una cita con dos o menos días de antelación");
+				model.addAttribute("owner", owner);
+				return "owners/ownerDetails";
+			} else {
+				pet.deleteAppointment(appointment);
+				this.appointmentService.deleteAppointment(appointment);
+				return REDIRECT_TO_OWNER_DETAILS;
+			}
+			
 		} else {
-			pet.deleteAppointment(appointment);
-			this.appointmentService.deleteAppointment(appointment);
+			return REDIRECT_TO_OUPS;
 		}
-		return mav;
 	}
 	
 	private boolean securityAccessRequestAppointment(int ownerId, int petId) {

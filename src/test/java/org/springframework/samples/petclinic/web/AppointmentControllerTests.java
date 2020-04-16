@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -99,17 +100,17 @@ public class AppointmentControllerTests {
 	
 	@Mock Vet vet;
 	
-	private String dateFuture;
 	private String dateToday;
-	//private String dateToEdit;
+	private String dateFuture;
 
 	@BeforeEach
 	void setup() {
-		LocalDate localDateFuture = LocalDate.now().plusDays(10);
-		LocalDate localDateToday = LocalDate.now();
+		LocalDate localDateToday = LocalDate.now().getDayOfWeek().equals(DayOfWeek.SUNDAY) ? 
+				LocalDate.now().plusDays(1) : LocalDate.now();
+		LocalDate localDateFuture = LocalDate.now().plusDays(10).getDayOfWeek().equals(DayOfWeek.SUNDAY) ?
+				LocalDate.now().plusDays(11) : LocalDate.now().plusDays(10);
 		dateFuture = localDateFuture.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
 		dateToday = localDateToday.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
-		//dateToEdit = localDateFuture.plusDays(2).format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
 		
 		appointment1 = new Appointment();
 		appointment1.setId(TEST_APPOINTMENT_ID_1);
@@ -141,6 +142,9 @@ public class AppointmentControllerTests {
 		
 		Pet pet = new Pet();
 		pet.setId(TEST_PET_ID);
+		appointment1.setPet(pet);
+		appointment2.setPet(pet);
+		appointment3.setPet(pet);
 		appointment4.setPet(pet);
 		
 		Owner owner = new Owner();
@@ -148,6 +152,10 @@ public class AppointmentControllerTests {
 		owner.setUser(user);
 		this.authoritiesService.saveAuthorities("owner1", OWNER_ROLE);
 		owner.addPet(pet);
+		appointment1.setOwner(owner);
+		appointment2.setOwner(owner);
+		appointment3.setOwner(owner);
+		appointment4.setOwner(owner);
 		
 		vet = new Vet();
 		vet.setId(1);
@@ -259,29 +267,28 @@ public class AppointmentControllerTests {
 			.andExpect(view().name(VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM));
 	}
 	
-	// TODO Testear con securityAccessRequestAppointment
 	@Test
 	@WithMockUser(username="owner1", password="0wn3333r_1", authorities=OWNER_ROLE)
 	void testProcessDeleteAppointment() throws Exception {
 		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete", TEST_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID_1))
-			.andExpect(status().isOk())
-			.andExpect(view().name(VIEWS_OWNER_DETAILS));
+			.andExpect(status().is3xxRedirection())
+			.andExpect(view().name(REDIRECT_TO_OWNER_DETAILS));
 	}
 
-	// TODO Testear con securityAccessRequestAppointment
 	@Test
 	@WithMockUser(username="owner1", password="0wn3333r_1", authorities=OWNER_ROLE)
 	void testProcessDeleteAppointmentErrorsBefore() throws Exception {
 		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete", TEST_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID_2))
+			.andExpect(model().attributeExists("errors"))	
 			.andExpect(status().isOk())
 			.andExpect(view().name(VIEWS_OWNER_DETAILS));
 	}
 
-	// TODO Testear con securityAccessRequestAppointment
 	@Test
 	@WithMockUser(username="owner1", password="0wn3333r_1", authorities=OWNER_ROLE)
 	void testProcessDeleteAppointmentErrorsNow() throws Exception {
 		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete", TEST_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID_3))
+			.andExpect(model().attributeExists("errors"))
 			.andExpect(status().isOk())
 			.andExpect(view().name(VIEWS_OWNER_DETAILS));
 	}

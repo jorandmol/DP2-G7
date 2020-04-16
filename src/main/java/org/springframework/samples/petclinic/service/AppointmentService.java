@@ -1,6 +1,7 @@
 
 package org.springframework.samples.petclinic.service;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Collection;
 
@@ -51,7 +52,7 @@ public class AppointmentService {
 	    LocalDate newDate = appointment.getAppointmentDate();
 	    if (!isPossibleAppointment(appointment, vetId) && !appointmentToUpdate.getAppointmentDate()
             .equals(appointment.getAppointmentDate())) {
-	        throw  new VeterinarianNotAvailableException();
+	        throw new VeterinarianNotAvailableException();
         } else {
             appointmentToUpdate.setAppointmentDate(appointment.getAppointmentDate());
 	        LocalDate date = LocalDate.now();
@@ -71,10 +72,16 @@ public class AppointmentService {
     }
 
     private boolean isPossibleAppointment(Appointment appointment, Integer vetId) {
-	    LocalDate appointmentDate = appointment.getAppointmentDate();
-	    int petId = appointment.getPet().getId();
-        return countAppointmentsByPetAndDay(petId, appointmentDate) == 0 &&
-            countAppointmentsByVetAndDay(vetId, appointmentDate) < 6;
+	    boolean res = false;
+    	LocalDate appointmentDate = appointment.getAppointmentDate();
+	    
+    	if (!appointmentDate.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
+	    	int petId = appointment.getPet().getId();
+	    	res = countAppointmentsByPetAndDay(petId, appointmentDate) == 0 && 
+	    			countAppointmentsByVetAndDay(vetId, appointmentDate) < 6;	    	
+	    }
+	    
+	    return res;
     }
 
     private int countAppointmentsByPetAndDay(int petId, LocalDate date) {

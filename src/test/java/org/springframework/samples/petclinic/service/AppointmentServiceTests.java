@@ -3,6 +3,7 @@ package org.springframework.samples.petclinic.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -37,6 +38,7 @@ public class AppointmentServiceTests {
 	private Vet vet;
 	private Pet pet;
 	private LocalDate appointmentDate;
+	private LocalDate appointmentDateFuture;
 	
 	@BeforeEach
 	void setup() {
@@ -45,7 +47,10 @@ public class AppointmentServiceTests {
 		pet = new Pet();
 		vet = new Vet();
 		appointment = new Appointment();
-		appointmentDate = LocalDate.now();
+		appointmentDate = LocalDate.now().getDayOfWeek().equals(DayOfWeek.SUNDAY) ? 
+				LocalDate.now().plusDays(1) : LocalDate.now();
+		appointmentDateFuture = appointmentDate.plusDays(5).getDayOfWeek().equals(DayOfWeek.SUNDAY) ?
+				appointmentDate.plusDays(6) : appointmentDate.plusDays(5);
 		
 		pet.setId(1);
 		vet.setId(1);
@@ -102,11 +107,11 @@ public class AppointmentServiceTests {
 		appointment.setVet(vet);
 		appointment.setDescription("Hello World!");
 		
-		when(appointmentRepository.countAppointmentsByPetAndDay(pet.getId(), appointmentDate.plusDays(5))).thenReturn(0);
-		when(appointmentRepository.countAppointmentsByVetAndDay(vet.getId(), appointmentDate.plusDays(5))).thenReturn(0);
+		when(appointmentRepository.countAppointmentsByPetAndDay(pet.getId(), appointmentDateFuture)).thenReturn(0);
+		when(appointmentRepository.countAppointmentsByVetAndDay(vet.getId(), appointmentDateFuture)).thenReturn(0);
 		
 		Appointment newAppointment = appointment;
-		newAppointment.setAppointmentDate(appointmentDate.plusDays(5));
+		newAppointment.setAppointmentDate(appointmentDateFuture);
 		newAppointment.setDescription("Hola Mundo!");
 		
 		try {
@@ -125,10 +130,10 @@ public class AppointmentServiceTests {
 		appointment.setVet(vet);
 		appointment.setDescription("Hello World!");
 		
-		when(appointmentRepository.countAppointmentsByPetAndDay(pet.getId(), appointmentDate.plusDays(5))).thenReturn(1);
+		when(appointmentRepository.countAppointmentsByPetAndDay(pet.getId(), appointmentDateFuture)).thenReturn(1);
 		
 		Appointment newAppointment = appointment;
-		newAppointment.setAppointmentDate(appointmentDate.plusDays(5));
+		newAppointment.setAppointmentDate(appointmentDateFuture);
 		newAppointment.setDescription("Hola Mundo!");
 		
 		assertThrows(VeterinarianNotAvailableException.class, 
@@ -141,10 +146,10 @@ public class AppointmentServiceTests {
 		appointment.setVet(vet);
 		appointment.setDescription("Hello World!");
 		
-		when(appointmentRepository.countAppointmentsByVetAndDay(vet.getId(), appointmentDate.plusDays(5))).thenReturn(6);
+		when(appointmentRepository.countAppointmentsByVetAndDay(vet.getId(), appointmentDateFuture)).thenReturn(6);
 		
 		Appointment newAppointment = appointment;
-		newAppointment.setAppointmentDate(appointmentDate.plusDays(5));
+		newAppointment.setAppointmentDate(appointmentDateFuture);
 		newAppointment.setDescription("Hola Mundo!");
 		
 		assertThrows(VeterinarianNotAvailableException.class, 
