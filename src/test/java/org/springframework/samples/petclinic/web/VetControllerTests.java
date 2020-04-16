@@ -63,6 +63,12 @@ class VetControllerTests {
 	private Vet rafael;
 	
 	@Mock
+	private Vet henry;
+	
+	@Mock
+	private User user;
+	
+	@Mock
 	private List<Specialty> specialties1;
 	
 	@Mock
@@ -100,9 +106,9 @@ class VetControllerTests {
 		rafael.setCity("Madison");
 		rafael.setTelephone("608555102");
 		rafael.addSpecialty(surgery);
-		User user = new User();
+		user = new User();
 		user.setUsername("vet1");
-		user.setPassword("veter1n4ri0_");
+		user.setPassword("veter1n4ri0_1");
 		user.setEnabled(true);
 		rafael.setUser(user);
 		given(this.vetService.findVetById(TEST_VET_ID)).willReturn(rafael);
@@ -110,6 +116,7 @@ class VetControllerTests {
 
 		
 	}
+	
 
 	@WithMockUser(value = "spring")
 	@Test
@@ -168,6 +175,7 @@ class VetControllerTests {
 				.andExpect(view().name("vets/createOrUpdateVetForm"));
 	}
 	
+	
 	@WithMockUser(value = "spring")
     @Test
     void testProcessCreationFormHasEmptyFields() throws Exception {
@@ -213,7 +221,6 @@ class VetControllerTests {
 				.param("city", "London")
 				.param("telephone", "123456789")
 				.flashAttr("specialties", specialties1)
-				.param("user.username", "rafaelbloggs")
 				.param("user.password", "str0ng-passw0rd"))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:/vets/{vetId}"));
@@ -227,7 +234,6 @@ class VetControllerTests {
 				.param("firstName", "Joe")
 				.param("lastName", "Bloggs")
 				.param("telephone", "123456789")
-				.param("user.username", "joebloggs")
 				.param("user.password", "v3terin4ri0_1")
 				.param("address", "")
 				.param("city", ""))

@@ -62,10 +62,6 @@ public class OwnerValidator implements Validator {
 			errors.rejectValue("city", "empty", "cannot be empty");
 		}
 		
-		if (owner.getUser().getUsername().isEmpty() || owner.getUser().getUsername() == null) {
-			errors.rejectValue("user.username", "empty", "cannot be empty");
-		}
-
 		if (password.isEmpty() || password == null) {
 			errors.rejectValue("user.password", "empty", "cannot be empty");
 		}

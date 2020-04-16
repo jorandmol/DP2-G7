@@ -5,6 +5,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="petclinic" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>  
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 
 <petclinic:layout pageName="stays">
 	<b>Pet</b>
@@ -27,12 +28,17 @@
 
 
     <h2>Stays</h2>
+    <div>
+    <span class="error-text"> <c:out value="${errors}"></c:out> </span>
+    </div>
     <table id="medicinesTable" class="table table-striped">
         <thead>
         <tr>
         	<th>Register date</th>
         	<th>Release date</th>
+        <sec:authorize access="hasAuthority('owner')"> 	
         	<th>Actions</th>
+        </sec:authorize>   	
         </tr>
         </thead>
         <tbody>
@@ -44,17 +50,24 @@
                 <td>
                    <c:out value="${stay.releaseDate}"/>
                 </td>
-                <td><spring:url value="/owners/{ownerId}/pets/{petId}/stays/{stayId}/delete" var="deleteUrl">
+                <sec:authorize access="hasAuthority('owner')"> 
+                <td>
+                    <spring:url value="/owners/{ownerId}/pets/{petId}/stays/{stayId}/delete" var="deleteUrl">
                     <spring:param name="ownerId" value="${stay.pet.owner.id}"/>
                     <spring:param name="petId" value="${stay.pet.id}"/>
                     <spring:param name="stayId" value="${stay.id}"/>
                 </spring:url>
-                <a href="${fn:escapeXml(deleteUrl)}">Delete</a></td>      
+                
+                <a href="${fn:escapeXml(deleteUrl)}">Delete</a>
+               </td>    
+               </sec:authorize>    
             </tr>
         </c:forEach>
         </tbody>
     </table>
     <div>
+      <sec:authorize access="hasAuthority('owner')">   
 		<a class="btn btn-default" href='<spring:url value="/owners/${pet.owner.id}/pets/${pet.id}/stays/new" htmlEscape="true"/>'>New stay</a>
+      </sec:authorize>  		
     </div>
 </petclinic:layout>

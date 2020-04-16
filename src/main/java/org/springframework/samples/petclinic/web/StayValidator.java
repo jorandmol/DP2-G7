@@ -37,10 +37,6 @@ public class StayValidator implements Validator {
 				errors.rejectValue("registerDate", "Register date must be equal of after now", "Register date must be equal of after now");
 			}
 
-			if(releaseDate.isBefore(now)) {
-				errors.rejectValue("releaseDate", "Release date must be equal or after now", "Release date must be equal or after now");
-			}
-
 			if(releaseDate.isBefore(registerDate)) {
 				errors.rejectValue("releaseDate", "Release date must be equal or after register date", "Release date must be equal or after register date");
 			}
