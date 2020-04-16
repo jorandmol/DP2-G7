@@ -16,6 +16,7 @@
 package org.springframework.samples.petclinic.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -250,25 +251,25 @@ class PetServiceTests {
 
 	@Test
 	void shouldFindStaysByPetId() throws Exception {
-		Collection<Stay> stays = this.petService.findStaysByPetId(8);
+		Collection<Stay> stays = this.petService.findStaysByPetId(1);
 		assertThat(stays.size()).isEqualTo(1);
 		Stay[] stayArr = stays.toArray(new Stay[stays.size()]);
 		assertThat(stayArr[0].getPet()).isNotNull();
 		assertThat(stayArr[0].getRegisterDate()).isNotNull();
-		assertThat(stayArr[0].getPet().getId()).isEqualTo(8);
+		assertThat(stayArr[0].getPet().getId()).isEqualTo(1);
 	}
 
 	@Test
 	void shouldFindStayWithCorrectId() {
 		Stay stay = this.petService.findStayById(1);
-		assertThat(stay.getPet().getName()).startsWith("Samantha");
+		assertThat(stay.getPet().getName()).startsWith("Leo");
 		assertThat(stay.getRegisterDate()).isEqualTo(LocalDate.of(2020,10,1));
 	}
 	
 	@Test
 	void shouldDeleteStayWithCorrectId() {
-		Stay stay = this.petService.findStayById(1);
-		Pet pet = this.petService.findPetById(7);
+		Stay stay = this.petService.findStayById(2);
+		Pet pet = this.petService.findPetById(2);
 		int numStays = pet.getStays().size();
 		try {
 			this.petService.deleteStay(stay);
@@ -276,10 +277,7 @@ class PetServiceTests {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		assertThat(this.petService.findStayById(1)).isEqualTo(null);
 		assertThat(pet.getStays().size()).isEqualTo(numStays - 1);
-		
 	}
 
 }

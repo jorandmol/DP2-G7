@@ -110,7 +110,7 @@ public class PetService {
 
 	@Transactional
 	public void deleteStay(Stay stay) throws StayAlreadyConfirmed {
-		if (stay.getStatus().equals(true)) {
+		if (stay.getStatus() != null && stay.getStatus().equals(true)) {
 			throw new StayAlreadyConfirmed();
 		} else {
 			Pet pet = stay.getPet();
