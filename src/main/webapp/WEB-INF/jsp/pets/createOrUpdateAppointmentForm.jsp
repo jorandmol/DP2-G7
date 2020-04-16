@@ -14,7 +14,7 @@
         </script>
     </jsp:attribute>
     <jsp:body>
-        <h2><c:if test="${appointment['new']}">New </c:if>Appointment</h2>
+        <h2><c:if test="${!edit}">New </c:if>Appointment</h2>
 
         <b>Pet</b>
         <table class="table table-striped">
@@ -37,7 +37,7 @@
         <form:form modelAttribute="appointment" class="form-horizontal">
             <div class="form-group has-feedback">
                 <c:choose>
-                    <c:when test="${appointment['new']}">
+                    <c:when test="${!edit}">
                         <petclinic:inputField label="Date" name="appointmentDate"/>
                         <petclinic:inputField label="Description" name="description"/>
                         <div class="form-group">
@@ -54,34 +54,27 @@
                     </c:when>
                     <c:otherwise>
                         <petclinic:inputField label="Date" name="appointmentDate"/>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label">Description</label>
-                            <div class="col-sm-10">
-                                <p><c:out value="${appointment.description}" /></p>
-                                <input type="hidden" name="description" value="${appointment.description}">
-                            </div>
-                        </div>
+                        <petclinic:inputField label="Description" name="description"/>
+                        <input type="hidden" name="id" value="${appointment.id}">
                         <div class="form-group">
                             <label class="col-sm-2 control-label">Vet</label>
                             <div class="col-sm-10">
-                                <select name="vet" class="form-control" readonly>
-                                    <c:forEach items="${vets}" var="vet">
-                                        <c:if test="${appointment.vet.id == vet.id}">
-                                            <option value="${vet.id}" selected>${vet.firstName}&nbsp;${vet.lastName}</option>
-                                        </c:if>
-                                    </c:forEach>
+                                <select name="vet" class="form-control" disabled>
+                                	<option value="${appointment.vet.id}" selected>${appointment.vet.firstName}&nbsp;${appointment.vet.lastName}</option>
                                 </select>
+                                <c:out value="${vetError}" />
                             </div>
                         </div>
+                        <input type="hidden" name="vet" value="${appointment.vet.id}">
                     </c:otherwise>
                 </c:choose>
             </div>
 
             <div class="form-group">
                 <div class="col-sm-offset-2 col-sm-10">
-                    <input type="hidden" name="petId" value="${appointment.pet.id}"/>
-                    <button class="btn btn-default" type="submit"><c:choose>
-                        <c:when test="${appointment['new']}">New</c:when>
+                    <button class="btn btn-default" type="submit">
+                    <c:choose>
+                        <c:when test="${!edit}">New</c:when>
                         <c:otherwise>Update</c:otherwise>
                     </c:choose>
                          Appointment</button>

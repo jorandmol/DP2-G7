@@ -22,7 +22,14 @@ public class TreatmentService {
 	public List<Treatment> findTreatmentsByPet(int petId) {
 		List<Treatment> treatments = this.treatmentRepository.findTreatmentsByPetId(petId);
 		
-		return treatments.stream().filter(x->x.getTimeLimit().isAfter(LocalDate.now()))
+		return treatments.stream().filter(x->!x.getTimeLimit().isBefore(LocalDate.now()))
+				.collect(Collectors.toList());
+	}
+	
+	public List<Treatment> findTreatmentsDoneByPet(int petId) {
+		List<Treatment> treatments = this.treatmentRepository.findTreatmentsByPetId(petId);
+		
+		return treatments.stream().filter(x->x.getTimeLimit().isBefore(LocalDate.now()))
 				.collect(Collectors.toList());
 	}
 	

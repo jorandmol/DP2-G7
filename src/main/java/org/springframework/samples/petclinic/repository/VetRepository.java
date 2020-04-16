@@ -19,11 +19,9 @@ import java.util.Collection;
 import java.util.List;
 
 import org.springframework.dao.DataAccessException;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.data.repository.query.Param;
 import org.springframework.samples.petclinic.model.Specialty;
 import org.springframework.samples.petclinic.model.Vet;
+import org.springframework.stereotype.Repository;
 
 /**
  * Repository class for <code>Vet</code> domain objects All method names are compliant
@@ -36,22 +34,21 @@ import org.springframework.samples.petclinic.model.Vet;
  * @author Sam Brannen
  * @author Michael Isvy
  */
-public interface VetRepository extends CrudRepository<Vet, Integer> {
+@Repository
+public interface VetRepository {
 
 	/**
 	 * Retrieve all <code>Vet</code>s from the data store.
 	 * @return a <code>Collection</code> of <code>Vet</code>s
 	 */
-	Collection<Vet> findAll() throws DataAccessException;
+	Collection<Vet> findAll();
 
-//	void save(Vet vet) throws DataAccessException;
+	void save(Vet vet) throws DataAccessException;
 
-	Vet findById(int vetId) throws DataAccessException;
+	Vet findById(Integer vetId) throws DataAccessException;
 	
-	@Query("SELECT specialty FROM Specialty specialty ORDER BY specialty.name")
 	List<Specialty> findSpecialty() throws DataAccessException;
 	
-	@Query("SELECT vet FROM Vet vet WHERE vet.user.username = :username")
-	public Vet findByUsername(@Param("username") String username);
+	Vet findByUsername(String username);
 
 }

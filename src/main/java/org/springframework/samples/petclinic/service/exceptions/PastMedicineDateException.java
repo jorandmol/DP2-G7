@@ -10,5 +10,10 @@ package org.springframework.samples.petclinic.service.exceptions;
  * @author japarejo
  */
 public class PastMedicineDateException extends Exception{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
     
 }

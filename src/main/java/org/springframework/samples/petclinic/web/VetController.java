@@ -24,6 +24,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.samples.petclinic.model.Specialty;
+import org.springframework.samples.petclinic.model.User;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.model.Vets;
 import org.springframework.samples.petclinic.service.VetService;
@@ -120,6 +121,7 @@ public class VetController {
 	public String initUpdateVetForm(@PathVariable("vetId") int vetId, Model model) {
 		Vet vet = this.vetService.findVetById(vetId);
 		model.addAttribute("vet", vet);
+		model.addAttribute("username", vet.getUser().getUsername());
 		model.addAttribute("edit", true);
 		return VIEWS_VET_CREATE_OR_UPDATE_FORM;
 
@@ -130,24 +132,22 @@ public class VetController {
 			ModelMap model) {
 
 		model.addAttribute("edit", true);
+		Vet vetToUpdate = this.vetService.findVetById(vetId);
+		model.addAttribute("username", vetToUpdate.getUser().getUsername());
 
 		if (result.hasErrors()) {
 			model.put("vet", vet);
 			return VIEWS_VET_CREATE_OR_UPDATE_FORM;
 		} else {
-			Vet vetToUpdate = this.vetService.findVetById(vetId);
-			BeanUtils.copyProperties(vet, vetToUpdate, "id", "specialties");
+			
+			BeanUtils.copyProperties(vet, vetToUpdate, "id", "specialties", "user");
 			vet.getSpecialties().stream().filter(s -> !vetToUpdate.getSpecialties().contains(s))
 					.forEach(s -> vetToUpdate.addSpecialty(s));
-			try {
-				this.vetService.saveVet(vetToUpdate);
-			} catch (Exception ex) {
+			User user = vetToUpdate.getUser();
+			user.setPassword(vet.getUser().getPassword());
+			vetToUpdate.setUser(user);
+			this.vetService.saveVet(vetToUpdate);
 
-				if (ex.getClass().equals(DataIntegrityViolationException.class))
-					result.rejectValue("user.username", "duplicate");
-
-				return VIEWS_VET_CREATE_OR_UPDATE_FORM;
-			}
 			return "redirect:/vets/{vetId}";
 		}
 	}

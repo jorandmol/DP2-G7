@@ -14,7 +14,7 @@ import lombok.Data;
 
 @Entity
 @Data
-@Table(name = "stances")
+@Table(name = "stays")
 public class Stay extends BaseEntity {
 	
 	@Column(name = "register_date")
@@ -24,6 +24,9 @@ public class Stay extends BaseEntity {
 	@Column(name = "release_date")
 	@DateTimeFormat(pattern = "yyyy/MM/dd")
 	private LocalDate releaseDate;
+	
+	@Column(name= "status")
+	private Boolean status;
 
 	@ManyToOne
 	@JoinColumn(name = "pet_id")

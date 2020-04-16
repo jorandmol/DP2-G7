@@ -29,7 +29,6 @@ public class Appointment extends BaseEntity {
 
 	@Column(name = "appointment_request_date")
 	@DateTimeFormat(pattern = "yyyy/MM/dd")
-	@NotNull
 	private LocalDate	appointmentRequestDate;
 
 	@Column(name = "description")
@@ -45,6 +44,7 @@ public class Appointment extends BaseEntity {
 	private Pet			pet;
 
 	@ManyToOne
+	@JoinColumn(name = "vet_id")
 	private Vet			vet;
-  
+
 }

@@ -25,6 +25,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.samples.petclinic.model.Owner;
+import org.springframework.samples.petclinic.model.User;
 import org.springframework.samples.petclinic.service.AuthoritiesService;
 import org.springframework.samples.petclinic.service.OwnerService;
 import org.springframework.samples.petclinic.service.UserService;
@@ -131,6 +132,7 @@ public class OwnerController {
 	public String initUpdateOwnerForm(@PathVariable("ownerId") final int ownerId, final Model model) {
 		Owner owner = this.ownerService.findOwnerById(ownerId);
 		model.addAttribute("owner", owner);
+		model.addAttribute("username", owner.getUser().getUsername());
 		model.addAttribute("edit", true);
 		return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 	}
@@ -139,21 +141,20 @@ public class OwnerController {
 	public String processUpdateOwnerForm(@Valid Owner owner, BindingResult result, @PathVariable("ownerId") int ownerId,
 			ModelMap model) {
 		model.addAttribute("edit", true);
+		Owner ownerToUpdate = this.ownerService.findOwnerById(ownerId);
+		model.addAttribute("username", ownerToUpdate.getUser().getUsername());
+		
 		if (result.hasErrors()) {
 			model.put("owner", owner);
 			return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 		} else {
-			Owner ownerToUpdate = this.ownerService.findOwnerById(ownerId);
-			BeanUtils.copyProperties(owner, ownerToUpdate, "id");
-			try {
-				this.ownerService.saveOwner(ownerToUpdate);
-			} catch (Exception ex) {
-
-				if (ex.getClass().equals(DataIntegrityViolationException.class))
-					result.rejectValue("user.username", "duplicate");
-
-				return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
-			}
+			
+			BeanUtils.copyProperties(owner, ownerToUpdate, "id", "user");
+			User user = ownerToUpdate.getUser();
+			user.setPassword(owner.getUser().getPassword());
+			ownerToUpdate.setUser(user);
+			this.ownerService.saveOwner(ownerToUpdate);
+			
 			return "redirect:/owners/{ownerId}";
 		}
 	}

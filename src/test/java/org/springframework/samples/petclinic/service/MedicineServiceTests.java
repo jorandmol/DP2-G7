@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.NoSuchElementException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -82,10 +81,8 @@ class MedicineServiceTests {
 	
 	@Test
 	void shouldNotFindMedicineWithCorrectId() {
-		assertThrows(NoSuchElementException.class, () -> {
-			this.medicineService.findMedicineById(12);
-		});
-		
+		Medicine medicine = this.medicineService.findMedicineById(12);
+		assertThat(medicine).isNull();		
 	}
 
 	@Test
