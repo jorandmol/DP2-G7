@@ -1,13 +1,11 @@
 
 package org.springframework.samples.petclinic.service;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Appointment;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.repository.AppointmentRepository;
@@ -19,22 +17,22 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class AppointmentService {
 
-	private AppointmentRepository appointmentRepository;
+	private AppointmentRepository 	appointmentRepository;
+
+	private VetRepository 			vetRepository;
 
 	@Autowired
-	public AppointmentService(AppointmentRepository appointmentRepository) {
+	public AppointmentService(AppointmentRepository appointmentRepository, VetRepository vetRepository) {
 		this.appointmentRepository = appointmentRepository;
+		this.vetRepository = vetRepository;
 	}
-
-	@Autowired
-	private VetRepository vetRepository;
 
 	@Transactional
 	public void saveAppointment(final Appointment appointment, Integer vetId) throws VeterinarianNotAvailableException {
-		if (countAppointmentsByVetAndDay(vetId, appointment.getAppointmentDate()) > 3) {
+		if (!isPossibleAppointment(appointment, vetId)) {
 		    throw new VeterinarianNotAvailableException();
         } else {
-            Vet vet = this.vetRepository.findById(vetId).get();
+            Vet vet = this.vetRepository.findById(vetId);
             LocalDate requestDate = LocalDate.now();
             appointment.setVet(vet);
             appointment.setAppointmentRequestDate(requestDate);
@@ -43,31 +41,20 @@ public class AppointmentService {
 	}
 
 	@Transactional
-	public void deleteAppointment(final Appointment appointment) throws DataAccessException {
+	public void deleteAppointment(final Appointment appointment) {
 		this.appointmentRepository.delete(appointment);
 	}
-
-	@Transactional
-    public int countAppointmentsByVetAndDay(int vetId, LocalDate date) {
-	    return this.appointmentRepository.countAppointmentsByVetAndDay(vetId, date);
-    }
-
-    @Transactional
-    public Appointment getAppointmentById(int appointmentId) {
-        Optional<Appointment> appointment = this.appointmentRepository.findById(appointmentId);
-        if (appointment.isPresent()) {
-            return appointment.get();
-        }
-        return null;
-    }
 
     @Transactional
     public void editAppointment(final Appointment appointment) throws VeterinarianNotAvailableException {
 	    int vetId = appointment.getVet().getId();
+	    Appointment appointmentToUpdate = this.appointmentRepository.findById(appointment.getId());
 	    LocalDate newDate = appointment.getAppointmentDate();
-	    if (countAppointmentsByVetAndDay(vetId, newDate) > 3) {
-	        throw  new VeterinarianNotAvailableException();
+	    if (!isPossibleAppointment(appointment, vetId) && !appointmentToUpdate.getAppointmentDate()
+            .equals(appointment.getAppointmentDate())) {
+	        throw new VeterinarianNotAvailableException();
         } else {
+            appointmentToUpdate.setAppointmentDate(appointment.getAppointmentDate());
 	        LocalDate date = LocalDate.now();
 	        appointment.setAppointmentDate(newDate);
 	        appointment.setAppointmentRequestDate(date);
@@ -75,10 +62,33 @@ public class AppointmentService {
         }
     }
     
-    @Transactional
+    public Appointment getAppointmentById(int appointmentId) {
+        return this.appointmentRepository.findById(appointmentId);
+    }
+
     public Collection<Appointment> getAllAppointments() {
-    	Collection<Appointment> appointments = new ArrayList<Appointment>();
-    	this.appointmentRepository.findAll().forEach(appointments::add);
-    	return appointments;
+    	return this.appointmentRepository.findAll();
+    	
+    }
+
+    private boolean isPossibleAppointment(Appointment appointment, Integer vetId) {
+	    boolean res = false;
+    	LocalDate appointmentDate = appointment.getAppointmentDate();
+	    
+    	if (!appointmentDate.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
+	    	int petId = appointment.getPet().getId();
+	    	res = countAppointmentsByPetAndDay(petId, appointmentDate) == 0 && 
+	    			countAppointmentsByVetAndDay(vetId, appointmentDate) < 6;	    	
+	    }
+	    
+	    return res;
+    }
+
+    private int countAppointmentsByPetAndDay(int petId, LocalDate date) {
+        return this.appointmentRepository.countAppointmentsByPetAndDay(petId, date);
+    }
+    
+    private int countAppointmentsByVetAndDay(int vetId, LocalDate date) {
+	    return this.appointmentRepository.countAppointmentsByVetAndDay(vetId, date);
     }
 }

@@ -26,9 +26,6 @@ import org.springframework.test.web.servlet.MockMvc;
 @WebMvcTest(value = PetTypeController.class, includeFilters = @ComponentScan.Filter(value = PetType.class, type = FilterType.ASSIGNABLE_TYPE), excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = WebSecurityConfigurer.class), excludeAutoConfiguration = SecurityConfiguration.class)
 public class PetTypeControllerTests {
 
-	@Autowired
-	private PetTypeController petTypeController;
-
 	@MockBean
 	private PetTypeService petTypeService;
 	

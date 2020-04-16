@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -63,7 +64,7 @@ public class Pet extends NamedEntity {
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "pet", fetch = FetchType.EAGER)
 	private Set<Appointment> appointments;
 
-  @OneToMany(cascade = CascadeType.ALL, mappedBy = "pet", fetch = FetchType.EAGER)
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "pet", fetch = FetchType.EAGER)
 	private Set<Stay> stays;
 
 	public void setBirthDate(LocalDate birthDate) {
@@ -125,6 +126,7 @@ public class Pet extends NamedEntity {
 	
 	public List<Appointment> getAppointments() {
 		List<Appointment> sortedAppointments = new ArrayList<>(getAppointmentsInternal());
+		sortedAppointments = sortedAppointments.stream().filter(x->!x.getAppointmentDate().isBefore(LocalDate.now())).collect(Collectors.toList());
 		PropertyComparator.sort(sortedAppointments, new MutableSortDefinition("appointmentDate", false, false));
 		return Collections.unmodifiableList(sortedAppointments);
 	}

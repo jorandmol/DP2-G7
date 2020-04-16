@@ -55,9 +55,6 @@ import org.springframework.test.web.servlet.MockMvc;
 class MedicineControllerTests {
 
 	private static final int TEST_MED_ID = 1;
-
-	@Autowired
-	private MedicineController medicineController;
 	
 	@MockBean
 	private BannerService bannerService;
