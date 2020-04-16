@@ -1,8 +1,6 @@
 package org.springframework.samples.petclinic.web;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.PetType;
-import org.springframework.samples.petclinic.service.PetTypeService;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
@@ -10,9 +8,6 @@ import org.springframework.validation.Validator;
 public class PetTypeValidator implements Validator {
 	
 	private static final String REQUIRED = "required";
-	
-	@Autowired
-	private PetTypeService petTypeService;
 
 	@Override
 	public void validate(Object obj, Errors errors) {

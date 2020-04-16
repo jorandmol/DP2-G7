@@ -35,9 +35,6 @@ class VisitControllerTests {
 
 	private static final int TEST_PET_ID = 1;
 
-	@Autowired
-	private VisitController visitController;
-
 	@MockBean
 	private PetService clinicService;
 	

@@ -3,6 +3,7 @@ package org.springframework.samples.petclinic.service;
 
 
 import java.time.LocalDate;
+import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -21,15 +22,10 @@ public class MedicineService {
 	
 	private MedicineRepository medicineRepository;
 	
-
-	
 	@Autowired
 	public MedicineService(MedicineRepository medicineRepository) {
 		this.medicineRepository = medicineRepository;
-
 	}
-	
-	
 	
 	@Transactional
 	public void saveMedicine(Medicine medicine) throws DataAccessException, DuplicatedMedicineCodeException, PastMedicineDateException, WrongMedicineCodeException {
@@ -46,23 +42,16 @@ public class MedicineService {
         }
 	}
 
-
-
-	@Transactional(readOnly = true)
-	public Medicine findMedicineById(int id) throws DataAccessException {
-		return medicineRepository.findById(id).get();
+	public Medicine findMedicineById(int id) {
+		return medicineRepository.findById(id);
 	}
 
-
-
-	public Iterable<Medicine> findAll() {
+	public Collection<Medicine> findAll() {
 		return this.medicineRepository.findAll();
 	}
 
-
-
-	public Boolean codeAlreadyExists(String code) {
-		return this.medicineRepository.codeAlreadyExists(code).size() > 0;
+	public boolean codeAlreadyExists(String code) {
+		return this.medicineRepository.findByCode(code) != null;
 	}
 
 }

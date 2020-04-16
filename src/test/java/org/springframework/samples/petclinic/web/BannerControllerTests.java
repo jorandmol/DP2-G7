@@ -33,9 +33,6 @@ public class BannerControllerTests {
 	
 	private static final int TEST_BANNER_ID2 = 2;
 
-	@Autowired
-	private BannerController bannerController;
-
 	@MockBean
 	private BannerService bannerService;
 

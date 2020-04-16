@@ -44,9 +44,6 @@ class VetControllerTests {
 
 	private static final int TEST_VET_ID = 4;
 
-	@Autowired
-	private VetController vetController;
-
 	@MockBean
 	private BannerService bannerService;
 
