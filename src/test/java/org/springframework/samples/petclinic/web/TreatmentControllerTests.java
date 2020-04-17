@@ -27,6 +27,7 @@ import org.springframework.samples.petclinic.model.Treatment;
 import org.springframework.samples.petclinic.model.User;
 import org.springframework.samples.petclinic.service.AuthoritiesService;
 import org.springframework.samples.petclinic.service.BannerService;
+import org.springframework.samples.petclinic.service.MedicineService;
 import org.springframework.samples.petclinic.service.OwnerService;
 import org.springframework.samples.petclinic.service.PetService;
 import org.springframework.samples.petclinic.service.TreatmentService;
@@ -42,6 +43,7 @@ public class TreatmentControllerTests {
 	private static final String OWNER_ROLE = "owner";
 	
 	private static final String VIEWS_TREATMENT_LIST = "treatments/listTreatments";
+	private static final String VIEWS_TREATMENT_FORM = "treatments/createOrUpdateTreatmentForm";
 	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
 
 	private static final int TEST_OWNER_ID = 1;
@@ -55,6 +57,9 @@ public class TreatmentControllerTests {
 	
 	@MockBean
 	private TreatmentService treatmentService;
+	
+	@MockBean
+	private MedicineService medicineService;
 	
 	@MockBean
 	private BannerService bannerService;
@@ -129,5 +134,13 @@ public class TreatmentControllerTests {
 		mockMvc.perform(get("/owners/{ownerId}/pets/{petID}/treatments", TEST_WRONG_OWNER_ID, TEST_PET_ID))
 			.andExpect(status().is3xxRedirection())
 			.andExpect(view().name(REDIRECT_TO_OUPS));
+	}
+	
+	@Test
+	@WithMockUser(username="owner1", password="0wn3333r_1", authorities=OWNER_ROLE)
+	void testInitNewTreatmentForm() throws Exception {
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petID}/treatments/new", TEST_OWNER_ID, TEST_PET_ID))
+			.andExpect(status().isOk())
+			.andExpect(view().name(VIEWS_TREATMENT_FORM));
 	}
 }

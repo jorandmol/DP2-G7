@@ -1,11 +1,20 @@
 <%@ page session="false" trimDirectiveWhitespaces="true" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="petclinic" tagdir="/WEB-INF/tags" %>
 
 <petclinic:layout pageName="treatments">
-    <h2>Treatments</h2>
+	<div class="row">
+		<div class="col-md-10">
+		    <h2>Treatments</h2>		
+		</div>
+		<div class="col-md-2">
+			<spring:url value="treatments/new" var="addUrl"></spring:url>
+    		<a href="${fn:escapeXml(addUrl)}" class="btn btn-default">Add New Treatment</a>
+		</div>
+	</div>
+	
 
     <table id="treatmentsTable" class="table table-striped">
         <thead>
