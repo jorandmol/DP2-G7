@@ -19,6 +19,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
@@ -42,6 +43,11 @@ public class TreatmentController {
 
 	@Autowired
 	private PetService petService;
+	
+	@ModelAttribute("medicines")
+	public Collection<Medicine> loadMedicines() {
+		return this.medicineService.findAll();
+	}
 
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/treatments")
 	public String showTreatments(@PathVariable("ownerId") final int ownerId, @PathVariable("petId") final int petId, final Map<String, Object> model) {
@@ -62,12 +68,8 @@ public class TreatmentController {
 	public String initNewTreatmentForm(@PathVariable("ownerId") final int ownerId, @PathVariable("petId") final int petId, ModelMap model) {
 		if (securityAccessRequestAppointment(ownerId, petId)) {
 			Treatment treatment = new Treatment();
-			Collection<Medicine> medicines = this.medicineService.findAll();
 			treatment.setPet(this.petService.findPetById(petId));
-
-
 			model.addAttribute("treatment", treatment);
-			model.addAttribute("medicines", medicines);
 			return VIEWS_TREATMENT_FORM;
 		} else {
 			return REDIRECT_TO_OUPS;
@@ -75,7 +77,7 @@ public class TreatmentController {
 	}
 
 	@PostMapping(value = "/owners/{ownerId}/pets/{petId}/treatments/new")
-    public String processNewTreatmentForm(@Valid final Treatment treatment, @PathVariable("ownerId") final int ownerId, @PathVariable("petId") final int petId, final BindingResult result, final ModelMap modelMap) {
+    public String processNewTreatmentForm(@Valid final Treatment treatment, final BindingResult result, @PathVariable("ownerId") final int ownerId, @PathVariable("petId") final int petId, final ModelMap modelMap) {
         if (securityAccessRequestAppointment(ownerId, petId)) {
             if (result.hasErrors()) {
                 return VIEWS_TREATMENT_FORM;
