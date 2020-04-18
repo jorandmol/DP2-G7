@@ -201,5 +201,52 @@ class StayControllerTests {
 				.andExpect(view().name("exception"));
 	}
 
-
+	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
+    @Test
+	void testInitEditStayForm() throws Exception {
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/stays/{stayId}/edit", TEST_OWNER_ID, TEST_PET_ID, TEST_STAY_ID))
+				.andExpect(status().isOk())
+				.andExpect(model().attributeExists("stay"))
+				.andExpect(view().name("pets/createOrUpdateStayForm"));
+	}	
+	
+	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
+    @Test
+	void testInitEditStayFormWrongOwner() throws Exception {
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/stays/{stayId}/edit", TEST_WRONG_OWNER_ID, TEST_PET_ID,TEST_STAY_ID))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(view().name("redirect:/oups"));
+	}	
+	
+	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
+    @Test
+	void testProcessEditStayFormSuccess() throws Exception {
+		mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/stays/{stayId}/edit",TEST_OWNER_ID,TEST_PET_ID,TEST_STAY_ID)
+							.with(csrf())
+							.param("registerDate", "2021/02/12")    
+	                        .param("releaseDate", "2021/03/12"))  
+	            .andExpect(status().is3xxRedirection())
+				.andExpect(view().name("redirect:/owners/{ownerId}/pets/{petId}/stays"));
+	}
+	
+	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
+    @Test
+	void testProcessNewEditFormWrongUser() throws Exception {
+		mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/stays/{stayId}/edit",TEST_WRONG_OWNER_ID,TEST_PET_ID,TEST_STAY_ID)
+							.with(csrf())
+							.param("registerDate", "2021/02/12")    
+	                        .param("releaseDate", "2021/03/12"))  
+	            .andExpect(status().is3xxRedirection())
+				.andExpect(view().name("redirect:/oups"));
+	}
+		
+	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
+	@Test
+	void testProcessEditStayFormHasErrors() throws Exception {
+		mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/stays/{stayId}/edit",TEST_OWNER_ID,TEST_PET_ID,TEST_STAY_ID)
+							.with(csrf())
+	                        .param("releaseDate", "2021/03/12"))  
+				.andExpect(model().attributeHasErrors("stay")).andExpect(status().isOk())
+				.andExpect(view().name("pets/createOrUpdateStayForm"));
+	}
 }

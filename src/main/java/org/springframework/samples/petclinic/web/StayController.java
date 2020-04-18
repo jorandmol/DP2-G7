@@ -20,17 +20,18 @@ import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.Stay;
 import org.springframework.samples.petclinic.service.OwnerService;
 import org.springframework.samples.petclinic.service.PetService;
+import org.springframework.samples.petclinic.service.exceptions.DateNotAllowed;
 import org.springframework.samples.petclinic.service.exceptions.MaximumStaysReached;
 import org.springframework.samples.petclinic.service.exceptions.StayAlreadyConfirmed;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
@@ -168,5 +169,51 @@ public class StayController {
 			return new ModelAndView("exception");
 		}
 	}
+	
+	
+	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/stays/{stayId}/edit")
+	public String initStayEditForm(@PathVariable("stayId") final int stayId, @PathVariable("petId") final int petId, @PathVariable("ownerId") final int ownerId, final ModelMap modelMap) {		
+		if (securityAccessRequest(ownerId, petId)) {
+			Stay stay = this.petService.findStayById(stayId);
+			modelMap.put("stay", stay);
+			modelMap.put("edit", true);
+			return "pets/createOrUpdateStayForm";			
+		} else {
+			return "redirect:/oups";
+		}
+	}
+
+	
+
+	@PostMapping(value = "/owners/{ownerId}/pets/{petId}/stays/{stayId}/edit")
+	public String processStayEditForm(@Valid final Stay stay, final BindingResult result, @PathVariable("petId") final int petId, @PathVariable("ownerId") final int ownerId,
+			@PathVariable("stayId") final int stayId, final ModelMap modelMap)  {	
+		if (securityAccessRequest(ownerId, petId)) {
+			modelMap.put("edit", true);
+			if (result.hasErrors()) {
+				return "pets/createOrUpdateStayForm";
+			} else {
+				try {
+					Stay stayToUpdate = this.petService.findStayById(stayId);
+					BeanUtils.copyProperties(stayToUpdate, stay , "registerDate" , "releaseDate","status");
+					this.petService.editStay(stay);
+				} catch (MaximumStaysReached | DateNotAllowed | StayAlreadyConfirmed e) {
+					if(e.getClass().equals(MaximumStaysReached.class)) {
+						result.rejectValue("releaseDate", "There exists already a Stay", "There exists already a Stay");
+					}else if(e.getClass().equals(DateNotAllowed.class)) {
+						result.rejectValue("releaseDate", "Change the dates", "Change the dates");
+					}else if(e.getClass().equals(StayAlreadyConfirmed.class)) {
+						result.rejectValue("releaseDate", "Stay already confirmed or rejected by admin", "Stay already confirmed or rejected by admin");
+					}
+					
+					return "pets/createOrUpdateStayForm";
+				}
+			}
+			return "redirect:/owners/{ownerId}/pets/{petId}/stays";			
+		} else {
+			return "redirect:/oups";
+		}
+	}
+
 
 }

@@ -57,8 +57,15 @@
                     <spring:param name="petId" value="${stay.pet.id}"/>
                     <spring:param name="stayId" value="${stay.id}"/>
                 </spring:url>
-                
+                    <spring:url value="/owners/{ownerId}/pets/{petId}/stays/{stayId}/edit" var="updateUrl">
+                    <spring:param name="ownerId" value="${stay.pet.owner.id}"/>
+                    <spring:param name="petId" value="${stay.pet.id}"/>
+                    <spring:param name="stayId" value="${stay.id}"/>
+                </spring:url>
+                <p>
+                <a href="${fn:escapeXml(updateUrl)}">Update</a> /
                 <a href="${fn:escapeXml(deleteUrl)}">Delete</a>
+                </p>
                </td>    
                </sec:authorize>    
             </tr>
