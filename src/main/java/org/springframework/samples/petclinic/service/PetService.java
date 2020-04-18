@@ -87,8 +87,7 @@ public class PetService {
 
 	@Transactional
 	public void saveStay(Stay stay) throws MaximumStaysReached {
-		Boolean dayExists = this.stayRepository.numOfStaysThatDates(stay.getRegisterDate(), stay.getReleaseDate(),
-				stay.getPet().getId()) > 0;
+		Boolean dayExists = this.stayRepository.numOfStaysThatDates(stay.getRegisterDate(), stay.getReleaseDate(), stay.getPet().getId(), 0) > 0;
 		if (dayExists) {
 			throw new MaximumStaysReached();
 		} else {
@@ -126,10 +125,9 @@ public class PetService {
 		if ((stayToUpdate.getRegisterDate().equals(stay.getRegisterDate())
 				&& stayToUpdate.getReleaseDate().equals(stay.getReleaseDate()))) {
 			throw new DateNotAllowed();
-		} else if (this.stayRepository.numOfStaysThatDates(stay.getRegisterDate(), stay.getReleaseDate(),
-				stay.getPet().getId()) > 1) {
+		} else if (this.stayRepository.numOfStaysThatDates(stay.getRegisterDate(), stay.getReleaseDate(), stay.getPet().getId(), stay.getId()) > 0) {
 			throw new MaximumStaysReached();
-		} else if (stay.getStatus() != null && stay.getStatus().equals(true)) {
+		} else if (stay.getStatus() != null) {
 			throw new StayAlreadyConfirmed();
 		}
 

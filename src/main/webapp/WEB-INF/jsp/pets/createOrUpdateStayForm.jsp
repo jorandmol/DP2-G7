@@ -56,7 +56,7 @@
                  <div class="col-sm-offset-2 col-sm-10">
                      <button class="btn btn-default" type="submit">
                    <c:choose>
-                     <c:when test="${!edit}">Add Stay</c:when>
+                     <c:when test="${!edit}">Add</c:when>
                      <c:otherwise>Update</c:otherwise>
                    </c:choose> Stay</button>
                  </div>

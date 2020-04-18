@@ -199,11 +199,11 @@ public class StayController {
 					this.petService.editStay(stay);
 				} catch (MaximumStaysReached | DateNotAllowed | StayAlreadyConfirmed e) {
 					if(e.getClass().equals(MaximumStaysReached.class)) {
-						result.rejectValue("releaseDate", "Numero de estancias para la fecha dada superado","Numero de estancias para la fecha dada superado");
+						result.rejectValue("releaseDate", "There exists already a Stay", "There exists already a Stay");
 					}else if(e.getClass().equals(DateNotAllowed.class)) {
-						result.rejectValue("releaseDate", "No puedes mantener la misma fecha", "No puedes mantener la misma fecha");
+						result.rejectValue("releaseDate", "Change the dates", "Change the dates");
 					}else if(e.getClass().equals(StayAlreadyConfirmed.class)) {
-						result.rejectValue("releaseDate", "La estancia ya ha sido confirmada por el administrador, no puede ser cambiada","La estancia ya ha sido confirmada por el administrador, no puede ser cambiada");
+						result.rejectValue("releaseDate", "Stay already confirmed or rejected by admin", "Stay already confirmed or rejected by admin");
 					}
 					
 					return "pets/createOrUpdateStayForm";

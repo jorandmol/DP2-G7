@@ -58,3 +58,4 @@ INSERT IGNORE INTO medicines VALUES (3, 'Ibuprofeno', '2022-10-14', 'Elimina sí
 
 INSERT IGNORE INTO stays(id,pet_id,register_date,release_date,status) VALUES (1,1, '2020-10-01', '2020-10-05',true);
 INSERT IGNORE INTO stays(id,pet_id,register_date,release_date,status) VALUES (2,1, '2020-10-07', '2020-10-08',null);
+INSERT IGNORE INTO stays(id,pet_id,register_date,release_date,status) VALUES (3,2, '2020-11-01', '2020-11-05',null);
