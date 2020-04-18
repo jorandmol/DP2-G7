@@ -1,7 +1,5 @@
 package org.springframework.samples.petclinic.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
 import java.time.LocalDate;
@@ -73,28 +71,6 @@ public class TreatmentServiceTests {
 		treatments = new ArrayList<>();
 		treatments.add(treatment1);
 		treatments.add(treatment2);
-	}
-
-	@Test
-	void shouldFindTreatmentsByPetId() {
-        given(treatmentService.findTreatmentsByPet(TEST_PET_ID)).willReturn(treatments);
-		List<Treatment> treatments = this.treatmentService.findTreatmentsByPet(TEST_PET_ID);
-		Treatment treatment = treatments.get(0);
-
-		assertThat(treatment.getId()).isEqualTo(TEST_TREATMENT_ID_1);
-		assertThat(treatment.getTimeLimit()).isEqualTo(LocalDate.now().plusWeeks(2));
-		assertThat(treatment.getPet().getId()).isEqualTo(TEST_PET_ID);
-	}
-
-	@Test
-	void shouldFindTreatmentsDoneByPetId() {
-        given(treatmentService.findTreatmentsByPet(TEST_PET_ID)).willReturn(treatments);
-		List<Treatment> treatments = this.treatmentService.findTreatmentsDoneByPet(TEST_PET_ID);
-		Treatment treatment = treatments.get(0);
-
-		assertThat(treatment.getId()).isEqualTo(TEST_TREATMENT_ID_2);
-		assertThat(treatment.getTimeLimit()).isEqualTo(LocalDate.now().minusMonths(2));
-		assertThat(treatment.getPet().getId()).isEqualTo(TEST_PET_ID);
 	}
 
 	@Test

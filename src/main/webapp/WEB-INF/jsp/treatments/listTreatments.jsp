@@ -7,7 +7,7 @@
 <petclinic:layout pageName="treatments">
 	<div class="row">
 		<div class="col-md-10">
-		    <h2>Treatments</h2>		
+		    <h2>Current Treatments</h2>		
 		</div>
 		<div class="col-md-2">
 			<spring:url value="treatments/new" var="addUrl"></spring:url>
@@ -47,7 +47,7 @@
         </tbody>
     </table>
     
-     <h2>Treatments Done</h2>
+     <h2>Expired Treatments</h2>
     
     <table id="treatmentsTable" class="table table-striped">
         <thead>

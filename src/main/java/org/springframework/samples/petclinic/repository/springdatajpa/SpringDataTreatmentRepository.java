@@ -9,9 +9,13 @@ import org.springframework.samples.petclinic.model.Treatment;
 import org.springframework.samples.petclinic.repository.TreatmentRepository;
 
 public interface SpringDataTreatmentRepository extends TreatmentRepository, Repository<Treatment, Integer> {
-
+	
 	@Override
-	@Query("SELECT t FROM Treatment t WHERE t.pet.id=:petId ORDER BY timeLimit asc")
-	public List<Treatment> findTreatmentsByPetId(@Param("petId") int petId);
+	@Query("SELECT t FROM Treatment t WHERE t.pet.id=:petId AND timeLimit >= CURRENT_DATE ORDER BY timeLimit ASC")
+	public List<Treatment> findCurrentTreatmentsByPet(@Param("petId") Integer petId);
+	
+	@Override
+	@Query("SELECT t FROM Treatment t WHERE t.pet.id=:petId AND timeLimit < CURRENT_DATE ORDER BY timeLimit DESC")
+	public List<Treatment> findExpiredTreatmentsByPet(@Param("petId") Integer petId);
 	
 }

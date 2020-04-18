@@ -17,6 +17,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.support.MutableSortDefinition;
 import org.springframework.beans.support.PropertyComparator;
@@ -50,12 +51,14 @@ public class Treatment extends NamedEntity{
 		return Collections.unmodifiableList(sortedMeds);
 	}
 
-	@NotEmpty
 	@Column(name = "description")
+	@NotEmpty
 	private String description;
 
 	@Column(name = "time_limit")
 	@DateTimeFormat(pattern = "yyyy/MM/dd")
+	@FutureOrPresent
+	@NotNull
 	private LocalDate timeLimit;
 
 	@ManyToOne

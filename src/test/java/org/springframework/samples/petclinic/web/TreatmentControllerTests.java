@@ -122,7 +122,6 @@ public class TreatmentControllerTests {
 
 		given(this.petService.findPetById(TEST_PET_ID)).willReturn(pet);
 		given(this.ownerService.findOwnerById(TEST_OWNER_ID)).willReturn(owner);
-		given(this.treatmentService.findTreatmentsByPet(TEST_PET_ID)).willReturn(treatments);
 	}
 
 	@Test
