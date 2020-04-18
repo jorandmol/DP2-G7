@@ -15,11 +15,8 @@
  */
 package org.springframework.samples.petclinic.service;
 
-import java.time.Duration;
-import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
+import java.time.LocalDate;
 import java.util.Collection;
-import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -30,12 +27,10 @@ import org.springframework.samples.petclinic.model.Visit;
 import org.springframework.samples.petclinic.repository.PetRepository;
 import org.springframework.samples.petclinic.repository.StayRepository;
 import org.springframework.samples.petclinic.repository.VisitRepository;
-import org.springframework.samples.petclinic.service.exceptions.DuplicatedMedicineCodeException;
+import org.springframework.samples.petclinic.service.exceptions.DateNotAllowed;
 import org.springframework.samples.petclinic.service.exceptions.DuplicatedPetNameException;
 import org.springframework.samples.petclinic.service.exceptions.MaximumStaysReached;
-import org.springframework.samples.petclinic.service.exceptions.PastMedicineDateException;
 import org.springframework.samples.petclinic.service.exceptions.StayAlreadyConfirmed;
-import org.springframework.samples.petclinic.service.exceptions.WrongMedicineCodeException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -92,7 +87,6 @@ public class PetService {
 
 	@Transactional
 	public void saveStay(Stay stay) throws MaximumStaysReached {
-
 		Boolean dayExists = this.stayRepository.numOfStaysThatDates(stay.getRegisterDate(), stay.getReleaseDate(),
 				stay.getPet().getId()) > 0;
 		if (dayExists) {
@@ -122,4 +116,30 @@ public class PetService {
 	public Collection<Stay> findStaysByPetId(int petId) {
 		return stayRepository.findByPetId(petId);
 	}
+
+	@Transactional
+	public void editStay(final Stay stay) throws MaximumStaysReached, DateNotAllowed, StayAlreadyConfirmed {
+
+		Stay stayToUpdate = this.stayRepository.findById(stay.getId()).get();
+		LocalDate newDate = stay.getRegisterDate();
+		LocalDate newDate2 = stay.getReleaseDate();
+		if ((stayToUpdate.getRegisterDate().equals(stay.getRegisterDate())
+				&& stayToUpdate.getReleaseDate().equals(stay.getReleaseDate()))) {
+			throw new DateNotAllowed();
+		} else if (this.stayRepository.numOfStaysThatDates(stay.getRegisterDate(), stay.getReleaseDate(),
+				stay.getPet().getId()) > 1) {
+			throw new MaximumStaysReached();
+		} else if (stay.getStatus() != null && stay.getStatus().equals(true)) {
+			throw new StayAlreadyConfirmed();
+		}
+
+		else {
+			stayToUpdate.setRegisterDate(stay.getRegisterDate());
+			stayToUpdate.setReleaseDate(stay.getReleaseDate());
+			stay.setRegisterDate(newDate);
+			stay.setReleaseDate(newDate2);
+			this.stayRepository.save(stay);
+		}
+	}
+
 }
