@@ -20,7 +20,7 @@
     		<div class="form-group has-feedback">
     			<c:choose>
     				<c:when test="${!edit}">
-                        <petclinic:inputField label="Name" name="description"/>
+                        <petclinic:inputField label="Name" name="name"/>
                         <petclinic:inputField label="Description" name="description"/>
     					<petclinic:inputField label="Limit Date" name="timeLimit"/>
     					<div class="form-group">
@@ -34,7 +34,6 @@
                                 <c:out value="${treatmentError}" />
                             </div>
                         </div>
-    					<input type="hidden" name="petId" value="${treatment.pet.id}"/>
     				</c:when>
     				<c:otherwise>
     					<petclinic:inputField label="Name" name="description"/>

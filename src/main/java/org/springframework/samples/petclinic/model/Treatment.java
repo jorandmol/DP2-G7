@@ -15,6 +15,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotEmpty;
 
 import org.springframework.beans.support.MutableSortDefinition;
@@ -27,36 +28,36 @@ import lombok.Data;
 @Entity
 @Table(name = "treatments")
 public class Treatment extends NamedEntity{
-	
+
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "treatment_medicines", joinColumns = @JoinColumn(name = "treatment_id"), inverseJoinColumns = @JoinColumn(name = "medicine_id"))
 	private Set<Medicine> medicines;
-	
+
 	protected Set<Medicine> getMedicinesInternal() {
 		if (this.medicines == null) {
 			this.medicines = new HashSet<>();
 		}
 		return this.medicines;
 	}
-	
+
 	protected void setMedicinesInternal(Set<Medicine> medicines) {
 		this.medicines = medicines;
 	}
-	
+
 	public List<Medicine> getMedicines() {
 		List<Medicine> sortedMeds = new ArrayList<>(getMedicinesInternal());
 		PropertyComparator.sort(sortedMeds, new MutableSortDefinition("name", true, true));
 		return Collections.unmodifiableList(sortedMeds);
 	}
-	
+
 	@NotEmpty
 	@Column(name = "description")
 	private String description;
-	
-	@Column(name = "time_limit")        
+
+	@Column(name = "time_limit")
 	@DateTimeFormat(pattern = "yyyy/MM/dd")
 	private LocalDate timeLimit;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "pet_id")
 	private Pet pet;

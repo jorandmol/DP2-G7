@@ -1,7 +1,9 @@
 package org.springframework.samples.petclinic.web;
 
 import static org.mockito.BDDMockito.given;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
@@ -39,85 +41,90 @@ import org.springframework.test.web.servlet.MockMvc;
 excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = WebSecurityConfigurer.class),
 excludeAutoConfiguration= SecurityConfiguration.class)
 public class TreatmentControllerTests {
-	
+
 	private static final String OWNER_ROLE = "owner";
-	
+
 	private static final String VIEWS_TREATMENT_LIST = "treatments/listTreatments";
 	private static final String VIEWS_TREATMENT_FORM = "treatments/createOrUpdateTreatmentForm";
 	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
+	private static final String REDIRECT_TO_TREATMENT_LIST = "redirect:/owners/{ownerId}/pets/{petId}/treatments";
 
 	private static final int TEST_OWNER_ID = 1;
 	private static final int TEST_PET_ID = 1;
 	private static final int TEST_WRONG_OWNER_ID = 2;
 	private static final int TEST_TREATMENT_ID_1 = 1;
 	private static final int TEST_TREATMENT_ID_2 = 2;
-	
+
 	@MockBean
 	private AuthoritiesService authoritiesService;
-	
+
 	@MockBean
 	private TreatmentService treatmentService;
-	
+
 	@MockBean
 	private MedicineService medicineService;
-	
+
 	@MockBean
 	private BannerService bannerService;
-	
+
 	@MockBean
 	private OwnerService ownerService;
-	
+
 	@MockBean
 	private PetService petService;
-	
+
 	@Autowired
 	private MockMvc mockMvc;
-	
+
+	private Treatment treatment1, treatment2;
+	private List<Treatment> treatments;
+
 	@BeforeEach
-	void setup() {		
+	void setup() {
 		User user = new User();
 		user.setEnabled(true);
 		user.setUsername("owner1");
-		
-		Pet pet = new Pet();	
+
+		Pet pet = new Pet();
 		pet.setId(TEST_PET_ID);
-		
+
 		Medicine medicine = new Medicine();
+		medicine.setId(1);
 		medicine.setName("Ibuprofeno");
-		Set<Medicine> medicines = new HashSet<>();
+        Set<Medicine> medicines = new HashSet<>();
 		medicines.add(medicine);
-		
-		Treatment treatment1 = new Treatment();
+
+		treatment1 = new Treatment();
 		treatment1.setId(TEST_TREATMENT_ID_1);
 		treatment1.setName("Tratamiento post-operatorio");
 		treatment1.setDescription("Ingerir una pastilla de ibuprefono cada 6 horas");
 		treatment1.setTimeLimit(LocalDate.now().plusWeeks(2));
 		treatment1.setMedicines(medicines);
 		treatment1.setPet(pet);
-		
-		Treatment treatment2 = new Treatment();
+
+		treatment2 = new Treatment();
 		treatment2.setId(TEST_TREATMENT_ID_2);
 		treatment2.setName("Tratamiento para curación de fractura");
 		treatment2.setDescription("Ingerir una pastilla de ibuprefono cada 6 horas");
 		treatment2.setTimeLimit(LocalDate.now().minusMonths(2));
 		treatment2.setMedicines(medicines);
 		treatment2.setPet(pet);
-		
-		List<Treatment> treatments = new ArrayList<>();
+
+		treatments = new ArrayList<>();
 		treatments.add(treatment1);
 		treatments.add(treatment2);
-		
+
 		Owner owner = new Owner();
 		owner.setId(TEST_OWNER_ID);
 		owner.setUser(user);
 		this.authoritiesService.saveAuthorities("owner1", OWNER_ROLE);
 		owner.addPet(pet);
-		
+
 		given(this.petService.findPetById(TEST_PET_ID)).willReturn(pet);
 		given(this.ownerService.findOwnerById(TEST_OWNER_ID)).willReturn(owner);
 		given(this.treatmentService.findTreatmentsByPet(TEST_PET_ID)).willReturn(treatments);
 	}
-	
+
 	@Test
 	@WithMockUser(username="owner1", password="0wn3333r_1", authorities=OWNER_ROLE)
 	void testListTreatments() throws Exception {
@@ -127,7 +134,7 @@ public class TreatmentControllerTests {
 			.andExpect(status().isOk())
 			.andExpect(view().name(VIEWS_TREATMENT_LIST));
 	}
-	
+
 	@Test
 	@WithMockUser(username="owner1", password="0wn3333r_1", authorities=OWNER_ROLE)
 	void testNotListTreatments() throws Exception {
@@ -135,7 +142,7 @@ public class TreatmentControllerTests {
 			.andExpect(status().is3xxRedirection())
 			.andExpect(view().name(REDIRECT_TO_OUPS));
 	}
-	
+
 	@Test
 	@WithMockUser(username="owner1", password="0wn3333r_1", authorities=OWNER_ROLE)
 	void testInitNewTreatmentForm() throws Exception {
@@ -143,4 +150,13 @@ public class TreatmentControllerTests {
 			.andExpect(status().isOk())
 			.andExpect(view().name(VIEWS_TREATMENT_FORM));
 	}
+
+    @Test
+    @WithMockUser(username="owner1", password="0wn3333r_1", authorities=OWNER_ROLE)
+    void testProcessNewTreatmentForm() throws Exception {
+	    mockMvc.perform(post("/owners/{ownerId}/pets/{petID}/treatments/new",TEST_OWNER_ID, TEST_PET_ID).with(csrf())
+            .flashAttr("treatment", treatment1))
+            .andExpect(status().is3xxRedirection())
+            .andExpect(view().name(REDIRECT_TO_TREATMENT_LIST));
+    }
 }

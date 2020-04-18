@@ -17,54 +17,79 @@ import org.springframework.samples.petclinic.service.TreatmentService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+
+import javax.validation.Valid;
 
 @Controller
 public class TreatmentController {
-	
+
+    private static final String VIEWS_TREATMENT_LIST = "treatments/listTreatments";
+    private static final String VIEWS_TREATMENT_FORM = "treatments/createOrUpdateTreatmentForm";
+    private static final String REDIRECT_TO_OUPS = "redirect:/oups";
+
 	@Autowired
 	private TreatmentService treatmentService;
-	
+
 	@Autowired
 	private MedicineService medicineService;
-	
+
 	@Autowired
 	private OwnerService ownerService;
-	
+
 	@Autowired
 	private PetService petService;
-	
+
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/treatments")
 	public String showTreatments(@PathVariable final int ownerId, @PathVariable final int petId, final Map<String, Object> model) {
 		if (securityAccessRequestAppointment(ownerId, petId)) {
 			List<Treatment> treatments = this.treatmentService.findTreatmentsByPet(petId);
 			List<Treatment> treatmentsDone = this.treatmentService.findTreatmentsDoneByPet(petId);
-			
+
 			model.put("treatments", treatments);
 			model.put("treatmentsDone", treatmentsDone);
-			
-			return "treatments/listTreatments";			
+
+			return VIEWS_TREATMENT_LIST;
 		} else {
-			return "redirect:/oups";
+			return REDIRECT_TO_OUPS;
 		}
 	}
-	
-	@GetMapping(value ="/owners/{ownerId}/pets/{petId}/treatments/new")
+
+	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/treatments/new")
 	public String initNewTreatmentForm(@PathVariable("ownerId") final int ownerId, @PathVariable("petId") final int petId, ModelMap model) {
 		if (securityAccessRequestAppointment(ownerId, petId)) {
 			Treatment treatment = new Treatment();
 			Collection<Medicine> medicines = this.medicineService.findAll();
 			treatment.setPet(this.petService.findPetById(petId));
-						
+
+
 			model.addAttribute("treatment", treatment);
 			model.addAttribute("medicines", medicines);
-			return "treatments/createOrUpdateTreatmentForm";
+			return VIEWS_TREATMENT_FORM;
 		} else {
-			return "redirect:/oups";
+			return REDIRECT_TO_OUPS;
 		}
 	}
-	
+
+	@PostMapping(value = "/owners/{ownerId}/pets/{petId}/treatments/new")
+    public String processNewTreatmentForm(@Valid final Treatment treatment, @PathVariable("ownerId") final int ownerId, @PathVariable("petId") final int petId, final BindingResult result, final ModelMap modelMap) {
+        if (securityAccessRequestAppointment(ownerId, petId)) {
+            if (result.hasErrors()) {
+                return VIEWS_TREATMENT_FORM;
+            } else {
+                Pet pet = this.petService.findPetById(petId);
+                treatment.setPet(pet);
+                this.treatmentService.saveTreatment(treatment);
+                return "redirect:/owners/{ownerId}/pets/{petId}/treatments";
+            }
+        } else {
+            return REDIRECT_TO_OUPS;
+        }
+    }
+
 	private boolean securityAccessRequestAppointment(int ownerId, int petId) {
 		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
 				.collect(Collectors.toList()).get(0).toString();
@@ -72,7 +97,7 @@ public class TreatmentController {
 
 		Owner owner = this.ownerService.findOwnerById(ownerId);
 		Pet pet = this.petService.findPetById(petId);
-		
+
 		boolean isHisPet = false;
 		String ownerUsername = null;
 		if (owner != null) {
