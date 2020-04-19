@@ -10,8 +10,10 @@
 		    <h2>Current Treatments</h2>		
 		</div>
 		<div class="col-md-2">
-			<spring:url value="treatments/new" var="addUrl"></spring:url>
-    		<a href="${fn:escapeXml(addUrl)}" class="btn btn-default">Add New Treatment</a>
+            <c:if test="${isVet}">
+            <spring:url value="treatments/new" var="addUrl"></spring:url>
+            <a href="${fn:escapeXml(addUrl)}" class="btn btn-default">Add New Treatment</a>
+            </c:if>
 		</div>
 	</div>
 	

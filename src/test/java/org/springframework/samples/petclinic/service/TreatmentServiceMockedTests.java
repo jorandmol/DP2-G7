@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 
 @ExtendWith(MockitoExtension.class)
 @DataJpaTest(includeFilters = @ComponentScan.Filter(Service.class))
-public class TreatmentServiceTests {
+public class TreatmentServiceMockedTests {
 
 	private static final int TEST_PET_ID = 1;
 	private static final int TEST_TREATMENT_ID_1 = 1;
