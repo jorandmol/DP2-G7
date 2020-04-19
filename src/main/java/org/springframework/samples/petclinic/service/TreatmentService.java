@@ -1,36 +1,34 @@
 package org.springframework.samples.petclinic.service;
 
-import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Treatment;
 import org.springframework.samples.petclinic.repository.TreatmentRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TreatmentService {
 
 	private TreatmentRepository treatmentRepository;
-	
+
 	@Autowired
 	public TreatmentService(TreatmentRepository treatmentRepository) {
 		this.treatmentRepository = treatmentRepository;
 	}
-	
-	public List<Treatment> findTreatmentsByPet(int petId) {
-		List<Treatment> treatments = this.treatmentRepository.findTreatmentsByPetId(petId);
-		
-		return treatments.stream().filter(x->!x.getTimeLimit().isBefore(LocalDate.now()))
-				.collect(Collectors.toList());
+
+	public List<Treatment> findCurrentTreatmentsByPet(int petId) {
+		return this.treatmentRepository.findCurrentTreatmentsByPet(petId);
 	}
-	
-	public List<Treatment> findTreatmentsDoneByPet(int petId) {
-		List<Treatment> treatments = this.treatmentRepository.findTreatmentsByPetId(petId);
-		
-		return treatments.stream().filter(x->x.getTimeLimit().isBefore(LocalDate.now()))
-				.collect(Collectors.toList());
+
+	public List<Treatment> findExpiredTreatmentsByPet(int petId) {
+		return this.treatmentRepository.findExpiredTreatmentsByPet(petId);
 	}
-	
+
+	@Transactional
+    public void saveTreatment(final Treatment treatment) {
+        this.treatmentRepository.save(treatment);
+    }
+
 }
