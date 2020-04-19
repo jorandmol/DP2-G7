@@ -16,13 +16,17 @@
 
 package org.springframework.samples.petclinic.web;
 
+import java.util.Collection;
 import java.util.Map;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.samples.petclinic.model.MedicalTest;
 import org.springframework.samples.petclinic.model.Pet;
+import org.springframework.samples.petclinic.model.Specialty;
 import org.springframework.samples.petclinic.model.Visit;
+import org.springframework.samples.petclinic.service.MedicalTestService;
 import org.springframework.samples.petclinic.service.PetService;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -44,15 +48,22 @@ public class VisitController {
 
 	private final PetService petService;
 
+	private final MedicalTestService medicalTestService;
 
 	@Autowired
-	public VisitController(final PetService petService) {
+	public VisitController(final PetService petService, final MedicalTestService medicalTestService) {
 		this.petService = petService;
+		this.medicalTestService = medicalTestService;
 	}
 
 	@InitBinder
 	public void setAllowedFields(final WebDataBinder dataBinder) {
 		dataBinder.setDisallowedFields("id");
+	}
+	
+	@ModelAttribute("tests")
+	public Collection<MedicalTest> populateSpecialties() {
+		return this.medicalTestService.findMedicalTests();
 	}
 
 	/**

@@ -16,14 +16,24 @@
 package org.springframework.samples.petclinic.model;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
 
+import org.springframework.beans.support.MutableSortDefinition;
+import org.springframework.beans.support.PropertyComparator;
 import org.springframework.format.annotation.DateTimeFormat;
 
 /**
@@ -35,6 +45,32 @@ import org.springframework.format.annotation.DateTimeFormat;
 @Table(name = "visits")
 public class Visit extends BaseEntity {
 
+	@ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable(name = "visit_medical_tests", joinColumns = @JoinColumn(name = "visit_id"), inverseJoinColumns = @JoinColumn(name = "medical_test_id"))
+	private List<MedicalTest> medicalTests;
+	
+	protected List<MedicalTest> getMedicalTestsInternal() {
+		if (this.medicalTests == null) {
+			this.medicalTests = new ArrayList<>();
+		}
+		return this.medicalTests;
+	}
+	
+	protected void setMedicalTestsInternal(List<MedicalTest> medicalTests) {
+		this.medicalTests = medicalTests;
+	}
+	
+	public List<MedicalTest> getMedicalTests() {
+		List<MedicalTest> sortedMedicalTests = new ArrayList<>(getMedicalTestsInternal());
+		PropertyComparator.sort(sortedMedicalTests, new MutableSortDefinition("name", true, true));
+		return Collections.unmodifiableList(sortedMedicalTests);
+	}
+	
+	public void setMedicalTests(List<MedicalTest> medicalTests) {
+		setMedicalTestsInternal(medicalTests);
+	}
+	
+	
 	/**
 	 * Holds value of property date.
 	 */

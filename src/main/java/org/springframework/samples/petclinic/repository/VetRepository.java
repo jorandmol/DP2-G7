@@ -47,7 +47,7 @@ public interface VetRepository {
 
 	Vet findById(Integer vetId) throws DataAccessException;
 	
-	List<Specialty> findSpecialty() throws DataAccessException;
+	List<Specialty> findSpecialties() throws DataAccessException;
 	
 	Vet findByUsername(String username);
 

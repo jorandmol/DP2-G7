@@ -38,6 +38,9 @@
             <div class="form-group has-feedback">
                 <petclinic:inputField label="Date" name="date"/>
                 <petclinic:inputField label="Description" name="description"/>
+                <div class="control-group">
+                    <petclinic:selectField label="Medical tests" name="medicalTests" names="${tests}" size="5"/>
+                </div>
             </div>
 
             <div class="form-group">
