@@ -3,18 +3,28 @@ package org.springframework.samples.petclinic.ui;
 import java.util.regex.Pattern;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.hamcrest.CoreMatchers.*;
 import org.openqa.selenium.*;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.ui.Select;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+@ExtendWith(SpringExtension.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class LoginUITest {
     private WebDriver driver;
     private String baseUrl;
     private boolean acceptNextAlert = true;
     private StringBuffer verificationErrors = new StringBuffer();
 
+    @LocalServerPort
+    private int port;
+    
     @BeforeEach
     public void setUp() throws Exception {
         driver = new FirefoxDriver();
@@ -24,7 +34,7 @@ public class LoginUITest {
 
     @Test
     public void testLoginUI() throws Exception {
-        driver.get("http://localhost:8080/");
+        driver.get("http://localhost:" + port);
         driver.findElement(By.xpath("//a[contains(text(),'Login')]")).click();
         driver.findElement(By.id("username")).clear();
         driver.findElement(By.id("username")).sendKeys("admin1");
