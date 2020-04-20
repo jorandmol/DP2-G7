@@ -74,10 +74,10 @@ public class MedicineController {
 			} catch (DuplicatedMedicineCodeException | PastMedicineDateException | IllegalArgumentException | WrongMedicineCodeException ex) {
 				 Logger.getLogger(MedicineService.class.getName()).log(Level.SEVERE, null, ex);
 				 if(ex.getClass().equals(DuplicatedMedicineCodeException.class)) {
-					 result.rejectValue("name", "duplicate", "already exists");
+					 result.rejectValue("code", "duplicate", "Already exists");
 				 }
 				 if(ex.getClass().equals(PastMedicineDateException.class)) {
-					 result.rejectValue("name", "past", "past date");
+					 result.rejectValue("name", "past", "Past date");
 				 }
 				 if(ex.getClass().equals(WrongMedicineCodeException.class)) {
 					 result.rejectValue("name", "pattern", "Must match pattern");

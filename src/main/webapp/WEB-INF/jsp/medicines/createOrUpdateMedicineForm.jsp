@@ -39,6 +39,9 @@
                 </c:choose>
             </div>
         </div>
+        <div>
+			<a class="btn btn-default" href='<spring:url value="/medicines" htmlEscape="true"/>'>Return</a>
+    </div>
     </form:form>
     </jsp:body>
 </petclinic:layout>

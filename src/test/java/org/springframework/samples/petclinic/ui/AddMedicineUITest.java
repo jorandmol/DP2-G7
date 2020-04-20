@@ -1,7 +1,12 @@
 package org.springframework.samples.petclinic.ui;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import org.junit.Assert;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -26,9 +31,13 @@ public class AddMedicineUITest {
 	private boolean acceptNextAlert = true;
 	private StringBuffer verificationErrors = new StringBuffer();
 	private int medicines;
+	private String name = "Parodentix Dogs";
+	private String date = LocalDate.now().plusYears(3).format(DateTimeFormatter.ofPattern("yyyy/MM/dd")).toString();
 
   @BeforeEach
   public void setUp() throws Exception {
+//	String pathToGeckoDriver="C:\\Users\\jorgi_000\\Desktop\\DP II\\Proyecto";
+//	System.setProperty("webdriver.gecko.driver", pathToGeckoDriver + "\\geckodriver.exe");
     driver = new FirefoxDriver();
     baseUrl = "https://www.google.com/";
     driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
@@ -39,12 +48,32 @@ public class AddMedicineUITest {
 	  as("admin1").
 	   whenIamLoggedIntheSystem().
 	   iSeeMedicineTextAndClickGo();
-	  
 	   thereAreMedicines();
-	   
 	   introduceMedicineData();
-	   
 	   thereAreMoreMedicines();
+	   logOut();
+  }
+  
+  @Test
+  public void testAddNewMedicineError() throws Exception {
+	  as("admin1").
+	   whenIamLoggedIntheSystem().
+	   iSeeMedicineTextAndClickGo();
+	  driver.findElement(By.linkText("New medicine")).click();
+	   introduceMedicineData();
+	   medicineGotErrors();
+	   logOut();
+  }
+
+	private void medicineGotErrors() {
+		List<String> spans = driver.findElements(By.tagName("span")).stream().map(s -> s.getText()).collect(Collectors.toList());
+		Assert.assertTrue(spans.contains("is already in use"));
+		driver.findElement(By.linkText("Return")).click();
+		
+		WebElement medTable = driver.findElement(By.id("medicinesTable"));
+		List<WebElement> medicinesList = medTable.findElements(By.id("med"));
+		medicines = medicinesList.size();
+		assertEquals(medicines,4);
   }
 
 	private AddMedicineUITest whenIamLoggedIntheSystem() {	
@@ -67,13 +96,13 @@ public class AddMedicineUITest {
 	private AddMedicineUITest introduceMedicineData(){
 	    driver.findElement(By.id("name")).click();
 	    driver.findElement(By.id("name")).clear();
-	    driver.findElement(By.id("name")).sendKeys("Parodentix Dogs");
+	    driver.findElement(By.id("name")).sendKeys(name);
 	    driver.findElement(By.id("code")).click();
 	    driver.findElement(By.id("code")).clear();
 	    driver.findElement(By.id("code")).sendKeys("DXD-123");
 	    driver.findElement(By.id("expirationDate")).click();
 	    driver.findElement(By.id("expirationDate")).clear();
-	    driver.findElement(By.id("expirationDate")).sendKeys("2026/04/30");
+	    driver.findElement(By.id("expirationDate")).sendKeys(date);
 	    driver.findElement(By.id("description")).click();
 	    driver.findElement(By.id("description")).clear();
 	    driver.findElement(By.id("description")).sendKeys("Ideal para mantener fuerte la dentadura de la mascota");
@@ -87,9 +116,15 @@ public class AddMedicineUITest {
 		assertEquals(medicinesList.size(), medicines + 1);
 	}
 	
+	private void logOut() {
+		 driver.findElement(By.linkText("ADMIN1")).click();
+		 driver.findElement(By.linkText("Logout")).click();
+		 driver.findElement(By.xpath("//button[@type='submit']")).click();
+	}
+	
 	private AddMedicineUITest as(String username) {
 		this.username=username;
-	    driver.get("http://localhost:8080");
+	    driver.get("http://localhost:" + port);
 	    driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
 	    driver.findElement(By.id("password")).clear();
 	    driver.findElement(By.id("password")).sendKeys(passwordOf(username));
