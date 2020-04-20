@@ -4,6 +4,7 @@ package org.springframework.samples.petclinic.service;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Appointment;
@@ -91,4 +92,12 @@ public class AppointmentService {
     private int countAppointmentsByVetAndDay(int vetId, LocalDate date) {
 	    return this.appointmentRepository.countAppointmentsByVetAndDay(vetId, date);
     }
+
+	public List<Appointment> getAppointmentTodayByVetId(Integer vetId, LocalDate date) {
+		return this.appointmentRepository.getAppointmentTodayByVetId(vetId, date);
+	}
+
+	public List<Appointment> getNextAppointmentByVetId(Integer vetId, LocalDate date) {
+		return this.appointmentRepository.getNextAppointmentByVetId(vetId, date);
+	}
 }

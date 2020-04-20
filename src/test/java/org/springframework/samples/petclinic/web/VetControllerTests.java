@@ -12,12 +12,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoSettings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -25,9 +28,11 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
 import org.springframework.samples.petclinic.configuration.SecurityConfiguration;
+import org.springframework.samples.petclinic.model.Appointment;
 import org.springframework.samples.petclinic.model.Specialty;
 import org.springframework.samples.petclinic.model.User;
 import org.springframework.samples.petclinic.model.Vet;
+import org.springframework.samples.petclinic.service.AppointmentService;
 import org.springframework.samples.petclinic.service.AuthoritiesService;
 import org.springframework.samples.petclinic.service.BannerService;
 import org.springframework.samples.petclinic.service.UserService;
@@ -51,6 +56,9 @@ class VetControllerTests {
 	private VetService vetService;
 
 	@MockBean
+	private AppointmentService appointmentService;
+	
+	@MockBean
 	private UserService userService;
 
 	@MockBean
@@ -66,13 +74,16 @@ class VetControllerTests {
 	private Vet henry;
 	
 	@Mock
-	private User user;
+	private User user1;
 	
 	@Mock
 	private List<Specialty> specialties1;
 	
 	@Mock
 	private List<Specialty> specialties2;
+	
+	@Mock
+	private List<Appointment> appointments;
 
 	@BeforeEach
 	void setup() {
@@ -98,6 +109,21 @@ class VetControllerTests {
 		
 		specialties2.add(surgery);
 		
+		List<Appointment> appointmentsToday= new ArrayList<>();
+		Appointment appointmentToday = new Appointment();
+		appointmentToday.setAppointmentDate(LocalDate.now());
+		appointmentToday.setVet(rafael);
+		appointmentsToday.add(appointmentToday);
+		
+		List<Appointment> nextAppointments= new ArrayList<>();
+		Appointment nextAppointment = new Appointment();
+		nextAppointment.setAppointmentDate(LocalDate.now().plusDays(3));
+		nextAppointment.setVet(rafael);
+		nextAppointments.add(nextAppointment);
+		
+		appointments= new ArrayList<Appointment>();
+		
+		//vet1
 		rafael = new Vet();
 		rafael.setId(TEST_VET_ID);
 		rafael.setFirstName("Rafael");
@@ -106,14 +132,29 @@ class VetControllerTests {
 		rafael.setCity("Madison");
 		rafael.setTelephone("608555102");
 		rafael.addSpecialty(surgery);
-		user = new User();
-		user.setUsername("vet1");
-		user.setPassword("veter1n4ri0_1");
-		user.setEnabled(true);
-		rafael.setUser(user);
+		user1 = new User();
+		user1.setUsername("vet1");
+		user1.setPassword("veter1n4ri0_1");
+		user1.setEnabled(true);
+		rafael.setUser(user1);
+		this.authoritiesService.saveAuthorities("vet1", "veterinarian");
+		
+		//vet2- creado para comprobar que el listado de citas es vacio para este vet
+		User user2 = new User();
+		user2.setUsername("vet2");
+		user2.setPassword("veter1n4ri0_2");
+		user2.setEnabled(true);
+		Vet vet2= new Vet();
+		vet2.setUser(user2);
+		vet2.setId(2);
+		this.authoritiesService.saveAuthorities("vet2", "veterinarian");
+		
 		given(this.vetService.findVetById(TEST_VET_ID)).willReturn(rafael);
         given(this.vetService.findVets()).willReturn(Lists.newArrayList(james, helen));
-
+        given(this.appointmentService.getAppointmentTodayByVetId(TEST_VET_ID, LocalDate.now())).willReturn(appointmentsToday);
+        given(this.appointmentService.getNextAppointmentByVetId(TEST_VET_ID, LocalDate.now())).willReturn(nextAppointments);
+        given(this.vetService.findVetByUsername("vet1")).willReturn(rafael);
+        given(this.vetService.findVetByUsername("vet2")).willReturn(vet2);
 		
 	}
 	
@@ -242,6 +283,27 @@ class VetControllerTests {
 				.andExpect(model().attributeHasFieldErrors("vet", "address"))
 				.andExpect(model().attributeHasFieldErrors("vet", "city"))
 				.andExpect(view().name("vets/createOrUpdateVetForm"));
+	}
+	
+	
+	@WithMockUser(username="vet1", password="veter1n4ri0_1", authorities="veterinarian")
+	@Test
+	void testShowAppoimentsByVetList() throws Exception {
+		mockMvc.perform(get("/appointments")).andExpect(status().isOk())
+				.andExpect(model().attributeExists("appointmentsToday"))
+				.andExpect(model().attributeExists("nextAppointments"))
+				.andExpect(view().name("vets/appointmentList"));
+
+	}
+	
+	@WithMockUser(username="vet2", password="veter1n4ri0_2", authorities="veterinarian")
+	@Test
+	void testShowAppoimentsByVetListEmpty() throws Exception {
+		mockMvc.perform(get("/appointments")).andExpect(status().isOk())
+				.andExpect(model().attribute("appointmentsToday", appointments))
+				.andExpect(model().attribute("nextAppointments", appointments))
+				.andExpect(view().name("vets/appointmentList"));
+
 	}
 
 	@WithMockUser(value = "spring")

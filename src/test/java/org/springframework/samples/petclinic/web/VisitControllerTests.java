@@ -18,6 +18,7 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.samples.petclinic.configuration.SecurityConfiguration;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.service.BannerService;
+import org.springframework.samples.petclinic.service.MedicalTestService;
 import org.springframework.samples.petclinic.service.PetService;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -41,6 +42,9 @@ class VisitControllerTests {
 	@MockBean
 	private BannerService bannerService;
 
+	@MockBean
+	private MedicalTestService medicalTestService;
+	
 	@Autowired
 	private MockMvc mockMvc;
 
@@ -63,7 +67,7 @@ class VisitControllerTests {
 							.with(csrf())
 							.param("description", "Visit Description"))                                
                 .andExpect(status().is3xxRedirection())
-				.andExpect(view().name("redirect:/owners/{ownerId}"));
+				.andExpect(view().name("redirect:/appointments"));
 	}
 
 	@WithMockUser(value = "spring")

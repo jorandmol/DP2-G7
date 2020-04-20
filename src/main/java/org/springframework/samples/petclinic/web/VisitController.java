@@ -96,7 +96,8 @@ public class VisitController {
 			return "pets/createOrUpdateVisitForm";
 		} else {
 			this.petService.saveVisit(visit);
-			return "redirect:/owners/{ownerId}";
+			//Añadir un mensaje para que el vet sepa que se ha guardado la visita.
+			return "redirect:/appointments";
 		}
 	}
 
