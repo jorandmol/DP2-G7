@@ -57,7 +57,7 @@
 				<petclinic:menuItem active="${name eq 'appointments'}" url="/appointments"
 					title="appointments">
 					<span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
-					<span>Citas</span>
+					<span>Appointments</span>
 				</petclinic:menuItem>
 				</sec:authorize>
 				
