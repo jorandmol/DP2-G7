@@ -27,7 +27,6 @@ public class AddMedicineUITest {
 	
 	private String username;
 	private WebDriver driver;
-	private String baseUrl;
 	private boolean acceptNextAlert = true;
 	private StringBuffer verificationErrors = new StringBuffer();
 	private int medicines;
@@ -36,10 +35,7 @@ public class AddMedicineUITest {
 
   @BeforeEach
   public void setUp() throws Exception {
-//	String pathToGeckoDriver="C:\\Users\\jorgi_000\\Desktop\\DP II\\Proyecto";
-//	System.setProperty("webdriver.gecko.driver", pathToGeckoDriver + "\\geckodriver.exe");
     driver = new FirefoxDriver();
-    baseUrl = "https://www.google.com/";
     driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
   }
   

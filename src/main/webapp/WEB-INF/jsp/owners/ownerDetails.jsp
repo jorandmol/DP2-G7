@@ -140,7 +140,7 @@
                             		</td>
                             	</tr>
                         </table>
-                	<span class="error-text"> <c:out value="${errors}"></c:out> </span>
+                	<span class="error-text"><c:out value="${errors}"></c:out></span>
             	</td>
             </tr>
 
