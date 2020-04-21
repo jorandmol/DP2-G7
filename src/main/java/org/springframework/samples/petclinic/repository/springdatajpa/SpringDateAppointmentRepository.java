@@ -1,6 +1,7 @@
 package org.springframework.samples.petclinic.repository.springdatajpa;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
@@ -17,5 +18,14 @@ public interface SpringDateAppointmentRepository extends AppointmentRepository, 
 	@Override
 	@Query("SELECT COUNT(a) FROM Appointment a WHERE a.pet.id=:petId AND a.appointmentDate=:date")
     int countAppointmentsByPetAndDay(@Param("petId") int petId, @Param("date") LocalDate date);
+
+
+	@Query("SELECT a FROM Appointment a WHERE a.vet.id=:vetId AND a.appointmentDate=:date")
+	List<Appointment> getAppointmentTodayByVetId(@Param("vetId") Integer vetId, @Param("date") LocalDate date);
+	
+	
+	@Query("SELECT a FROM Appointment a WHERE a.vet.id=:vetId AND a.appointmentDate>:date")
+	List<Appointment> getNextAppointmentByVetId(@Param("vetId") Integer vetId, @Param("date") LocalDate date);
+
 
 }

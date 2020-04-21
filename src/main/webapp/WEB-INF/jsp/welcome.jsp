@@ -13,16 +13,23 @@
         </div>
     
     <div>
-      <sec:authorize access="hasAuthority('admin')">
-        <h3>Pet types</h3>
-        <a class="btn btn-default" href='<spring:url value="/pet-type" htmlEscape="true"/>'>Go</a>
-        </form>
-     </sec:authorize>
+    	<sec:authorize access="hasAuthority('admin')">
+      		<h3>Pet types</h3>
+        	<a class="btn btn-default" href='<spring:url value="/pet-type" htmlEscape="true"/>'>Go</a>
+     	</sec:authorize>
     </div>
+    <br>
     <div>
-	    <sec:authorize access="hasAuthority('admin')">
-	      <h3>Medicines</h3>
-				<a class="btn btn-default" href='<spring:url value="/medicines" htmlEscape="true"/>'>Go</a>
-			</sec:authorize>
-		</div>
+		<sec:authorize access="hasAuthority('admin')">
+	    	<h3>Medicines</h3>
+			<a class="btn btn-default" href='<spring:url value="/medicines" htmlEscape="true"/>'>Go</a>
+		</sec:authorize>
+	</div>
+	<br>
+	<div>
+    	<sec:authorize access="hasAuthority('admin')">
+        	<h3>Medical tests</h3>
+        	<a class="btn btn-default" href='<spring:url value="/medical-tests" htmlEscape="true"/>'>Go</a>
+     	</sec:authorize>
+    </div>
 </petclinic:layout>

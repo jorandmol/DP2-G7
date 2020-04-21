@@ -98,15 +98,6 @@
                                 <td><c:out value="${visit.description}"/></td>
                             </tr>
                         </c:forEach>
-                        <tr>
-                            <td>
-                                <spring:url value="/owners/{ownerId}/pets/{petId}/visits/new" var="visitUrl">
-                                    <spring:param name="ownerId" value="${owner.id}"/>
-                                    <spring:param name="petId" value="${pet.id}"/>
-                                </spring:url>
-                                <a href="${fn:escapeXml(visitUrl)}" class="btn btn-default">Add Visit</a>
-                            </td>
-                        </tr>
                     </table>
                 </td>
                 <td valign="top">

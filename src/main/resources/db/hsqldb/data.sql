@@ -90,9 +90,20 @@ INSERT INTO visits(id,pet_id,visit_date,description) VALUES (2, 8, '2013-01-02',
 INSERT INTO visits(id,pet_id,visit_date,description) VALUES (3, 8, '2013-01-03', 'neutered');
 INSERT INTO visits(id,pet_id,visit_date,description) VALUES (4, 7, '2013-01-04', 'spayed');
 
+INSERT INTO medical_tests VALUES (1, 'Radiography', 'It is used to diagnose or treat patients by recording images of the internal structure of the body to assess the presence or absence of disease, foreign objects, and structural damage or anomaly. During a radiographic procedure, an x-ray beam is passed through the body.');
+INSERT INTO medical_tests VALUES (2, 'Sonography', 'It uses ultrasonic sound waves in the frequency range of 1.5-15 megahertz (MHz) to create images of body structures based on the pattern of echoes reflected from the tissues and organs being imaged.');
+
+INSERT INTO visit_medical_tests VALUES (2, 1);
+
 INSERT INTO medicines VALUES (1, 'Paracetamol', 'BAY-2356', 'Antinflamatorio', '2021-07-04');
 INSERT INTO medicines VALUES (2, 'Pet Dalsy', 'BOT-334', 'Ideal para cachorros', '2024-03-04');
 INSERT INTO medicines VALUES (3, 'Ibuprofeno', 'IUP-004', 'Elimina síntomas de gripe', '2022-10-14');
+
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (1,'2020-04-20','2020-03-27','Cita médica',1,1,1);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (2,'2020-06-30','2020-03-27','Estudio radiográfico',1,1,1);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (3,'2020-08-30','2020-03-27','Tratamiento de fractura',1,1,1);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (4,'2020-04-21','2020-03-27','Revisión dental',2,2,1);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (5,'2020-04-22','2020-03-27','Cita médica',10,12,1);
 
 INSERT INTO banners(id, picture, slogan, target_url, organization_name, init_colab_date, end_colab_date) VALUES (1, 'https://pbs.twimg.com/media/ETaS5ThXsAIJST1.jpg', '#YoMeQuedoEnCasa', 'https://twitter.com/asoc_recal?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor', 'Recal: Refugio Canino', '2020-01-01', '2021-01-01');
 INSERT INTO banners(id, picture, slogan, target_url, organization_name, init_colab_date, end_colab_date) VALUES (2, 'https://elrefugio.org/contenido/paginas/El-Refugio-ProyectoEdencabeceroweb.jpg', 'La vida no es eterna, pero el amor sí', 'https://elrefugio.org/default.aspx', 'elrefugio.org', '2019-10-01', '2020-10-01');

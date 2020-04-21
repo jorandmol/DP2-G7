@@ -100,7 +100,7 @@ public class UserController {
 
 	@GetMapping(value= { "/users/profile" })
 	public String findUser() {
-		System.out.println("He llegado");
+		
 		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities()
 				.stream().collect(Collectors.toList()).get(0).toString();
 		System.out.println(authority);
