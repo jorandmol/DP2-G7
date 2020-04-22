@@ -48,9 +48,9 @@
         </c:forEach>
         </tbody>
     </table>
-    
-     <h2>Expired Treatments</h2>
-    
+    <div class="col-md-11">
+    	<h2>Expired Treatments</h2>
+    </div>
     <table id="treatmentsTable" class="table table-striped">
         <thead>
         <tr>
