@@ -15,4 +15,6 @@ public interface TreatmentHistoryRepository extends Repository<TreatmentHistory,
 
     void save(TreatmentHistory treatmentHistory);
 
+	List<TreatmentHistory> findHistoryById(int treatmentId);
+
 }

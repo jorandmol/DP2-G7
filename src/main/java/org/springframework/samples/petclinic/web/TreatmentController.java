@@ -1,5 +1,6 @@
 package org.springframework.samples.petclinic.web;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -60,7 +61,7 @@ public class TreatmentController {
 	}
 
 	@GetMapping(value = "/vets/pets/{petId}/treatments")
-    public String showTreatments(@PathVariable("petId") final int petId, ModelMap model) {
+    public String showTreatments(@PathVariable("petId") final int petId, final ModelMap model) {
 	    if (getAuthority().equals("veterinarian")) {
 	        model.put("isVet", true);
 	        return getViewsTreatmentList(petId, model);
@@ -70,7 +71,7 @@ public class TreatmentController {
     }
 
 	@GetMapping(value = "/vets/pets/{petId}/treatments/new")
-	public String initNewTreatmentForm(@PathVariable("petId") final int petId, ModelMap model) {
+	public String initNewTreatmentForm(@PathVariable("petId") final int petId, final ModelMap model) {
         Treatment treatment = new Treatment();
         treatment.setPet(this.petService.findPetById(petId));
         model.addAttribute("treatment", treatment);
@@ -91,21 +92,33 @@ public class TreatmentController {
 
     @GetMapping(value = "/vets/pets/{petId}/treatments/{treatmentId}/edit")
     public String initTreatmentEditForm(@PathVariable("petId") final int petId, @PathVariable("treatmentId") final int treatmentId, final ModelMap modelMap) {
-        Treatment treatment = this.treatmentService.findById(treatmentId);
-        modelMap.put("treatment", treatment);
-        modelMap.put("edit", true);
-        return VIEWS_TREATMENT_FORM;
+        if (isEditableTreatment(petId, treatmentId)) {
+        	Treatment treatment = this.treatmentService.findById(treatmentId);
+        	modelMap.put("treatment", treatment);
+        	modelMap.put("edit", true);
+        	Collection<Medicine> noTreatmentMedicines = new ArrayList<Medicine>(loadMedicines());
+        	noTreatmentMedicines.removeAll(treatment.getMedicines());
+        	modelMap.put("treatmentMedicines", treatment.getMedicines());
+        	modelMap.put("otherMedicines", noTreatmentMedicines);
+        	return VIEWS_TREATMENT_FORM;        	
+        } else {
+        	return REDIRECT_TO_OUPS;
+        }
     }
 
     @PostMapping(value = "/vets/pets/{petId}/treatments/{treatmentId}/edit")
     public String processTreatmentEditForm(@Valid final Treatment treatment, final BindingResult result, @PathVariable("petId") final int petId,
             @PathVariable("treatmentId") final int treatmentId, final ModelMap modelMap) {
-        if (result.hasErrors()) {
-            return VIEWS_TREATMENT_FORM;
-        } else {
-            this.treatmentService.editTreatment(treatment);
+    	if (isEditableTreatment(petId, treatmentId)) {
+	    	if (result.hasErrors()) {
+	            return VIEWS_TREATMENT_FORM;
+	        } else if (hasChanges(treatment)) {
+	            this.treatmentService.editTreatment(treatment);
+	        }
+	        return "redirect:/vets/pets/{petId}/treatments";
+    	} else {
+        	return REDIRECT_TO_OUPS;
         }
-        return "redirect:/vets/pets/{petId}/treatments";
     }
 
 	private boolean securityAccessRequestTreatment(int ownerId, int petId) {
@@ -123,6 +136,25 @@ public class TreatmentController {
 		}
 
 		return authority.equals("owner") && username.equals(ownerUsername) && isHisPet;
+	}
+	
+	private boolean isEditableTreatment(int petId, int treatmentId) {
+		Treatment treatment = this.treatmentService.findById(treatmentId);
+		boolean isCurrantTreatment = treatment.getTimeLimit().isAfter(LocalDate.now());
+		boolean isAccessibleTreatment = treatment.getPet().getId() == petId;
+		boolean res = false;
+		if (isCurrantTreatment && isAccessibleTreatment) {
+			res = true;
+		}
+		return res;	
+	}
+	
+	private boolean hasChanges(Treatment treatment) {
+		Treatment original = this.treatmentService.findById(treatment.getId());
+		return !(treatment.getName().equals(original.getName()) &&
+				treatment.getDescription().equals(original.getDescription()) &&
+				treatment.getTimeLimit().equals(original.getTimeLimit()) &&
+				treatment.getMedicines().equals(original.getMedicines()));
 	}
 
 	private String getAuthority() {

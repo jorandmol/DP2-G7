@@ -16,12 +16,12 @@ public class TreatmentService {
 
     private TreatmentRepository treatmentRepository;
 
-    @Autowired
-    TreatmentHistoryRepository treatmentHistoryRepository;
+    private TreatmentHistoryRepository treatmentHistoryRepository;
 
 	@Autowired
-	public TreatmentService(TreatmentRepository treatmentRepository) {
+	public TreatmentService(TreatmentRepository treatmentRepository, TreatmentHistoryRepository treatmentHistoryRepository) {
 		this.treatmentRepository = treatmentRepository;
+		this.treatmentHistoryRepository = treatmentHistoryRepository;
 	}
 
 	public List<Treatment> findCurrentTreatmentsByPet(int petId) {
@@ -34,6 +34,10 @@ public class TreatmentService {
 
     public Treatment findById(Integer id) {
         return this.treatmentRepository.findById(id);
+    }
+    
+    public List<TreatmentHistory> findHistoryById(int treatmentId) {
+    	return this.treatmentHistoryRepository.findHistoryById(treatmentId);
     }
 
 	@Transactional

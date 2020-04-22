@@ -43,7 +43,10 @@
                             <label class="col-sm-2 control-label">Medicines</label>
                             <div class="col-sm-10">
                                 <select name="medicines" class="form-control" multiple>
-                                    <c:forEach items="${medicines}" var="medicine">
+                                    <c:forEach items="${treatmentMedicines}" var="medicine">
+                                        <option value="${medicine.id}" selected>${medicine.code} - ${medicine.name}</option>
+                                    </c:forEach>
+                                    <c:forEach items="${otherMedicines}" var="medicine">
                                         <option value="${medicine.id}">${medicine.code} - ${medicine.name}</option>
                                     </c:forEach>
                                 </select>

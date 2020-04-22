@@ -321,5 +321,13 @@ class VetControllerTests {
 				.andExpect(model().attribute("vet", hasProperty("telephone", is("608555102"))))
 				.andExpect(view().name("vets/vetDetails"));
 	}
+	
+	@WithMockUser(username="vet1", password="veter1n4ri0_1", authorities="veterinarian")
+	@Test
+	void testShowPetsList() throws Exception {
+		mockMvc.perform(get("/vets/pets")).andExpect(status().isOk())
+				.andExpect(model().attributeExists("pets"))
+				.andExpect(view().name("pets/petsList"));
+	}
 
 }

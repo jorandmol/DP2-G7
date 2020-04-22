@@ -181,18 +181,18 @@ public class VetController {
 		
 		return "vets/appointmentList";
 	}
-	
-	@GetMapping(value = "/vets/pets")
-	public String showPetsLit(ModelMap modelMap) {
-		List<Pet> pets = this.petService.findAll();
-		modelMap.put("pets", pets);
-		return "pets/petsList";
-	}
 
 	@GetMapping("/vets/{vetId}")
 	public ModelAndView showVet(@PathVariable("vetId") int vetId) {
 		ModelAndView mav = new ModelAndView("vets/vetDetails");
 		mav.addObject(this.vetService.findVetById(vetId));
 		return mav;
+	}
+	
+	@GetMapping(value = "/vets/pets")
+	public String showPetsLit(ModelMap modelMap) {
+		List<Pet> pets = this.petService.findAll();
+		modelMap.put("pets", pets);
+		return "pets/petsList";
 	}
 }

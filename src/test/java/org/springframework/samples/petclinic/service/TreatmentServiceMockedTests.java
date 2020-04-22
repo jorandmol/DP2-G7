@@ -1,6 +1,6 @@
 package org.springframework.samples.petclinic.service;
 
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -18,6 +18,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.samples.petclinic.model.Medicine;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.Treatment;
+import org.springframework.samples.petclinic.repository.TreatmentHistoryRepository;
 import org.springframework.samples.petclinic.repository.TreatmentRepository;
 import org.springframework.stereotype.Service;
 
@@ -31,15 +32,18 @@ public class TreatmentServiceMockedTests {
 
 	@Mock
 	private TreatmentRepository treatmentRepository;
+	
+	@Mock
+	private TreatmentHistoryRepository treatmentHistoryRepository; 
 
 	protected TreatmentService treatmentService;
 
-	private Treatment treatment1, treatment2;
+	private Treatment treatment1, treatment2, treatment3;
 	private List<Treatment> treatments;
 
 	@BeforeEach
 	void setup() {
-		treatmentService = new TreatmentService(treatmentRepository);
+		treatmentService = new TreatmentService(treatmentRepository, treatmentHistoryRepository);
 
 		Pet pet = new Pet();
 		pet.setId(TEST_PET_ID);
@@ -67,6 +71,14 @@ public class TreatmentServiceMockedTests {
 		treatment2.setTimeLimit(LocalDate.now().minusMonths(2));
 		treatment2.setMedicines(medicines);
 		treatment2.setPet(pet);
+		
+		treatment3 = new Treatment();
+		treatment3.setId(TEST_TREATMENT_ID_1);
+		treatment3.setName("Tratamiento post-operatorio");
+		treatment3.setDescription("Ingerir una pastilla de ibuprefono cada 8 horas");
+		treatment3.setTimeLimit(LocalDate.now().plusWeeks(2));
+		treatment3.setMedicines(medicines);
+		treatment3.setPet(pet);
 
 		treatments = new ArrayList<>();
 		treatments.add(treatment1);
@@ -78,4 +90,11 @@ public class TreatmentServiceMockedTests {
 	    this.treatmentRepository.save(treatment1);
 	    verify(treatmentRepository).save(treatment1);
     }
+	
+	@Test
+	void shouldEditTreatment() {
+		when(this.treatmentRepository.findById(TEST_TREATMENT_ID_1)).thenReturn(treatment1);
+		this.treatmentService.editTreatment(treatment3);
+		verify(treatmentRepository).save(treatment3);
+	}
 }
