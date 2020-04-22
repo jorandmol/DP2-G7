@@ -29,9 +29,11 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.samples.petclinic.model.Appointment;
 import org.springframework.samples.petclinic.model.Specialty;
 import org.springframework.samples.petclinic.model.User;
+import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.model.Vets;
 import org.springframework.samples.petclinic.service.AppointmentService;
+import org.springframework.samples.petclinic.service.PetService;
 import org.springframework.samples.petclinic.service.VetService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -59,13 +61,15 @@ import net.bytebuddy.description.annotation.AnnotationList.Empty;
 public class VetController {
 
 	private final VetService vetService;
-	private final AppointmentService appointmentService ;
+	private final AppointmentService appointmentService;
+	private final PetService petService;
 	private static final String VIEWS_VET_CREATE_OR_UPDATE_FORM = "vets/createOrUpdateVetForm";
 
 	@Autowired
-	public VetController(VetService vetService, AppointmentService appointmentService) {
+	public VetController(VetService vetService, AppointmentService appointmentService, PetService petService) {
 		this.vetService = vetService;
 		this.appointmentService = appointmentService;
+		this.petService = petService;
 	}
 
 	@ModelAttribute("specialties")
@@ -176,6 +180,13 @@ public class VetController {
 		model.put("nextAppointments", nextAppointments);
 		
 		return "vets/appointmentList";
+	}
+	
+	@GetMapping(value = "/vets/pets")
+	public String showPetsLit(ModelMap modelMap) {
+		List<Pet> pets = this.petService.findAll();
+		modelMap.put("pets", pets);
+		return "pets/petsList";
 	}
 
 	@GetMapping("/vets/{vetId}")

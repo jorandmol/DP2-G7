@@ -17,6 +17,7 @@ package org.springframework.samples.petclinic.service;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -138,6 +139,10 @@ public class PetService {
 			stay.setReleaseDate(newDate2);
 			this.stayRepository.save(stay);
 		}
+	}
+	
+	public List<Pet> findAll() {
+		return this.petRepository.findAll();
 	}
 
 }

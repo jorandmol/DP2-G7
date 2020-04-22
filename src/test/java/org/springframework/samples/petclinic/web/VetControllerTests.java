@@ -35,6 +35,7 @@ import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.service.AppointmentService;
 import org.springframework.samples.petclinic.service.AuthoritiesService;
 import org.springframework.samples.petclinic.service.BannerService;
+import org.springframework.samples.petclinic.service.PetService;
 import org.springframework.samples.petclinic.service.UserService;
 import org.springframework.samples.petclinic.service.VetService;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
@@ -54,6 +55,9 @@ class VetControllerTests {
 
 	@MockBean
 	private VetService vetService;
+	
+	@MockBean
+	private PetService petService;
 
 	@MockBean
 	private AppointmentService appointmentService;
