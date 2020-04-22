@@ -36,8 +36,8 @@ public class TreatmentService {
         return this.treatmentRepository.findById(id);
     }
     
-    public List<TreatmentHistory> findHistoryById(int treatmentId) {
-    	return this.treatmentHistoryRepository.findHistoryById(treatmentId);
+    public List<TreatmentHistory> findHistoryByTreatment(int treatmentId) {
+    	return this.treatmentHistoryRepository.findHistoryByTreatment(treatmentId);
     }
 
 	@Transactional

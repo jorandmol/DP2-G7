@@ -40,11 +40,11 @@ public class TreatmentServiceTests {
 	
 	@Test
 	public void shouldRegisterTreatmentHistory() {
-		List<TreatmentHistory> history = this.treatmentService.findHistoryById(1);
+		List<TreatmentHistory> history = this.treatmentService.findHistoryByTreatment(1);
 		int size = history.size();
 		treatment.setDescription("Nueva receta para la mascota");
 		this.treatmentService.editTreatment(treatment);
-		history = this.treatmentService.findHistoryById(1);
+		history = this.treatmentService.findHistoryByTreatment(1);
 		assertEquals(size + 1, history.size());
 	}
 	

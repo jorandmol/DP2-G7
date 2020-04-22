@@ -1,6 +1,8 @@
 package org.springframework.samples.petclinic.model;
 
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -26,5 +28,9 @@ public class TreatmentHistory extends NamedEntity {
     private String description;
 
     private String medicines;
+    
+    public List<String> getMedicineList() {
+    	return Arrays.asList(this.medicines.split("#"));
+    }
 
 }

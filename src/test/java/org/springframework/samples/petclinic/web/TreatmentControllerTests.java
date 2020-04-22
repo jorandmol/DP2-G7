@@ -46,6 +46,7 @@ public class TreatmentControllerTests {
 	private static final String VIEWS_TREATMENT_FORM = "treatments/createOrUpdateTreatmentForm";
 	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
 	private static final String REDIRECT_TO_VET_TREATMENT_LIST = "redirect:/vets/pets/{petId}/treatments";
+	private static final String REDIRECT_TO_TREATMENT_SHOW = "redirect:/vets/pets/{petId}/treatments/{treatmentId}";
 
 	private static final int TEST_OWNER_ID = 1;
     private static final int TEST_VET_ID = 1;
@@ -214,7 +215,7 @@ public class TreatmentControllerTests {
 	    mockMvc.perform(post("/vets/pets/{petId}/treatments/{treatmentId}/edit", TEST_PET_ID, TEST_TREATMENT_ID_1).with(csrf())
 	    	.flashAttr("treatment", treatment3))
 		    .andExpect(status().is3xxRedirection())
-	        .andExpect(view().name(REDIRECT_TO_VET_TREATMENT_LIST));
+	        .andExpect(view().name(REDIRECT_TO_TREATMENT_SHOW));
     }
     
     @Test
