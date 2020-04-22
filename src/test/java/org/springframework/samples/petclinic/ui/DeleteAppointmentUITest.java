@@ -25,7 +25,7 @@ public class DeleteAppointmentUITest {
   private WebDriver driver;
   private boolean acceptNextAlert = true;
   private StringBuffer verificationErrors = new StringBuffer();
-  private String appointmentDateToDelete = PetclinicDates.getFormattedFutureDate(LocalDate.now(), 5, "yyyy/MM/dd");
+  private String appointmentDateToDelete = PetclinicDates.getFormattedFutureDate(LocalDate.now(), 10, "yyyy/MM/dd");
   private String appointmentDateToNotDelete = PetclinicDates.getFormattedFutureDate(LocalDate.now(), 1, "yyyy/MM/dd");
   
   @LocalServerPort

@@ -57,7 +57,7 @@ public class Treatment extends NamedEntity{
 
 	@Column(name = "time_limit")
 	@DateTimeFormat(pattern = "yyyy/MM/dd")
-	@FutureOrPresent
+	//@FutureOrPresent
 	@NotNull
 	private LocalDate timeLimit;
 

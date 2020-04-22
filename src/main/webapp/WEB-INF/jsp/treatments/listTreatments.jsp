@@ -11,7 +11,9 @@
 		</div>
 		<div class="col-md-2">
             <c:if test="${isVet}">
-            <spring:url value="treatments/new" var="addUrl"></spring:url>
+            <spring:url value="/vets/pets/{petId}/treatments/new" var="addUrl">
+            	<spring:param name="petId" value="${petId}"/>
+            </spring:url>
             <a href="${fn:escapeXml(addUrl)}" class="btn btn-default">Add New Treatment</a>
             </c:if>
 		</div>
@@ -25,6 +27,9 @@
             <th>Description</th>
             <th>Medicines</th>
             <th>Time Limit</th>
+            <c:if test="${isVet}">
+            	<th></th>
+            </c:if>
         </tr>
         </thead>
         <tbody>
@@ -43,7 +48,15 @@
                 </td>
                	<td>
                		<c:out value="${treatment.timeLimit}"></c:out>
-               	</td>
+                </td>
+                <c:if test="${isVet}">
+	                <td>
+	                    <spring:url value="treatments/{treatmentId}" var="editUrl">
+	                        <spring:param name="treatmentId" value="${treatment.id}"/>
+	                    </spring:url>
+	                    <a href="${fn:escapeXml(editUrl)}">Show Treatment</a>
+	                </td>
+                </c:if>
             </tr>
         </c:forEach>
         </tbody>
@@ -58,6 +71,9 @@
             <th>Description</th>
             <th>Medicines</th>
             <th>Time Limit</th>
+            <c:if test="${isVet}">
+            	<th></th>
+            </c:if>
         </tr>
         </thead>
         <tbody>
@@ -78,6 +94,14 @@
                	<td>
                		<c:out value="${treatmentDone.timeLimit}"></c:out>
                	</td>
+               	<c:if test="${isVet}">
+	                <td>
+	                    <spring:url value="treatments/{treatmentId}" var="editUrl">
+	                        <spring:param name="treatmentId" value="${treatment.id}"/>
+	                    </spring:url>
+	                    <a href="${fn:escapeXml(editUrl)}">Show Treatment</a>
+	                </td>
+                </c:if>
             </tr>
         </c:forEach>
         </tbody>

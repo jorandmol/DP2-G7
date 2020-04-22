@@ -35,6 +35,7 @@ import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.service.AppointmentService;
 import org.springframework.samples.petclinic.service.AuthoritiesService;
 import org.springframework.samples.petclinic.service.BannerService;
+import org.springframework.samples.petclinic.service.PetService;
 import org.springframework.samples.petclinic.service.UserService;
 import org.springframework.samples.petclinic.service.VetService;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
@@ -54,6 +55,9 @@ class VetControllerTests {
 
 	@MockBean
 	private VetService vetService;
+	
+	@MockBean
+	private PetService petService;
 
 	@MockBean
 	private AppointmentService appointmentService;
@@ -316,6 +320,14 @@ class VetControllerTests {
 				.andExpect(model().attribute("vet", hasProperty("city", is("Madison"))))
 				.andExpect(model().attribute("vet", hasProperty("telephone", is("608555102"))))
 				.andExpect(view().name("vets/vetDetails"));
+	}
+	
+	@WithMockUser(username="vet1", password="veter1n4ri0_1", authorities="veterinarian")
+	@Test
+	void testShowPetsList() throws Exception {
+		mockMvc.perform(get("/vets/pets")).andExpect(status().isOk())
+				.andExpect(model().attributeExists("pets"))
+				.andExpect(view().name("pets/petsList"));
 	}
 
 }

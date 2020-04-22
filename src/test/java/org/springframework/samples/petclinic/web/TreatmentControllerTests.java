@@ -29,6 +29,7 @@ import org.springframework.samples.petclinic.service.MedicineService;
 import org.springframework.samples.petclinic.service.OwnerService;
 import org.springframework.samples.petclinic.service.PetService;
 import org.springframework.samples.petclinic.service.TreatmentService;
+import org.springframework.samples.petclinic.util.PetclinicDates;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -45,6 +46,7 @@ public class TreatmentControllerTests {
 	private static final String VIEWS_TREATMENT_FORM = "treatments/createOrUpdateTreatmentForm";
 	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
 	private static final String REDIRECT_TO_VET_TREATMENT_LIST = "redirect:/vets/pets/{petId}/treatments";
+	private static final String REDIRECT_TO_TREATMENT_SHOW = "redirect:/vets/pets/{petId}/treatments/{treatmentId}";
 
 	private static final int TEST_OWNER_ID = 1;
     private static final int TEST_VET_ID = 1;
@@ -74,8 +76,10 @@ public class TreatmentControllerTests {
 	@Autowired
 	private MockMvc mockMvc;
 
-	private Treatment treatment1, treatment2;
+	private Treatment treatment1, treatment2, treatment3;
 	private List<Treatment> treatments;
+	private Set<Medicine> medicines;
+	private String updatedDate = PetclinicDates.getFormattedFutureDate(LocalDate.now().plusWeeks(2), 3, "yyyy/MM/dd");
 
 	@BeforeEach
 	void setup() {
@@ -93,7 +97,7 @@ public class TreatmentControllerTests {
 		Medicine medicine = new Medicine();
 		medicine.setId(1);
 		medicine.setName("Ibuprofeno");
-        Set<Medicine> medicines = new HashSet<>();
+        medicines = new HashSet<>();
 		medicines.add(medicine);
 
 		treatment1 = new Treatment();
@@ -111,6 +115,14 @@ public class TreatmentControllerTests {
 		treatment2.setTimeLimit(LocalDate.now().minusMonths(2));
 		treatment2.setMedicines(medicines);
 		treatment2.setPet(pet);
+		
+		treatment3 = new Treatment();
+		treatment3.setId(TEST_TREATMENT_ID_2);
+		treatment3.setName("Tratamiento para curación de fractura");
+		treatment3.setDescription("Ingerir una pastilla de ibuprefono cada 8 horas");
+		treatment3.setTimeLimit(LocalDate.now().plusWeeks(3));
+		treatment3.setMedicines(medicines);
+		treatment3.setPet(pet);
 
 		treatments = new ArrayList<>();
 		treatments.add(treatment1);
@@ -129,6 +141,8 @@ public class TreatmentControllerTests {
 
 		given(this.petService.findPetById(TEST_PET_ID)).willReturn(pet);
 		given(this.ownerService.findOwnerById(TEST_OWNER_ID)).willReturn(owner);
+		given(this.treatmentService.findById(TEST_TREATMENT_ID_1)).willReturn(treatment1);
+		given(this.treatmentService.findById(TEST_TREATMENT_ID_2)).willReturn(treatment2);
 	}
 
 	@Test
@@ -175,5 +189,41 @@ public class TreatmentControllerTests {
             .flashAttr("treatment", treatment1))
             .andExpect(status().is3xxRedirection())
             .andExpect(view().name(REDIRECT_TO_VET_TREATMENT_LIST));
+    }
+    
+    @Test
+    @WithMockUser(username="vet1", password="v3terinarian_1", authorities=VET_ROLE)
+    void testInitTreatmentEditForm() throws Exception {
+	    mockMvc.perform(get("/vets/pets/{petId}/treatments/{treatmentId}/edit", TEST_PET_ID, TEST_TREATMENT_ID_1))
+            .andExpect(model().attributeExists("treatment"))
+            .andExpect(model().attributeExists("edit"))
+            .andExpect(status().isOk())
+            .andExpect(view().name(VIEWS_TREATMENT_FORM));
+    }
+    
+    @Test
+    @WithMockUser(username="vet1", password="v3terinarian_1", authorities=VET_ROLE)
+    void testNotInitTreatmentEditForm() throws Exception {
+	    mockMvc.perform(get("/vets/pets/{petId}/treatments/{treatmentId}/edit", TEST_PET_ID, TEST_TREATMENT_ID_2))
+            .andExpect(status().is3xxRedirection())
+            .andExpect(view().name(REDIRECT_TO_OUPS));
+    }
+    
+    @Test
+    @WithMockUser(username="vet1", password="v3terinarian_1", authorities=VET_ROLE)
+    void testProcessTreatmentEditForm() throws Exception {
+	    mockMvc.perform(post("/vets/pets/{petId}/treatments/{treatmentId}/edit", TEST_PET_ID, TEST_TREATMENT_ID_1).with(csrf())
+	    	.flashAttr("treatment", treatment3))
+		    .andExpect(status().is3xxRedirection())
+	        .andExpect(view().name(REDIRECT_TO_TREATMENT_SHOW));
+    }
+    
+    @Test
+    @WithMockUser(username="vet1", password="v3terinarian_1", authorities=VET_ROLE)
+    void testNotProcessTreatmentEditForm() throws Exception {
+    	mockMvc.perform(post("/vets/pets/{petId}/treatments/{treatmentId}/edit", TEST_PET_ID, TEST_TREATMENT_ID_2).with(csrf())
+    	    	.flashAttr("treatment", treatment3))
+    		    .andExpect(status().is3xxRedirection())
+    	        .andExpect(view().name(REDIRECT_TO_OUPS));
     }
 }

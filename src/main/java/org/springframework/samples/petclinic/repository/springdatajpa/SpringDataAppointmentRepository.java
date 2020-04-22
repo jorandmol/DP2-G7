@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.samples.petclinic.model.Appointment;
 import org.springframework.samples.petclinic.repository.AppointmentRepository;
 
-public interface SpringDateAppointmentRepository extends AppointmentRepository, Repository<Appointment, Integer> {
+public interface SpringDataAppointmentRepository extends AppointmentRepository, Repository<Appointment, Integer> {
 	
 	@Override
 	@Query("SELECT COUNT(a) FROM Appointment a WHERE a.vet.id=:vetId AND a.appointmentDate=:date")

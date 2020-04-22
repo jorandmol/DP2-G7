@@ -36,10 +36,24 @@
                         </div>
     				</c:when>
     				<c:otherwise>
-    					<petclinic:inputField label="Name" name="description"/>
+    					<petclinic:inputField label="Name" name="name"/>
                         <petclinic:inputField label="Description" name="description"/>
     					<petclinic:inputField label="Limit Date" name="timeLimit"/>
-    					<!-- Falta select con las medicinas que ya tiene activas -->
+    					<div class="form-group">
+                            <label class="col-sm-2 control-label">Medicines</label>
+                            <div class="col-sm-10">
+                                <select name="medicines" class="form-control" multiple>
+                                    <c:forEach items="${treatmentMedicines}" var="medicine">
+                                        <option value="${medicine.id}" selected>${medicine.code} - ${medicine.name}</option>
+                                    </c:forEach>
+                                    <c:forEach items="${otherMedicines}" var="medicine">
+                                        <option value="${medicine.id}">${medicine.code} - ${medicine.name}</option>
+                                    </c:forEach>
+                                </select>
+                                <c:out value="${treatmentError}" />
+                            </div>
+                        </div>
+                        <input type="hidden" name="id" value="${treatment.id}">
     				</c:otherwise>
     			</c:choose>
     		</div>
