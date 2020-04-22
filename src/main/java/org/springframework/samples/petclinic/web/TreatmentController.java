@@ -89,6 +89,25 @@ public class TreatmentController {
         }
     }
 
+    @GetMapping(value = "/vets/pets/{petId}/treatments/{treatmentId}/edit")
+    public String initTreatmentEditForm(@PathVariable("petId") final int petId, @PathVariable("treatmentId") final int treatmentId, final ModelMap modelMap) {
+        Treatment treatment = this.treatmentService.findById(treatmentId);
+        modelMap.put("treatment", treatment);
+        modelMap.put("edit", true);
+        return VIEWS_TREATMENT_FORM;
+    }
+
+    @PostMapping(value = "/vets/pets/{petId}/treatments/{treatmentId}/edit")
+    public String processTreatmentEditForm(@Valid final Treatment treatment, final BindingResult result, @PathVariable("petId") final int petId,
+            @PathVariable("treatmentId") final int treatmentId, final ModelMap modelMap) {
+        if (result.hasErrors()) {
+            return VIEWS_TREATMENT_FORM;
+        } else {
+            this.treatmentService.editTreatment(treatment);
+        }
+        return "redirect:/vets/pets/{petId}/treatments";
+    }
+
 	private boolean securityAccessRequestTreatment(int ownerId, int petId) {
 		String authority = getAuthority();
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();

@@ -10,9 +10,11 @@ import org.springframework.stereotype.Repository;
 public interface TreatmentRepository {
 
 	List<Treatment> findCurrentTreatmentsByPet(@Param("petId") Integer petId);
-	
+
 	List<Treatment> findExpiredTreatmentsByPet(@Param("petId") Integer petId);
-	
-	void save(Treatment treatment);
+
+    Treatment findById(Integer id);
+
+    void save(Treatment treatment);
 
 }

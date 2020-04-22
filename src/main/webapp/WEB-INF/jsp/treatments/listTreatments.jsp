@@ -25,6 +25,7 @@
             <th>Description</th>
             <th>Medicines</th>
             <th>Time Limit</th>
+            <th></th>
         </tr>
         </thead>
         <tbody>
@@ -43,7 +44,13 @@
                 </td>
                	<td>
                		<c:out value="${treatment.timeLimit}"></c:out>
-               	</td>
+                </td>
+                <td>
+                    <spring:url value="treatments/{treatmentId}/edit" var="editUrl">
+                        <spring:param name="treatmentId" value="${treatment.id}"/>
+                    </spring:url>
+                    <a href="${fn:escapeXml(editUrl)}" class="btn btn-default">Edit Treatment</a>
+                </td>
             </tr>
         </c:forEach>
         </tbody>
