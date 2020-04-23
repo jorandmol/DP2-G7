@@ -2,7 +2,6 @@ package org.springframework.samples.petclinic.web;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,6 +33,7 @@ public class TreatmentController {
 
     private static final String VIEWS_TREATMENT_LIST = "treatments/listTreatments";
     private static final String VIEWS_TREATMENT_FORM = "treatments/createOrUpdateTreatmentForm";
+    private static final String REDIRECT_TO_TREATMENT_SHOW = "redirect:/vets/pets/{petId}/treatments/{treatmentId}";
     private static final String REDIRECT_TO_OUPS = "redirect:/oups";
 
 	@Autowired
@@ -135,12 +135,33 @@ public class TreatmentController {
 	        } else if (hasChanges(treatment)) {
 	            this.treatmentService.editTreatment(treatment);
 	        }
-	        return "redirect:/vets/pets/{petId}/treatments/{treatmentId}";
+	        return REDIRECT_TO_TREATMENT_SHOW;
     	} else {
         	return REDIRECT_TO_OUPS;
         }
     }
+    
+    @GetMapping(value = "/vets/pets/{petId}/treatments/{treatmentId}/history/{treatmentHistoryId}/delete")
+	public String deleteTreatmentHistoryRegister(@PathVariable("treatmentHistoryId") final int treatmentHistoryId, @PathVariable("treatmentId") final int treatmentId, @PathVariable("petId") final int petId) {
+		if (isAccesibleTreatment(petId, treatmentId)) {
+			TreatmentHistory register = this.treatmentService.findTreatmentHistoryById(treatmentHistoryId);
+			this.treatmentService.deleteTreatmentHistoryRegister(register);
+			return REDIRECT_TO_TREATMENT_SHOW;
+		} else {
+			return REDIRECT_TO_OUPS;
+		}
+	}
 
+    private String getViewsTreatmentList(final int petId, final ModelMap model) {
+    	List<Treatment> treatments = this.treatmentService.findCurrentTreatmentsByPet(petId);
+    	List<Treatment> treatmentsDone = this.treatmentService.findExpiredTreatmentsByPet(petId);
+    	
+    	model.put("treatments", treatments);
+    	model.put("treatmentsDone", treatmentsDone);
+    	
+    	return VIEWS_TREATMENT_LIST;
+    }
+    
 	private boolean securityAccessRequestTreatment(int ownerId, int petId) {
 		String authority = getAuthority();
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -191,16 +212,6 @@ public class TreatmentController {
             .collect(Collectors.toList()).get(0).getAuthority();
     }
 
-    private String getViewsTreatmentList(final int petId, final ModelMap model) {
-        List<Treatment> treatments = this.treatmentService.findCurrentTreatmentsByPet(petId);
-        List<Treatment> treatmentsDone = this.treatmentService.findExpiredTreatmentsByPet(petId);
-
-        model.put("treatments", treatments);
-        model.put("treatmentsDone", treatmentsDone);
-
-        return VIEWS_TREATMENT_LIST;
-    }
-    
     private List<TreatmentHistoryDTO> getFinalTreatmentHistory(List<TreatmentHistory> treatmentHistory) {
     	List<TreatmentHistoryDTO> res = new ArrayList<>();
     	for (int i = 0; i < treatmentHistory.size(); i++) {

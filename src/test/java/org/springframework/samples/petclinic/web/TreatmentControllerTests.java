@@ -29,7 +29,6 @@ import org.springframework.samples.petclinic.service.MedicineService;
 import org.springframework.samples.petclinic.service.OwnerService;
 import org.springframework.samples.petclinic.service.PetService;
 import org.springframework.samples.petclinic.service.TreatmentService;
-import org.springframework.samples.petclinic.util.PetclinicDates;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -54,6 +53,7 @@ public class TreatmentControllerTests {
 	private static final int TEST_WRONG_OWNER_ID = 2;
 	private static final int TEST_TREATMENT_ID_1 = 1;
 	private static final int TEST_TREATMENT_ID_2 = 2;
+	private static final int TEST_TREATMENT_HISTORY_ID = 1;
 
 	@MockBean
 	private AuthoritiesService authoritiesService;
@@ -77,9 +77,9 @@ public class TreatmentControllerTests {
 	private MockMvc mockMvc;
 
 	private Treatment treatment1, treatment2, treatment3;
+	private TreatmentHistory register;
 	private List<Treatment> treatments;
 	private Set<Medicine> medicines;
-	private String updatedDate = PetclinicDates.getFormattedFutureDate(LocalDate.now().plusWeeks(2), 3, "yyyy/MM/dd");
 
 	@BeforeEach
 	void setup() {
@@ -127,6 +127,9 @@ public class TreatmentControllerTests {
 		treatments = new ArrayList<>();
 		treatments.add(treatment1);
 		treatments.add(treatment2);
+		
+		register = new TreatmentHistory();
+		register.setId(TEST_TREATMENT_HISTORY_ID);
 
 		Owner owner = new Owner();
 		owner.setId(TEST_OWNER_ID);
@@ -143,6 +146,7 @@ public class TreatmentControllerTests {
 		given(this.ownerService.findOwnerById(TEST_OWNER_ID)).willReturn(owner);
 		given(this.treatmentService.findById(TEST_TREATMENT_ID_1)).willReturn(treatment1);
 		given(this.treatmentService.findById(TEST_TREATMENT_ID_2)).willReturn(treatment2);
+		given(this.treatmentService.findTreatmentHistoryById(TEST_TREATMENT_HISTORY_ID)).willReturn(register);
 	}
 
 	@Test
@@ -225,5 +229,13 @@ public class TreatmentControllerTests {
     	    	.flashAttr("treatment", treatment3))
     		    .andExpect(status().is3xxRedirection())
     	        .andExpect(view().name(REDIRECT_TO_OUPS));
+    }
+    
+    @Test
+    @WithMockUser(username="vet1", password="v3terinarian_1", authorities=VET_ROLE)
+    void testDeleteTreatmentHistoryRegister() throws Exception {
+    	mockMvc.perform(get("/vets/pets/{petId}/treatments/{treatmentId}/history/{treatmentHistoryId}/delete", TEST_PET_ID, TEST_TREATMENT_ID_1, TEST_TREATMENT_HISTORY_ID))
+    		.andExpect(status().is3xxRedirection())
+    		.andExpect(view().name(REDIRECT_TO_TREATMENT_SHOW));
     }
 }

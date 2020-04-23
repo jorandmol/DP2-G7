@@ -40,7 +40,7 @@
 			<spring:url value="/vets/pets/{petId}/treatments" var="editUrl">
 				<spring:param name="petId" value="${petId}"/>
 		    </spring:url>
-			<a href="${fn:escapeXml(editUrl)}" class="btn btn-default">Get back</a>
+			<a id="returnBtn" href="${fn:escapeXml(editUrl)}" class="btn btn-default">Get back</a>
     	</div>
 	</c:if>
     </div>
@@ -71,12 +71,12 @@
 	            		</ul>
 	    			</td>
 	    			<td>
-		    			<spring:url value="/vets/pets/{petId}/treatments/{treatmentId}{treatmentId}/history/{treatmentHistoryId}/delete" var="deleteUrl">
+		    			<spring:url value="/vets/pets/{petId}/treatments/{treatmentId}/history/{treatmentHistoryId}/delete" var="deleteUrl">
 			        		<spring:param name="petId" value="${petId}"/>
 			        		<spring:param name="treatmentId" value="${treatment.id}"/>
 			        		<spring:param name="treatmentHistoryId" value="${historyEntry.treatment.id}"/>
 			    		</spring:url>
-						<a id="editBtn" href="${fn:escapeXml(deleteUrl)}">Delete register</a>
+						<a href="${fn:escapeXml(deleteUrl)}">Delete register</a>
 	    			</td>
 	    		</tr>
 	    	</c:forEach>
