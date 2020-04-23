@@ -5,6 +5,8 @@ package org.springframework.samples.petclinic.service;
 import java.time.LocalDate;
 import java.util.Collection;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Medicine;
@@ -52,6 +54,17 @@ public class MedicineService {
 
 	public boolean codeAlreadyExists(String code) {
 		return this.medicineRepository.findByCode(code) != null;
+	}
+
+	@Transactional
+	public void editMedicine(final Medicine medicine) throws WrongMedicineCodeException{
+		Medicine medicineToUpdate = this.findMedicineById(medicine.getId());
+		String newCode = medicine.getCode();
+		if(this.codeAlreadyExists(newCode) && !newCode.equals(medicineToUpdate.getCode())) {
+			throw new WrongMedicineCodeException();
+		} else {
+			this.medicineRepository.save(medicine);
+		}
 	}
 
 }

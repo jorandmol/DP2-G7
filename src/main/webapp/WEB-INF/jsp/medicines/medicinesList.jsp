@@ -27,7 +27,8 @@
                    <p><c:out value="${medicine.name}"/></p>
                 </td>
                 <td>
-                	<a href='<spring:url value="medicines/${medicine.id}" htmlEscape="true"/>'>See details</a>
+                	<p><a href='<spring:url value="medicines/${medicine.id}/edit" htmlEscape="true"/>'>Update</a>
+                	 / <a href='<spring:url value="medicines/${medicine.id}" htmlEscape="true"/>'>See details</a></p>
                 </td>              
             </tr>
         </c:forEach>
