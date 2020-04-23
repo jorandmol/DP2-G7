@@ -96,6 +96,29 @@ public class MedicineController {
 		return mav;
 	}
 
-
+	@GetMapping(value = "/{medicineId}/edit")
+	public String initEditForm(@PathVariable("medicineId") int medicineId, Map<String, Object> modelMap) {
+		Medicine medicine = this.medicineService.findMedicineById(medicineId);
+		modelMap.put("medicine", medicine);
+		modelMap.put("edit", true);
+		return VIEWS_MEDICINE_CREATE_OR_UPDATE_FORM;
+	}
+	
+	@PostMapping(value = "/{medicineId}/edit")
+	public String processEditForm(@Valid Medicine medicine, BindingResult result, @PathVariable("medicineId") int medicineId, Map<String, Object> modelMap) {
+		modelMap.put("edit", true);
+		if (result.hasErrors()) {
+			return VIEWS_MEDICINE_CREATE_OR_UPDATE_FORM;
+		} else {
+			try {
+				medicine.setId(medicineId);
+				this.medicineService.editMedicine(medicine);
+			} catch (WrongMedicineCodeException e) {
+				result.rejectValue("code", "duplicate", "Already exists");
+				return VIEWS_MEDICINE_CREATE_OR_UPDATE_FORM;
+			}
+		}
+		return "redirect:/medicines";
+	}
 
 }

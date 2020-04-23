@@ -130,4 +130,40 @@ class MedicineControllerTests {
 		.andExpect(view().name("medicines/medicineDetails"));
 	}
 	
+	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
+    @Test
+	void testInitEditMedicineForm() throws Exception {
+		mockMvc.perform(get("/medicines/{medicineId}/edit", TEST_MED_ID))
+				.andExpect(status().isOk())
+				.andExpect(model().attributeExists("medicine"))
+				.andExpect(view().name("medicines/createOrUpdateMedicineForm"));
+	}	
+	
+	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
+    @Test
+	void testProcessEditMedicineFormSuccess() throws Exception {
+		mockMvc.perform(post("/medicines/{medicineId}/edit", TEST_MED_ID)
+							.with(csrf())
+							.param("name", "Name test")    
+	                        .param("code", "TET-111")
+							.param("expirationDate", "2022/03/12")
+							.param("description", "Testing controller"))
+	            .andExpect(status().is3xxRedirection())
+				.andExpect(view().name("redirect:/medicines"));
+	}
+	
+		
+	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
+	@Test
+	void testProcessEditMedicineFormHasErrors() throws Exception {
+		mockMvc.perform(post("/medicines/{medicineId}/edit", TEST_MED_ID)
+							.with(csrf())
+							.param("name", "")    
+	                        .param("code", "TET-111")
+							.param("expirationDate", "2022/03/12")
+							.param("description", "Testing controller"))
+				.andExpect(model().attributeHasErrors("medicine")).andExpect(status().isOk())
+				.andExpect(view().name("medicines/createOrUpdateMedicineForm"));
+	}
+	
 }

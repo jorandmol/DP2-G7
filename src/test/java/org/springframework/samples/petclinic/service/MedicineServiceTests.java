@@ -28,11 +28,14 @@ import javax.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.samples.petclinic.model.Medicine;
+import org.springframework.samples.petclinic.model.Stay;
 import org.springframework.samples.petclinic.service.exceptions.DuplicatedMedicineCodeException;
+import org.springframework.samples.petclinic.service.exceptions.MaximumStaysReached;
 import org.springframework.samples.petclinic.service.exceptions.PastMedicineDateException;
 import org.springframework.samples.petclinic.service.exceptions.WrongMedicineCodeException;
 import org.springframework.stereotype.Service;
@@ -217,6 +220,31 @@ class MedicineServiceTests {
 		Medicine medicine = this.medicineService.findMedicineById(1);
 		String code = medicine.getCode();
 		assertThat(this.medicineService.codeAlreadyExists(code));
+	}
+	
+	@Test
+	void shouldEditMedicine() {
+		Medicine med = this.medicineService.findMedicineById(1);
+		try {
+			med.setDescription("New description");
+			this.medicineService.editMedicine(med);
+		} catch (WrongMedicineCodeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		assertThat(this.medicineService.findMedicineById(1).getDescription()).isEqualTo("New description");
+	}
+	
+	@Test
+	void shouldNotEditMedicine() {
+		Medicine med = this.medicineService.findMedicineById(1);
+		Medicine m = new Medicine();
+		BeanUtils.copyProperties(med, m);
+		String repeatedCode = this.medicineService.findMedicineById(2).getCode();
+		m.setCode(repeatedCode);
+		assertThrows(WrongMedicineCodeException.class,	() -> {
+			this.medicineService.editMedicine(m);
+		});
 	}
 	
 

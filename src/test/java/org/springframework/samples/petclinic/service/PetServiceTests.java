@@ -303,9 +303,8 @@ class PetServiceTests {
 		try {
 			stay.setRegisterDate(d1);
 			stay.setReleaseDate(d2);
-			this.petService.saveStay(stay);
-		} catch (MaximumStaysReached e) {
-			// TODO Auto-generated catch block
+			this.petService.editStay(stay);
+		} catch (MaximumStaysReached | DateNotAllowed | StayAlreadyConfirmed e) {
 			e.printStackTrace();
 		}
 		assertThat(this.petService.findStayById(2).getRegisterDate()).isEqualTo(d1);
