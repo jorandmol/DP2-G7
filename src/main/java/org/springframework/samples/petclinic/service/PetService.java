@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.PetType;
+import org.springframework.samples.petclinic.model.Status;
 import org.springframework.samples.petclinic.model.Stay;
 import org.springframework.samples.petclinic.model.Visit;
 import org.springframework.samples.petclinic.repository.PetRepository;
@@ -88,10 +89,12 @@ public class PetService {
 
 	@Transactional
 	public void saveStay(Stay stay) throws MaximumStaysReached {
-		Boolean dayExists = this.stayRepository.numOfStaysThatDates(stay.getRegisterDate(), stay.getReleaseDate(), stay.getPet().getId(), 0) > 0;
+		Boolean dayExists = this.stayRepository.numOfStaysThatDates(stay.getRegisterDate(), stay.getReleaseDate(),
+				stay.getPet().getId(), 0) > 0;
 		if (dayExists) {
 			throw new MaximumStaysReached();
 		} else {
+			stay.setStatus(Status.PENDING);
 			stayRepository.save(stay);
 		}
 
@@ -126,9 +129,10 @@ public class PetService {
 		if ((stayToUpdate.getRegisterDate().equals(stay.getRegisterDate())
 				&& stayToUpdate.getReleaseDate().equals(stay.getReleaseDate()))) {
 			throw new DateNotAllowed();
-		} else if (this.stayRepository.numOfStaysThatDates(stay.getRegisterDate(), stay.getReleaseDate(), stay.getPet().getId(), stay.getId()) > 0) {
+		} else if (this.stayRepository.numOfStaysThatDates(stay.getRegisterDate(), stay.getReleaseDate(),
+				stay.getPet().getId(), stay.getId()) > 0) {
 			throw new MaximumStaysReached();
-		} else if (stay.getStatus() != null) {
+		} else if (stay.getStatus() != Status.PENDING) {
 			throw new StayAlreadyConfirmed();
 		}
 
@@ -140,9 +144,29 @@ public class PetService {
 			this.stayRepository.save(stay);
 		}
 	}
-	
+
 	public List<Pet> findAll() {
 		return this.petRepository.findAll();
 	}
 
+	public List<Stay> findAllStays() {
+		return (List<Stay>) this.stayRepository.findAll();
+	}
+	
+	@Transactional
+	public void editStatus(final Stay stay) throws StayAlreadyConfirmed {
+		Stay stayToUpdate = this.stayRepository.findById(stay.getId()).get();
+		
+		if (stayToUpdate.getStatus() != Status.PENDING) {
+			throw new StayAlreadyConfirmed();
+		}
+
+		else {
+			
+			stayToUpdate.setStatus(stay.getStatus());
+			stay.setStatus(stay.getStatus());
+			this.stayRepository.save(stay);
+		}
+		
+	}
 }
