@@ -303,7 +303,7 @@ class StayControllerTests {
 	                        .param("releaseDate", "2021/03/12")
 							.param("status", "REJECTED"))
 	            .andExpect(status().isOk())
-				.andExpect(view().name("pets/createOrUpdateStayForm"));
+				.andExpect(view().name("pets/createOrUpdateStayFormAdmin"));
 	}
 	
 }
