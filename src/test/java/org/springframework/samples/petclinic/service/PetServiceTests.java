@@ -32,6 +32,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.PetType;
+import org.springframework.samples.petclinic.model.Status;
 import org.springframework.samples.petclinic.model.Stay;
 import org.springframework.samples.petclinic.model.Visit;
 import org.springframework.samples.petclinic.service.exceptions.DateNotAllowed;
@@ -240,6 +241,7 @@ class PetServiceTests {
 		pet7.addStay(stay);
 		stay.setRegisterDate(LocalDate.now());
 		stay.setReleaseDate(LocalDate.now().plusDays(3));
+		stay.setStatus(Status.PENDING);
             try {
             	this.petService.saveStay(stay);
                 this.petService.savePet(pet7);
@@ -346,4 +348,25 @@ class PetServiceTests {
 		});
 	}
 	
+	@Test
+	void shouldEditStayChangeStatus() {
+		Stay stay = this.petService.findStayById(2);
+		try {
+			stay.setStatus(Status.ACCEPTED);
+			this.petService.editStatus(stay);
+		} catch (StayAlreadyConfirmed e) {
+			e.printStackTrace();
+		}
+		assertThat(this.petService.findStayById(2).getStatus()).isEqualTo(Status.ACCEPTED);
+	}
+	
+	@Test
+	void shouldNotEditStayChangeStatus() {
+		Stay stay = this.petService.findStayById(1);
+			
+		assertThrows(StayAlreadyConfirmed.class, () -> {
+			stay.setStatus(Status.REJECTED);
+			this.petService.editStatus(stay);
+		});
+	}
 }

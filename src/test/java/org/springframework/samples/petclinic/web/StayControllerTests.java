@@ -26,6 +26,7 @@ import org.springframework.samples.petclinic.configuration.SecurityConfiguration
 import org.springframework.samples.petclinic.model.Authorities;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
+import org.springframework.samples.petclinic.model.Status;
 import org.springframework.samples.petclinic.model.Stay;
 import org.springframework.samples.petclinic.model.User;
 import org.springframework.samples.petclinic.service.AuthoritiesService;
@@ -52,6 +53,8 @@ class StayControllerTests {
 	
 	private static final int TEST_STAY_ID = 1;
 	
+	private static final int TEST_STAY_ID_CONFIRMED = 2;
+	
 	@Autowired
 	private StayController stayController;
 
@@ -73,7 +76,8 @@ class StayControllerTests {
 	
 	@BeforeEach
 	void setup() {
-		Stay stay = new Stay();
+		Stay stay1 = new Stay();
+		Stay stay2 = new Stay();
 		List<Stay> stays = new ArrayList<Stay>();
 		Pet pet = new Pet();
 		
@@ -96,16 +100,25 @@ class StayControllerTests {
 		owner2.setId(TEST_WRONG_OWNER_ID);
 		this.authoritiesService.saveAuthorities("owner2", "owner");
 		
-		stay.setId(TEST_STAY_ID);
-		stay.setRegisterDate(LocalDate.now());
-		stay.setReleaseDate(LocalDate.now().plusDays(3));
-		pet.addStay(stay);
+		stay1.setId(TEST_STAY_ID);
+		stay1.setRegisterDate(LocalDate.now());
+		stay1.setReleaseDate(LocalDate.now().plusDays(3));
+		stay1.setStatus(Status.PENDING);
+		pet.addStay(stay1);
+		
+		stay2.setId(TEST_STAY_ID_CONFIRMED);
+		stay2.setRegisterDate(LocalDate.now());
+		stay2.setReleaseDate(LocalDate.now().plusDays(3));
+		stay2.setStatus(Status.ACCEPTED);
+		pet.addStay(stay2);
 		
 		given(this.ownerService.findOwnerById(TEST_OWNER_ID)).willReturn(owner1);
 		given(this.ownerService.findOwnerById(TEST_WRONG_OWNER_ID)).willReturn(owner2);
 		given(this.petService.findPetById(TEST_PET_ID)).willReturn(pet);
-		given(this.petService.findStayById(TEST_STAY_ID)).willReturn(stay);
+		given(this.petService.findStayById(TEST_STAY_ID)).willReturn(stay1);
+		given(this.petService.findStayById(TEST_STAY_ID_CONFIRMED)).willReturn(stay2);
 		given(this.petService.findStaysByPetId(TEST_PET_ID)).willReturn(stays);
+		given(this.petService.findAllStays()).willReturn(stays);
 		
 		
 	}
@@ -249,4 +262,48 @@ class StayControllerTests {
 				.andExpect(model().attributeHasErrors("stay")).andExpect(status().isOk())
 				.andExpect(view().name("pets/createOrUpdateStayForm"));
 	}
+	
+	// Admin confirms or rejects stays
+	
+	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
+    @Test
+	void testListStaysAdminConfirmOrReject() throws Exception {
+		mockMvc.perform(get("/admin/stays")).andExpect(status().isOk())
+				.andExpect(model().attributeExists("stays"))
+				.andExpect(view().name("pets/staysListAdmin"));
+	}
+	
+	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
+    @Test
+	void testInitEditStatusStayFormAdmin() throws Exception {
+		mockMvc.perform(get("/admin/stays/{stayId}", TEST_STAY_ID))
+				.andExpect(status().isOk())
+				.andExpect(model().attributeExists("stay"))
+				.andExpect(view().name("pets/createOrUpdateStayFormAdmin"));
+	}	
+	
+	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
+    @Test
+	void testProcessEditStatusStayFormAdminSuccess() throws Exception {
+		mockMvc.perform(post("/admin/stays/{stayId}", TEST_STAY_ID)
+							.with(csrf())
+							.param("registerDate", "2021/02/12")    
+	                        .param("releaseDate", "2021/03/12")
+							.param("status", "ACCEPTED"))
+	            .andExpect(status().is3xxRedirection())
+				.andExpect(view().name("redirect:/admin/stays"));
+	}
+	
+	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
+    @Test
+	void testProcessEditStatusStayFormAdminErrors() throws Exception {
+		mockMvc.perform(post("/admin/stays/{stayId}", TEST_STAY_ID_CONFIRMED)
+							.with(csrf())
+							.param("registerDate", "2021/02/12")    
+	                        .param("releaseDate", "2021/03/12")
+							.param("status", "REJECTED"))
+	            .andExpect(status().isOk())
+				.andExpect(view().name("pets/createOrUpdateStayForm"));
+	}
+	
 }

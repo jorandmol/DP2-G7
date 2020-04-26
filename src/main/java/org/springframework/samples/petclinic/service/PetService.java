@@ -107,7 +107,7 @@ public class PetService {
 
 	@Transactional
 	public void deleteStay(Stay stay) throws StayAlreadyConfirmed {
-		if (stay.getStatus() != null && stay.getStatus().equals(true)) {
+		if (stay.getStatus() != Status.PENDING) {
 			throw new StayAlreadyConfirmed();
 		} else {
 			Pet pet = stay.getPet();
@@ -132,7 +132,7 @@ public class PetService {
 		} else if (this.stayRepository.numOfStaysThatDates(stay.getRegisterDate(), stay.getReleaseDate(),
 				stay.getPet().getId(), stay.getId()) > 0) {
 			throw new MaximumStaysReached();
-		} else if (stay.getStatus() != Status.PENDING) {
+		} else if (!stayToUpdate.getStatus().equals(Status.PENDING)) {
 			throw new StayAlreadyConfirmed();
 		}
 
@@ -155,18 +155,13 @@ public class PetService {
 	
 	@Transactional
 	public void editStatus(final Stay stay) throws StayAlreadyConfirmed {
-		Stay stayToUpdate = this.stayRepository.findById(stay.getId()).get();
-		
-		if (stayToUpdate.getStatus() != Status.PENDING) {
+		Stay stayToUpdate = this.findStayById(stay.getId());
+		if (!stayToUpdate.getStatus().equals(Status.PENDING)) {
 			throw new StayAlreadyConfirmed();
-		}
-
-		else {
-			
-			stayToUpdate.setStatus(stay.getStatus());
-			stay.setStatus(stay.getStatus());
+		} else {
+//			stayToUpdate.setStatus(stay.getStatus());
+//			stay.setStatus(stay.getStatus());
 			this.stayRepository.save(stay);
 		}
-		
 	}
 }

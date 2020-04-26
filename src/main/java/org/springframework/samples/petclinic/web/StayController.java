@@ -243,7 +243,7 @@ public class StayController {
 		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
 				.collect(Collectors.toList()).get(0).toString();
 
-		if (authority.equals("admin")) {
+		if (authority.equals("admin") ) {
 			Stay stay = this.petService.findStayById(stayId);
 			modelMap.put("stay", stay);
 			modelMap.put("status", ls);
@@ -264,7 +264,8 @@ public class StayController {
 		ls.add(Status.REJECTED);
 		modelMap.put("status", ls);
 		if (result.hasErrors()) {
-
+			modelMap.put("stay", stay);
+			modelMap.put("status", ls);
 			return "pets/createOrUpdateStayFormAdmin";
 		} else {
 			try {
@@ -272,6 +273,7 @@ public class StayController {
 			} catch (StayAlreadyConfirmed e) {
 				result.rejectValue("status", "Stay already confirmed or rejected by admin",
 						"Stay already confirmed or rejected by admin");
+				modelMap.put("stay", stay);
 				modelMap.put("status", ls);
 				return "pets/createOrUpdateStayFormAdmin";
 			}
