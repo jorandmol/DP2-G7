@@ -1,6 +1,6 @@
 package org.springframework.samples.petclinic.web;
 
-import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -11,19 +11,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import org.hibernate.secure.spi.GrantedPermission;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.samples.petclinic.configuration.SecurityConfiguration;
-import org.springframework.samples.petclinic.model.Authorities;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.Status;
@@ -33,14 +30,10 @@ import org.springframework.samples.petclinic.service.AuthoritiesService;
 import org.springframework.samples.petclinic.service.BannerService;
 import org.springframework.samples.petclinic.service.OwnerService;
 import org.springframework.samples.petclinic.service.PetService;
+import org.springframework.samples.petclinic.service.exceptions.StayAlreadyConfirmed;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
-import org.springframework.security.config.core.GrantedAuthorityDefaults;
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-
-import com.mysql.cj.x.protobuf.MysqlxCrud.Collection;
 
 @WebMvcTest(controllers = StayController.class, excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = WebSecurityConfigurer.class), excludeAutoConfiguration = SecurityConfiguration.class)
 class StayControllerTests {
@@ -76,6 +69,7 @@ class StayControllerTests {
 	
 	@BeforeEach
 	void setup() {
+		MockitoAnnotations.initMocks(this);
 		Stay stay1 = new Stay();
 		Stay stay2 = new Stay();
 		List<Stay> stays = new ArrayList<Stay>();
@@ -118,9 +112,7 @@ class StayControllerTests {
 		given(this.petService.findStayById(TEST_STAY_ID)).willReturn(stay1);
 		given(this.petService.findStayById(TEST_STAY_ID_CONFIRMED)).willReturn(stay2);
 		given(this.petService.findStaysByPetId(TEST_PET_ID)).willReturn(stays);
-		given(this.petService.findAllStays()).willReturn(stays);
-		
-		
+		given(this.petService.findAllStays()).willReturn(stays);		
 	}
 	
 	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
@@ -299,9 +291,7 @@ class StayControllerTests {
 	void testProcessEditStatusStayFormAdminErrors() throws Exception {
 		mockMvc.perform(post("/admin/stays/{stayId}", TEST_STAY_ID_CONFIRMED)
 							.with(csrf())
-							.param("registerDate", "2021/02/12")    
-	                        .param("releaseDate", "2021/03/12")
-							.param("status", "REJECTED"))
+	                        .param("status", "ACCEPTED"))
 	            .andExpect(status().isOk())
 				.andExpect(view().name("pets/createOrUpdateStayFormAdmin"));
 	}
