@@ -22,6 +22,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Pet;
+import org.springframework.samples.petclinic.model.PetRegistrationStatus;
 import org.springframework.samples.petclinic.model.PetType;
 import org.springframework.samples.petclinic.model.Stay;
 import org.springframework.samples.petclinic.model.Visit;
@@ -143,6 +144,14 @@ public class PetService {
 	
 	public List<Pet> findAll() {
 		return this.petRepository.findAll();
+	}
+
+	public List<Pet> findPetsRequests(PetRegistrationStatus pending) {
+		return this.petRepository.findPetsRequests(pending);
+	}
+
+	public List<Pet> findPetsRequests(PetRegistrationStatus pending, Integer ownerId) {
+		return this.petRepository.findPetsRequests(pending, ownerId);
 	}
 
 }
