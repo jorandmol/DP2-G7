@@ -16,7 +16,7 @@
     </jsp:attribute>
     <jsp:body>
     <h2>
-        <c:if test="${medicine['new']}">New </c:if> Medicine
+        <c:if test="${!edit}">">New </c:if> Medicine
     </h2>
     <form:form modelAttribute="medicine" class="form-horizontal" id="add-medicine-form">
         <div class="form-group has-feedback">
@@ -31,14 +31,14 @@
 	        </c:forEach>
 	    </div>
         <div class="form-group">
-            <div class="col-sm-offset-2 col-sm-10">
-                <c:choose>
-                    <c:when test="${medicine['new']}">
-                        <button class="btn btn-default" type="submit">Add Medicine</button>
-                    </c:when>
-                </c:choose>
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button class="btn btn-default" type="submit">
+                    <c:choose>
+                        <c:when test="${!edit}">Add </c:when>
+                        <c:otherwise>Update </c:otherwise>
+                    </c:choose>Medicine</button>
+                </div>
             </div>
-        </div>
         <div>
 			<a class="btn btn-default" href='<spring:url value="/medicines" htmlEscape="true"/>'>Return</a>
     </div>

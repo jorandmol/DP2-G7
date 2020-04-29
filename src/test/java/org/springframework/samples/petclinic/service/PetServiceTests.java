@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.samples.petclinic.model.Owner;
@@ -73,14 +74,15 @@ import org.springframework.transaction.annotation.Transactional;
  */
 
 @DataJpaTest(includeFilters = @ComponentScan.Filter(Service.class))
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class PetServiceTests {
-	
-        @Autowired
+
+    @Autowired
 	protected PetService petService;
-        
-        @Autowired
-	protected OwnerService ownerService;	
-        
+
+    @Autowired
+	protected OwnerService ownerService;
+
 	@Test
 	void shouldFindPetWithCorrectId() {
 		Pet pet7 = this.petService.findPetById(7);
@@ -124,7 +126,7 @@ class PetServiceTests {
 		// checks that id has been generated
 		assertThat(pet.getId()).isNotNull();
 	}
-	
+
 	@Test
 	@Transactional
 	public void shouldThrowExceptionInsertingPetsWithTheSameName() {
@@ -136,20 +138,20 @@ class PetServiceTests {
 		pet.setBirthDate(LocalDate.now());
 		owner6.addPet(pet);
 		try {
-			petService.savePet(pet);		
+			petService.savePet(pet);
 		} catch (DuplicatedPetNameException e) {
 			// The pet already exists!
 			e.printStackTrace();
 		}
-		
-		Pet anotherPetWithTheSameName = new Pet();		
+
+		Pet anotherPetWithTheSameName = new Pet();
 		anotherPetWithTheSameName.setName("wario");
 		anotherPetWithTheSameName.setType(EntityUtils.getById(types, PetType.class, 1));
 		anotherPetWithTheSameName.setBirthDate(LocalDate.now().minusWeeks(2));
 		Assertions.assertThrows(DuplicatedPetNameException.class, () ->{
 			owner6.addPet(anotherPetWithTheSameName);
 			petService.savePet(anotherPetWithTheSameName);
-		});		
+		});
 	}
 
 	@Test
@@ -165,7 +167,7 @@ class PetServiceTests {
 		pet7 = this.petService.findPetById(7);
 		assertThat(pet7.getName()).isEqualTo(newName);
 	}
-	
+
 	@Test
 	@Transactional
 	public void shouldThrowExceptionUpdatingPetsWithTheSameName() {
@@ -176,25 +178,25 @@ class PetServiceTests {
 		pet.setType(EntityUtils.getById(types, PetType.class, 2));
 		pet.setBirthDate(LocalDate.now());
 		owner6.addPet(pet);
-		
-		Pet anotherPet = new Pet();		
+
+		Pet anotherPet = new Pet();
 		anotherPet.setName("waluigi");
 		anotherPet.setType(EntityUtils.getById(types, PetType.class, 1));
 		anotherPet.setBirthDate(LocalDate.now().minusWeeks(2));
 		owner6.addPet(anotherPet);
-		
+
 		try {
 			petService.savePet(pet);
 			petService.savePet(anotherPet);
 		} catch (DuplicatedPetNameException e) {
 			// The pets already exists!
 			e.printStackTrace();
-		}				
-			
+		}
+
 		Assertions.assertThrows(DuplicatedPetNameException.class, () ->{
 			anotherPet.setName("wario");
 			petService.savePet(anotherPet);
-		});		
+		});
 	}
 
 	@Test
@@ -219,18 +221,18 @@ class PetServiceTests {
 
 	@Test
 	void shouldFindVisitsByPetId() throws Exception {
-		Collection<Visit> visits = this.petService.findVisitsByPetId(7);
+		Collection<Visit> visits = this.petService.findVisitsByPetId(8);
 		assertThat(visits.size()).isEqualTo(2);
 		Visit[] visitArr = visits.toArray(new Visit[visits.size()]);
 		assertThat(visitArr[0].getPet()).isNotNull();
 		assertThat(visitArr[0].getDate()).isNotNull();
-		assertThat(visitArr[0].getPet().getId()).isEqualTo(7);
+		assertThat(visitArr[0].getPet().getId()).isEqualTo(8);
 	}
-	
+
 	// STAY
-	
-	
-	
+
+
+
 	@Test
 	@Transactional
 	public void shouldAddNewStayForPet() {
@@ -268,7 +270,7 @@ class PetServiceTests {
 		assertThat(stay.getPet().getName()).startsWith("Leo");
 		assertThat(stay.getRegisterDate()).isEqualTo(LocalDate.of(2020,10,1));
 	}
-	
+
 	@Test
 	void shouldDeleteStayWithCorrectId() {
 		Stay stay = this.petService.findStayById(2);
@@ -282,19 +284,19 @@ class PetServiceTests {
 		}
 		assertThat(pet.getStays().size()).isEqualTo(numStays - 1);
 	}
-	
+
 	@Test
 	void shouldNotDeleteStayConfirmed() {
 		Stay stay = this.petService.findStayById(1);
 		Pet pet = this.petService.findPetById(1);
 		int numStays = pet.getStays().size();
-	
+
 		assertThrows(StayAlreadyConfirmed.class, () -> {
 			this.petService.deleteStay(stay);
 		});
 		assertThat(pet.getStays().size()).isEqualTo(numStays);
 	}
-	
+
 	@Test
 	void shouldEditStay() {
 		Stay stay = this.petService.findStayById(2);
@@ -303,48 +305,47 @@ class PetServiceTests {
 		try {
 			stay.setRegisterDate(d1);
 			stay.setReleaseDate(d2);
-			this.petService.saveStay(stay);
-		} catch (MaximumStaysReached e) {
-			// TODO Auto-generated catch block
+			this.petService.editStay(stay);
+		} catch (MaximumStaysReached | DateNotAllowed | StayAlreadyConfirmed e) {
 			e.printStackTrace();
 		}
 		assertThat(this.petService.findStayById(2).getRegisterDate()).isEqualTo(d1);
 		assertThat(this.petService.findStayById(2).getReleaseDate()).isEqualTo(d2);
 	}
-	
+
 	@Test
 	void shouldNotEditStayMaximumStays() {
 		Stay stay = this.petService.findStayById(2);
 		Stay stay2 = new Stay();
 		BeanUtils.copyProperties(stay, stay2);
-		
+
 		assertThrows(MaximumStaysReached.class, () -> {
 			stay2.setRegisterDate(LocalDate.of(2020, 10, 30));
 			stay2.setReleaseDate(LocalDate.of(2020, 11, 3));
 			this.petService.editStay(stay2);
 		});
 	}
-	
+
 	@Test
 	void shouldNotEditStayStatus() {
 		Stay stay = this.petService.findStayById(1);
 		Stay stay2 = new Stay();
 		BeanUtils.copyProperties(stay, stay2);
-		
+
 		assertThrows(StayAlreadyConfirmed.class, () -> {
 			stay2.setRegisterDate(LocalDate.of(2020, 10, 30));
 			stay2.setReleaseDate(LocalDate.of(2020, 11, 3));
 			this.petService.editStay(stay2);
 		});
 	}
-	
+
 	@Test
 	void shouldNotEditStayRepeatedDate() {
 		Stay stay = this.petService.findStayById(2);
-		
+
 		assertThrows(DateNotAllowed.class, () -> {
 			this.petService.editStay(stay);
 		});
 	}
-	
+
 }
