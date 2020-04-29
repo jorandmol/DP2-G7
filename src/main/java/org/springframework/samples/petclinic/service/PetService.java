@@ -150,8 +150,16 @@ public class PetService {
 		return this.petRepository.findPetsRequests(pending);
 	}
 
-	public List<Pet> findPetsRequests(PetRegistrationStatus pending, Integer ownerId) {
-		return this.petRepository.findPetsRequests(pending, ownerId);
+	public List<Pet> findMyPetsRequests(PetRegistrationStatus pending, PetRegistrationStatus rejected, Integer ownerId) {
+		return this.petRepository.findPetsRequests(pending, rejected, ownerId);
+	}
+
+	public List<Pet> findMyPetsAcceptedByActive(PetRegistrationStatus accepted, boolean active, Integer ownerId) {
+		return this.petRepository.findMyPetsAcceptedByActive(accepted, active, ownerId);
+	}
+
+	public Integer countMyPetsAcceptedByActive(PetRegistrationStatus accepted, boolean active, int ownerId) {
+		return this.petRepository.countMyPetsAcceptedByActive(accepted, active, ownerId);
 	}
 
 }

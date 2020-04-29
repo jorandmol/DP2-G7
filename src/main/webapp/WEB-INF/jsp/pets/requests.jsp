@@ -6,7 +6,7 @@
 <%@ taglib prefix="petclinic" tagdir="/WEB-INF/tags" %>
 
 <petclinic:layout pageName="pets">
-    <h2>Pets Request</h2>
+    <h2>Pets Request Pending</h2>
 
     <table id="petsTable" class="table table-striped">
         <thead>
@@ -24,8 +24,9 @@
                     <c:out value="${pet.owner.firstName} ${pet.owner.lastName}"/>
                 </td>
                  <td>
-                    <spring:url value="/pet/{petId}" var="petRequestUrl">
-                        <spring:param name="petId" value="${pet.id}"/>
+                    <spring:url value="/owners/{ownerId}/pet/{petId}" var="petRequestUrl">
+                        <spring:param name="petId" value="${pet.id}"/>                       
+                        <spring:param name="ownerId" value="${pet.owner.id}"/>
                     </spring:url>
                     <a href="${fn:escapeXml(petRequestUrl)}"> <strong><c:out value="${pet.name}"/></strong></a>
                 </td>

@@ -15,6 +15,7 @@
  */
 package org.springframework.samples.petclinic.web;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -79,7 +80,7 @@ public class PetController {
 
 	@GetMapping(value = "/owners/{ownerId}/pets/new")
 	public String initCreationForm(@PathVariable("ownerId") int ownerId, ModelMap model) {
-		if (securityAccessRequestProfile(ownerId, false)) {
+		if (securityAccessPetRequestAndProfile(ownerId, false)) {
 			Pet pet = new Pet();
 			Owner owner = this.ownerService.findOwnerById(ownerId);
 			model.addAttribute("owner", owner);
@@ -93,7 +94,7 @@ public class PetController {
 	@PostMapping(value = "/owners/{ownerId}/pets/new")
 	public String processCreationForm(@PathVariable("ownerId") int ownerId, @Valid Pet pet, BindingResult result,
 			ModelMap model) {
-		if (securityAccessRequestProfile(ownerId, false)) {
+		if (securityAccessPetRequestAndProfile(ownerId, false)) {
 
 			Owner owner = this.ownerService.findOwnerById(ownerId);
 			model.addAttribute("owner", owner);
@@ -111,7 +112,7 @@ public class PetController {
 					result.rejectValue("name", "duplicate", "already exists");
 					return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 				}
-				return "redirect:/owners/" + owner.getId();
+				return "redirect:/owner/requests";
 			}
 
 		} else {
@@ -123,7 +124,7 @@ public class PetController {
 	public String initUpdateForm(@PathVariable("ownerId") int ownerId, @PathVariable("petId") int petId,
 			ModelMap model) {
 		boolean edit = true;
-		if (securityAccessRequestProfile(ownerId, edit)) {
+		if (securityAccessPetRequestAndProfile(ownerId, edit)) {
 			Pet pet = this.petService.findPetById(petId);
 			model.put("pet", pet);
 			model.addAttribute("owner", pet.getOwner());
@@ -150,25 +151,86 @@ public class PetController {
 			@PathVariable("petId") int petId, ModelMap model) {
 
 		boolean edit = true;
-		if (securityAccessRequestProfile(ownerId, edit)) {
-
+		if (securityAccessPetRequestAndProfile(ownerId, edit)) {
+			String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+					.collect(Collectors.toList()).get(0).toString();
 			Owner owner = this.ownerService.findOwnerById(ownerId);
 			model.addAttribute("owner", owner);
 			model.addAttribute("edit", edit);
+
 			if (result.hasErrors()) {
 				model.put("pet", pet);
 				return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 			} else {
 				Pet petToUpdate = this.petService.findPetById(petId);
-				BeanUtils.copyProperties(pet, petToUpdate, "id", "owner", "visits");
+				BeanUtils.copyProperties(pet, petToUpdate, "id", "owner", "visits", "status", "justification",
+						"active");
 				try {
 					this.petService.savePet(petToUpdate);
 				} catch (DuplicatedPetNameException ex) {
 					result.rejectValue("name", "duplicate", "already exists");
 					return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 				}
-				return "redirect:/owners/" + owner.getId();
+
+				if (authority.equals("owner")) {
+					return "redirect:/owner/pets";
+				} else {
+					return "redirect:/owners/" + owner.getId();
+				}
 			}
+		} else {
+			return REDIRECT_TO_OUPS;
+		}
+	}
+
+	@GetMapping(value = "/owners/{ownerId}/pet/{petId}")
+	public String showAndUpdatePetRequest(@PathVariable("ownerId") int ownerId, @PathVariable("petId") int petId,
+			ModelMap model) {
+		if (securityAccessPetRequestAndProfile(ownerId, true)) {
+			Pet pet = this.petService.findPetById(petId);
+			if (pet.getStatus() != null && pet.getStatus().equals(PetRegistrationStatus.REJECTED)) {
+				model.addAttribute("rejected", true);
+			}
+			List<PetRegistrationStatus> status = new ArrayList<>();
+			status.add(PetRegistrationStatus.REJECTED);
+			status.add(PetRegistrationStatus.ACCEPTED);
+			model.addAttribute("status", status);
+			model.addAttribute("pet", pet);
+			model.addAttribute("petRequest", pet);
+			return "pets/updatePetRequest";
+		} else {
+			return REDIRECT_TO_OUPS;
+		}
+	}
+
+	@PostMapping("/owners/{ownerId}/pet/{petId}")
+	public String AnswerPetRequest(@Valid Pet pet, BindingResult result, @PathVariable("ownerId") int ownerId,
+			@PathVariable("petId") int petId, ModelMap model) {
+
+		if (isAdmin()) {
+
+			List<PetRegistrationStatus> status = new ArrayList<>();
+			status.add(PetRegistrationStatus.REJECTED);
+			status.add(PetRegistrationStatus.ACCEPTED);
+			model.addAttribute("status", status);
+
+			Pet petToUpdate = this.petService.findPetById(petId);
+			model.addAttribute("petRequest", petToUpdate);
+			if (result.hasErrors()) {
+				model.put("pet", pet);
+				return "pets/updatePetRequest";
+			} else {
+				BeanUtils.copyProperties(pet, petToUpdate, "id", "owner", "visits", "name", "birthDate", "type",
+						"active");
+				try {
+					this.petService.savePet(petToUpdate);
+				} catch (DuplicatedPetNameException ex) {
+					result.rejectValue("name", "duplicate", "already exists");
+					return "pets/updatePetRequest";
+				}
+				return "redirect:/requests";
+			}
+
 		} else {
 			return REDIRECT_TO_OUPS;
 		}
@@ -176,21 +238,57 @@ public class PetController {
 
 	@GetMapping(value = { "/requests" })
 	public String showPetRequests(Map<String, Object> model) {
+
 		List<Pet> petsRequests = this.petService.findPetsRequests(PetRegistrationStatus.PENDING);
 		model.put("pets", petsRequests);
 		return "pets/requests";
 	}
 
-	@GetMapping(value = "/myRequests")
+	@GetMapping(value = "/owner/requests")
 	public String showMyPetRequests(Map<String, Object> model) {
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		Owner owner = this.ownerService.findOwnerByUsername(username);
-		List<Pet> myPetsRequests = this.petService.findPetsRequests(PetRegistrationStatus.PENDING, owner.getId());
+		List<Pet> myPetsRequests = this.petService.findMyPetsRequests(PetRegistrationStatus.PENDING,
+				PetRegistrationStatus.REJECTED, owner.getId());
 		model.put("pets", myPetsRequests);
-		return "pets/requests";
+		return "pets/myRequests";
 	}
 
-	private boolean securityAccessRequestProfile(int ownerId, boolean edit) {
+	@GetMapping(value = "/owner/pets")
+	public String showMyPetsActive(Map<String, Object> model) {
+		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+		Owner owner = this.ownerService.findOwnerByUsername(username);
+		List<Pet> myPets = this.petService.findMyPetsAcceptedByActive(PetRegistrationStatus.ACCEPTED, true,
+				owner.getId());
+		model.put("disabled", myPets.size() != 0);
+		model.put("owner", owner);
+		model.put("pets", myPets);
+		return "pets/myPetsActive";
+	}
+
+	@GetMapping(value = "/owners/{ownerId}/pets/disabled")
+	public String showMyPetsDisabled(@PathVariable("ownerId") int ownerId, Map<String, Object> model) {
+		if (securityAccessPetRequestAndProfile(ownerId, true)) {
+
+			Owner owner = this.ownerService.findOwnerById(ownerId);
+			List<Pet> myPets = this.petService.findMyPetsAcceptedByActive(PetRegistrationStatus.ACCEPTED, false,
+					ownerId);
+			model.put("owner", owner);
+			model.put("pets", myPets);
+			return "pets/myPetsDisabled";
+
+		} else {
+			return REDIRECT_TO_OUPS;
+		}
+	}
+
+	private Boolean isAdmin() {
+		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+				.collect(Collectors.toList()).get(0).toString();
+		return authority.equals("admin");
+	}
+
+	private boolean securityAccessPetRequestAndProfile(int ownerId, boolean edit) {
 		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
 				.collect(Collectors.toList()).get(0).toString();
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();

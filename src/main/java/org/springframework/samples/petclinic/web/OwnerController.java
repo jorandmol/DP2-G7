@@ -26,9 +26,11 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.samples.petclinic.model.Owner;
+import org.springframework.samples.petclinic.model.PetRegistrationStatus;
 import org.springframework.samples.petclinic.model.User;
 import org.springframework.samples.petclinic.service.AuthoritiesService;
 import org.springframework.samples.petclinic.service.OwnerService;
+import org.springframework.samples.petclinic.service.PetService;
 import org.springframework.samples.petclinic.service.UserService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -55,11 +57,13 @@ public class OwnerController {
 	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
 
 	private final OwnerService ownerService;
+	private final PetService petService;
 	
 	@Autowired
 	public OwnerController(final OwnerService ownerService, final UserService userService,
-			final AuthoritiesService authoritiesService) {
+			final AuthoritiesService authoritiesService, PetService petService) {
 		this.ownerService = ownerService;
+		this.petService = petService;
 	}
 
 	@InitBinder
@@ -200,6 +204,8 @@ public class OwnerController {
 		if (securityAccessRequestProfile(ownerId)) {
 			ModelAndView mav = new ModelAndView("owners/ownerDetails");
 			mav.addObject(this.ownerService.findOwnerById(ownerId));
+			mav.addObject("pets",  this.petService.findMyPetsAcceptedByActive(PetRegistrationStatus.ACCEPTED, true, ownerId));
+			mav.addObject("disabled", this.petService.countMyPetsAcceptedByActive(PetRegistrationStatus.ACCEPTED, false, ownerId)!=0);
 			return mav;
 		} else {
 			ModelAndView mavOups = new ModelAndView("redirect:/oups");

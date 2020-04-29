@@ -41,6 +41,13 @@ public interface SpringDataPetRepository extends PetRepository, Repository<Pet, 
 	@Query("SELECT p FROM Pet p WHERE p.status=:pending")
 	List<Pet> findPetsRequests(@Param("pending") PetRegistrationStatus pending);
 	
-	@Query("SELECT p FROM Pet p WHERE p.status=:pending AND p.owner.id=:ownerId")
-	List<Pet> findPetsRequests(@Param("pending") PetRegistrationStatus pending, @Param("ownerId") Integer ownerId);
+	@Query("SELECT p FROM Pet p WHERE (p.status=:pending OR p.status=:rejected) AND p.owner.id=:ownerId")
+	List<Pet> findPetsRequests(@Param("pending") PetRegistrationStatus pending, @Param("rejected") PetRegistrationStatus rejected, @Param("ownerId") Integer ownerId);
+	
+	@Query("SELECT p FROM Pet p WHERE p.status=:accepted AND p.active=:active AND p.owner.id=:ownerId")
+	List<Pet> findMyPetsAcceptedByActive(@Param("accepted") PetRegistrationStatus accepted, @Param("active") boolean active, @Param("ownerId") Integer ownerId);
+
+	@Query("SELECT COUNT(p) FROM Pet p WHERE p.status=:accepted AND p.active=:active AND p.owner.id=:ownerId")
+	int countMyPetsAcceptedByActive(@Param("accepted") PetRegistrationStatus accepted, @Param("active") boolean active, @Param("ownerId") Integer ownerId);
+
 }

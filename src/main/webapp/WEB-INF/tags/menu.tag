@@ -6,7 +6,7 @@
 	uri="http://www.springframework.org/security/tags"%>
 <!--  >%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%-->
 <%@ attribute name="name" required="true" rtexprvalue="true"
-	description="Name of the active menu: home, owners, vets, banners, pets, petsRequests, appointments or error"%>
+	description="Name of the active menu: home, owners, vets, banners, pets, requests, appointments or error"%>
 
 <nav class="navbar navbar-default" role="navigation">
 	<div class="container">
@@ -54,7 +54,7 @@
 				</sec:authorize>
 				
 				<sec:authorize access="hasAuthority('admin')">
-				<petclinic:menuItem active="${name eq 'petsRequests'}" url="/requests"
+				<petclinic:menuItem active="${name eq 'requests'}" url="/requests"
 					title="requests">
 					<span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
 					<span>Requests</span>
@@ -62,7 +62,7 @@
 				</sec:authorize>
 				
 				<sec:authorize access="hasAuthority('owner')">
-				<petclinic:menuItem active="${name eq 'pets'}" url="/pets"
+				<petclinic:menuItem active="${name eq 'pets'}" url="/owner/pets"
 					title="pets">
 					<span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
 					<span>My Pets</span>
@@ -70,7 +70,7 @@
 				</sec:authorize>
 				
 				<sec:authorize access="hasAuthority('owner')">
-				<petclinic:menuItem active="${name eq 'petsRequests'}" url="/myRequests"
+				<petclinic:menuItem active="${name eq 'requests'}" url="/owner/requests"
 					title="requests">
 					<span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
 					<span>My Requests</span>

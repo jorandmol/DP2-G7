@@ -15,6 +15,7 @@
             <th>Name</th>
             <th>Birth date</th>
             <th>Pet type</th>
+            <th>Pet status</th>
         </tr>
         </thead>
         <tbody>
@@ -24,8 +25,9 @@
                     <c:out value="${pet.owner.firstName} ${pet.owner.lastName}"/>
                 </td>
                  <td>
-                    <spring:url value="/pet/{petId}" var="petRequestUrl">
+                    <spring:url value="/owners/{ownerId}/pet/{petId}" var="petRequestUrl">
                         <spring:param name="petId" value="${pet.id}"/>
+                        <spring:param name="ownerId" value="${pet.owner.id}"/>
                     </spring:url>
                     <a href="${fn:escapeXml(petRequestUrl)}"> <strong><c:out value="${pet.name}"/></strong></a>
                 </td>
@@ -34,7 +36,10 @@
                 </td>
                 <td>
                     <c:out value="${pet.type}"/>
-                </td>           
+                </td>       
+                <td>
+                	<c:out value="${pet.status}"/>
+                </td>    
             </tr>
         </c:forEach>
         </tbody>

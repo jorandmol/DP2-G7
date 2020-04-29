@@ -61,6 +61,10 @@ public interface PetRepository {
 
 	List<Pet> findPetsRequests(PetRegistrationStatus pending);
 
-	List<Pet> findPetsRequests(PetRegistrationStatus pending, Integer ownerId);
+	List<Pet> findPetsRequests(PetRegistrationStatus pending, PetRegistrationStatus rejected, Integer ownerId);
+
+	List<Pet> findMyPetsAcceptedByActive(PetRegistrationStatus accepted, boolean active, Integer ownerId);
+
+	int countMyPetsAcceptedByActive(PetRegistrationStatus accepted, boolean active, Integer ownerId);
 
 }

@@ -35,7 +35,7 @@
             <div class="form-group">
                 <div class="col-sm-offset-2 col-sm-10">
                     <c:choose>
-                        <c:when test="${pet['new']}">
+                        <c:when test="${!edit}">
                             <button class="btn btn-default" type="submit">Request pet</button>
                         </c:when>
                         <c:otherwise>
@@ -45,7 +45,5 @@
                 </div>
             </div>
         </form:form>
-        <c:if test="${!pet['new']}">
-        </c:if>
     </jsp:body>
 </petclinic:layout>

@@ -31,7 +31,7 @@ public class AppointmentController {
 
 	private static final String	VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM = "pets/createOrUpdateAppointmentForm";	
 	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
-	private static final String REDIRECT_TO_OWNER_DETAILS = "redirect:/owners/{ownerId}";
+	private static final String REDIRECT_TO_PETS_DETAILS = "redirect:/owner/pets";
 
 	@Autowired
 	private AppointmentService	appointmentService;
@@ -95,7 +95,7 @@ public class AppointmentController {
 					modelMap.put("vetError", "Imposible realizar una cita con esos datos");
 					return VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
 				}
-				return REDIRECT_TO_OWNER_DETAILS;
+				return REDIRECT_TO_PETS_DETAILS;
 			}	
 		} else {
 			return REDIRECT_TO_OUPS;
@@ -117,7 +117,7 @@ public class AppointmentController {
 					return VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
 				}
 			}
-			return REDIRECT_TO_OWNER_DETAILS;			
+			return REDIRECT_TO_PETS_DETAILS;			
 		} else {
 			return REDIRECT_TO_OUPS;
 		}
@@ -139,7 +139,7 @@ public class AppointmentController {
 			} else {
 				pet.deleteAppointment(appointment);
 				this.appointmentService.deleteAppointment(appointment);
-				return REDIRECT_TO_OWNER_DETAILS;
+				return REDIRECT_TO_PETS_DETAILS;
 			}
 			
 		} else {

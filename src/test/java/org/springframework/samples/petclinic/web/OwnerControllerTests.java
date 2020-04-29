@@ -25,6 +25,7 @@ import org.springframework.samples.petclinic.model.User;
 import org.springframework.samples.petclinic.service.AuthoritiesService;
 import org.springframework.samples.petclinic.service.BannerService;
 import org.springframework.samples.petclinic.service.OwnerService;
+import org.springframework.samples.petclinic.service.PetService;
 import org.springframework.samples.petclinic.service.UserService;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -41,11 +42,16 @@ import org.springframework.test.web.servlet.MockMvc;
 class OwnerControllerTests {
 
 	private static final int TEST_OWNER_ID = 1;
+	
 	private static final String VIEWS_OWNER_CREATE_OR_UPDATE_FORM = "owners/createOrUpdateOwnerForm";
+	
 	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
 
 	@MockBean
 	private OwnerService ownerService;
+	
+	@MockBean
+	private PetService petService;
 
 	@MockBean
 	private UserService userService;
@@ -105,7 +111,7 @@ class OwnerControllerTests {
 	// TEST para usuario que NO cumple la seguridad
 	@WithMockUser(username = "owner2", password = "0wn3333r_2", authorities = "owner")
 	@Test
-	void testInitCreationFormWithoutSecurity() throws Exception {
+	void testInitCreationFormWithoutAccess() throws Exception {
 		mockMvc.perform(get("/owners/new"))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name(REDIRECT_TO_OUPS));
@@ -170,7 +176,7 @@ class OwnerControllerTests {
 	// TEST para usuario que NO cumple la seguridad
 	@WithMockUser(username = "owner2", password = "0wn3333r_2", authorities = "owner")
 	@Test
-	void testProcessCreationFormSuccessWithoutSecurity() throws Exception {
+	void testProcessCreationFormSuccessWithoutAccess() throws Exception {
 		mockMvc.perform(post("/owners/new")
 				.param("firstName", "Joe")
 				.param("lastName", "Bloggs").with(csrf())
@@ -235,7 +241,7 @@ class OwnerControllerTests {
 	// TEST para usuario que NO cumple la seguridad
 	@WithMockUser(username = "owner2", password = "0wn3333r_2", authorities = "owner")
 	@Test
-	void testProcessFindFormSuccessWithoutSecurity() throws Exception {
+	void testProcessFindFormSuccessWithoutAccess() throws Exception {
 		given(this.ownerService.findOwnerByLastName("")).willReturn(Lists.newArrayList(george, new Owner()));
 		mockMvc.perform(get("/owners"))
 				.andExpect(status().is3xxRedirection())
@@ -275,7 +281,7 @@ class OwnerControllerTests {
 	// TEST para usuario que NO cumple la seguridad
 	@WithMockUser(username = "owner2", password = "0wn3333r_2", authorities = "owner")
 	@Test
-	void testInitUpdateOwnerFormWithoutSecurity() throws Exception {
+	void testInitUpdateOwnerFormWithoutAccess() throws Exception {
 		mockMvc.perform(get("/owners/{ownerId}/edit", TEST_OWNER_ID))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name(REDIRECT_TO_OUPS));
@@ -332,7 +338,7 @@ class OwnerControllerTests {
 	// TEST para usuario que NO cumple la seguridad
 	@WithMockUser(username = "owner2", password = "0wn3333r_2", authorities = "owner")
 	@Test
-	void testProcessUpdateOwnerFormSuccessWithoutSecurity() throws Exception {
+	void testProcessUpdateOwnerFormSuccessWithoutAccess() throws Exception {
 		mockMvc.perform(post("/owners/{ownerId}/edit", TEST_OWNER_ID).with(csrf())
 				.param("firstName", "Joe")
 				.param("lastName", "Bloggs")
@@ -373,7 +379,7 @@ class OwnerControllerTests {
 	// TEST para usuario que NO cumple la seguridad
 	@WithMockUser(username = "owner2", password = "0wn3333r_2", authorities = "owner")
 	@Test
-	void testShowOwnerWithoutSecurity() throws Exception {
+	void testShowOwnerWithoutAccess() throws Exception {
 		mockMvc.perform(get("/owners/{ownerId}", TEST_OWNER_ID))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name(REDIRECT_TO_OUPS));
