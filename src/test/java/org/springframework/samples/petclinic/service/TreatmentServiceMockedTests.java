@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.samples.petclinic.model.Medicine;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 @ExtendWith(MockitoExtension.class)
 @DataJpaTest(includeFilters = @ComponentScan.Filter(Service.class))
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class TreatmentServiceMockedTests {
 
 	private static final int TEST_PET_ID = 1;
@@ -32,9 +34,9 @@ public class TreatmentServiceMockedTests {
 
 	@Mock
 	private TreatmentRepository treatmentRepository;
-	
+
 	@Mock
-	private TreatmentHistoryRepository treatmentHistoryRepository; 
+	private TreatmentHistoryRepository treatmentHistoryRepository;
 
 	protected TreatmentService treatmentService;
 
@@ -71,7 +73,7 @@ public class TreatmentServiceMockedTests {
 		treatment2.setTimeLimit(LocalDate.now().minusMonths(2));
 		treatment2.setMedicines(medicines);
 		treatment2.setPet(pet);
-		
+
 		treatment3 = new Treatment();
 		treatment3.setId(TEST_TREATMENT_ID_1);
 		treatment3.setName("Tratamiento post-operatorio");
@@ -90,7 +92,7 @@ public class TreatmentServiceMockedTests {
 	    this.treatmentRepository.save(treatment1);
 	    verify(treatmentRepository).save(treatment1);
     }
-	
+
 	@Test
 	void shouldEditTreatment() {
 		when(this.treatmentRepository.findById(TEST_TREATMENT_ID_1)).thenReturn(treatment1);
