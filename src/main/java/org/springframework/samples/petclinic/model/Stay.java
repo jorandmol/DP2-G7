@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -26,7 +27,8 @@ public class Stay extends BaseEntity {
 	private LocalDate releaseDate;
 	
 	@Column(name= "status")
-	private Boolean status;
+	@NotNull
+	private Status status;
 
 	@ManyToOne
 	@JoinColumn(name = "pet_id")
