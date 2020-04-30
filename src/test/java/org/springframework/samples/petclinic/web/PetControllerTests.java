@@ -49,7 +49,6 @@ import org.springframework.samples.petclinic.service.PetService;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.client.HttpClientErrorException.Gone;
 
 /**
  * Test class for the {@link PetController}
