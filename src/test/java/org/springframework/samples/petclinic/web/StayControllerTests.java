@@ -30,6 +30,7 @@ import org.springframework.samples.petclinic.service.AuthoritiesService;
 import org.springframework.samples.petclinic.service.BannerService;
 import org.springframework.samples.petclinic.service.OwnerService;
 import org.springframework.samples.petclinic.service.PetService;
+import org.springframework.samples.petclinic.service.StayService;
 import org.springframework.samples.petclinic.service.exceptions.StayAlreadyConfirmed;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -53,6 +54,9 @@ class StayControllerTests {
 
 	@MockBean
 	private PetService petService;
+	
+	@MockBean
+	private StayService stayService;
 	
 	@MockBean
 	private OwnerService ownerService;
@@ -109,10 +113,10 @@ class StayControllerTests {
 		given(this.ownerService.findOwnerById(TEST_OWNER_ID)).willReturn(owner1);
 		given(this.ownerService.findOwnerById(TEST_WRONG_OWNER_ID)).willReturn(owner2);
 		given(this.petService.findPetById(TEST_PET_ID)).willReturn(pet);
-		given(this.petService.findStayById(TEST_STAY_ID)).willReturn(stay1);
-		given(this.petService.findStayById(TEST_STAY_ID_CONFIRMED)).willReturn(stay2);
-		given(this.petService.findStaysByPetId(TEST_PET_ID)).willReturn(stays);
-		given(this.petService.findAllStays()).willReturn(stays);		
+		given(this.stayService.findStayById(TEST_STAY_ID)).willReturn(stay1);
+		given(this.stayService.findStayById(TEST_STAY_ID_CONFIRMED)).willReturn(stay2);
+		given(this.stayService.findStaysByPetId(TEST_PET_ID)).willReturn(stays);
+		given(this.stayService.findAllStays()).willReturn(stays);		
 	}
 	
 	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
@@ -195,7 +199,7 @@ class StayControllerTests {
 				.andExpect(status().isOk())
 				.andExpect(view().name("pets/staysList"));
 				
-				given(this.petService.findStayById(TEST_STAY_ID)).willReturn(null);
+				given(this.stayService.findStayById(TEST_STAY_ID)).willReturn(null);
 	}
 	
 	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
