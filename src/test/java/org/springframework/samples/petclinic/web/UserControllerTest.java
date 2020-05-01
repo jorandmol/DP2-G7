@@ -90,21 +90,31 @@ public class UserControllerTest {
 		
 	}
 	
+	//Usuario con acceso permitido a su perfil
 	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
 	@Test
-	void testFindUserOwner() throws Exception {
+	void testFindUserProfileOwner() throws Exception {
 		
 		mockMvc.perform(get("/users/profile")).andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:/owners/" + TEST_OWNER_ID));
 	}
 	
+	//Usuario con acceso permitido a su perfil
 	@WithMockUser(username = "vet1", password = "V3t_erinarian", authorities = "veterinarian")
 	@Test
-	void testFindUserVet() throws Exception {
+	void testFindUserProfileVet() throws Exception {
 		
 		mockMvc.perform(get("/users/profile")).andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:/vets/" + TEST_VET_ID));
 	}
 	
+	//Usuario con acceso NO permitido a su perfil
+	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
+	@Test
+	void testFindUserProfileVetWithoutAccess() throws Exception {
+		
+		mockMvc.perform(get("/users/profile")).andExpect(status().is3xxRedirection())
+				.andExpect(view().name("redirect:/oups"));
+	}
 	
 }

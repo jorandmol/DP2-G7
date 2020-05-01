@@ -24,6 +24,7 @@ import javax.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -65,10 +66,11 @@ import org.springframework.transaction.annotation.Transactional;
  */
 
 @DataJpaTest(includeFilters = @ComponentScan.Filter(Service.class))
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class VetServiceTests {
 
 	@Autowired
-	protected VetService vetService;	
+	protected VetService vetService;
 
 	@Test
 	void shouldFindVets() {
@@ -80,7 +82,7 @@ class VetServiceTests {
 		assertThat(vet.getSpecialties().get(0).getName()).isEqualTo("dentistry");
 		assertThat(vet.getSpecialties().get(1).getName()).isEqualTo("surgery");
 	}
-	
+
 	@Test
 	@Transactional
 	public void shouldInsertVetWithoutSpecialties() {
@@ -97,15 +99,15 @@ class VetServiceTests {
                 user.setUsername("elenamolino");
                 user.setPassword("p4ss-w0rd-");
                 user.setEnabled(true);
-                vet.setUser(user);                
-                
+                vet.setUser(user);
+
 		this.vetService.saveVet(vet);
 		assertThat(vet.getId()).isNotEqualTo(0);
 
 		Collection<Vet> vets2 = this.vetService.findVets();
 		assertThat(vets2.size()).isEqualTo(numberOfVets + 1);
 	}
-	
+
 
 	@Test
 	@Transactional
@@ -126,18 +128,18 @@ class VetServiceTests {
 		System.out.println(vet.getSpecialties());
 		System.out.println("............................................................");
                 User user=new User();
-                user.setUsername("elenamolino");
+                user.setUsername("elenamolino1");
                 user.setPassword("p4ss-w0rd-");
                 user.setEnabled(true);
-                vet.setUser(user);                
-                
+                vet.setUser(user);
+
 		this.vetService.saveVet(vet);
 		assertThat(vet.getId()).isNotEqualTo(0);
 
 		Collection<Vet> vets2 = this.vetService.findVets();
 		assertThat(vets2.size()).isEqualTo(numberOfVets + 1);
 	}
-	
+
 	@Test
 	@Transactional
 	public void shouldThrowExceptionInsertingVetsWithUsernameDuplicate() {
@@ -148,29 +150,29 @@ class VetServiceTests {
 		vet.setCity("Almedralejo");
 		vet.setTelephone("123456789");
 				User user=new User();
-				user.setUsername("elenamolino");
+				user.setUsername("elenamolino2");
 				user.setPassword("p4ss-w0rd");
 				user.setEnabled(true);
 				vet.setUser(user);
 		try {
-			vetService.saveVet(vet);		
+			vetService.saveVet(vet);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		Vet vetWithSameUsername = new Vet();
 			User user1=new User();
-			user1.setUsername("elenamolino");
+			user1.setUsername("elenamolino2");
 			user1.setPassword("p4ss-w0rd");
 			user1.setEnabled(true);
-			
+
 		vetWithSameUsername.setUser(user1);
 		Assertions.assertThrows(DataIntegrityViolationException.class, () ->{
 			vetService.saveVet(vetWithSameUsername);
-		});	
-		
+		});
+
 	}
-	
+
 	@Test
 	public void shouldThrowExceptionInsertingVetsWithUsernameEmpty() {
 		Vet vet= new Vet();
@@ -185,14 +187,14 @@ class VetServiceTests {
 				user.setEnabled(true);
 				vet.setUser(user);
 		try {
-			vetService.saveVet(vet);		
+			vetService.saveVet(vet);
 		} catch (Exception e) {
 			e.printStackTrace();
 			assertThat(e.getClass()).isEqualTo(ConstraintViolationException.class);
 		}
-		
+
 	}
-	
+
 	@Test
 	@Transactional
 	void findVetByIdTest() {

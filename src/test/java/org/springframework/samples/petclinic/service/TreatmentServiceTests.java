@@ -9,6 +9,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.samples.petclinic.model.Medicine;
@@ -17,16 +18,17 @@ import org.springframework.samples.petclinic.model.TreatmentHistory;
 import org.springframework.stereotype.Service;
 
 @DataJpaTest(includeFilters = @ComponentScan.Filter(Service.class))
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class TreatmentServiceTests {
 
 	@Autowired
 	private TreatmentService treatmentService;
-	
+
 	@Autowired
 	private PetService petService;
-	
+
 	private Treatment treatment;
-	
+
 	@BeforeEach
 	void setup() {
 		treatment = new Treatment();
@@ -37,7 +39,7 @@ public class TreatmentServiceTests {
 		treatment.setPet(this.petService.findPetById(1));
 		this.treatmentService.saveTreatment(treatment);
 	}
-	
+
 	@Test
 	public void shouldRegisterTreatmentHistory() {
 		List<TreatmentHistory> history = this.treatmentService.findHistoryByTreatment(1);
@@ -47,5 +49,5 @@ public class TreatmentServiceTests {
 		history = this.treatmentService.findHistoryByTreatment(1);
 		assertEquals(size + 1, history.size());
 	}
-	
+
 }

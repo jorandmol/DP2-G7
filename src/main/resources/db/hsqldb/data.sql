@@ -71,19 +71,19 @@ INSERT INTO owners VALUES (8, 'Maria', 'Escobito', '345 Maple St.', 'Madison', '
 INSERT INTO owners VALUES (9, 'David', 'Schroeder', '2749 Blackhawk Trail', 'Madison', '608555943', 'owner9');
 INSERT INTO owners VALUES (10, 'Carlos', 'Estaban', '2335 Independence La.', 'Waunakee', '608555548', 'owner10');
 
-INSERT INTO pets(id,name,birth_date,type_id,owner_id) VALUES (1, 'Leo', '2010-09-07', 1, 1);
-INSERT INTO pets(id,name,birth_date,type_id,owner_id) VALUES (2, 'Basil', '2012-08-06', 6, 2);
-INSERT INTO pets(id,name,birth_date,type_id,owner_id) VALUES (3, 'Rosy', '2011-04-17', 2, 3);
-INSERT INTO pets(id,name,birth_date,type_id,owner_id) VALUES (4, 'Jewel', '2010-03-07', 2, 3);
-INSERT INTO pets(id,name,birth_date,type_id,owner_id) VALUES (5, 'Iggy', '2010-11-30', 3, 4);
-INSERT INTO pets(id,name,birth_date,type_id,owner_id) VALUES (6, 'George', '2010-01-20', 4, 5);
-INSERT INTO pets(id,name,birth_date,type_id,owner_id) VALUES (7, 'Samantha', '2012-09-04', 1, 6);
-INSERT INTO pets(id,name,birth_date,type_id,owner_id) VALUES (8, 'Max', '2012-09-04', 1, 6);
-INSERT INTO pets(id,name,birth_date,type_id,owner_id) VALUES (9, 'Lucky', '2011-08-06', 5, 7);
-INSERT INTO pets(id,name,birth_date,type_id,owner_id) VALUES (10, 'Mulligan', '2007-02-24', 2, 8);
-INSERT INTO pets(id,name,birth_date,type_id,owner_id) VALUES (11, 'Freddy', '2010-03-09', 5, 9);
-INSERT INTO pets(id,name,birth_date,type_id,owner_id) VALUES (12, 'Lucky', '2010-06-24', 2, 10);
-INSERT INTO pets(id,name,birth_date,type_id,owner_id) VALUES (13, 'Sly', '2012-06-08', 1, 10);
+INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id) VALUES (1, 'Leo', '2010-09-07', 0, '', true , 1, 1);
+INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id) VALUES (2, 'Basil', '2012-08-06', 1, 'It is impossible to accept it because the hamster quota has been exceeded', true , 6, 1);
+INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id) VALUES (3, 'George', '2010-01-20', 2, '', true , 4, 1);
+INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id) VALUES (4, 'Rosy', '2011-04-17', 2, '', true , 2, 3);
+INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id) VALUES (5, 'Jewel', '2010-03-07', 0, '', false , 2, 3 );
+INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id) VALUES (6, 'Iggy', '2010-11-30', 1,'It is impossible to accept it because the lizard quota has been exceeded', true , 3, 3 );
+INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id) VALUES (7, 'Samantha', '2012-09-04', 0, '', true , 1, 3);
+INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id) VALUES (8, 'Max', '2012-09-04', 1, 'It is impossible to accept it because the cat quota has been exceeded', true , 1, 6);
+INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id) VALUES (9, 'Lucky', '2011-08-06', 2, '', true , 5, 6);
+INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id) VALUES (10, 'Mulligan', '2007-02-24', 0, '', true , 2, 6);
+INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id) VALUES (11, 'Freddy', '2010-03-09', 1, 'It is impossible to accept it because the bird quota has been exceeded', true , 5, 9);
+INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id) VALUES (12, 'Lucky', '2010-06-24', 2, '', true , 2, 10 );
+INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id) VALUES (13, 'Sly', '2012-06-08', 0, '', true , 1, 10 );
 
 
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (1,'2019-01-01','2018-12-20','Rabies shot',6,7,1);
@@ -115,6 +115,6 @@ INSERT INTO banners(id, picture, slogan, target_url, organization_name, init_col
 INSERT INTO banners(id, picture, slogan, target_url, organization_name, init_colab_date, end_colab_date) VALUES (3, 'https://scoobymedina.org/cache/resized/ac3a07da9000a7824d41c97f4d99d4ff.jpg', 'No compres y adopta ¡Pon color a sus vidas!', 'https://scoobymedina.org/es/', 'Protectora y Santuario Scooby', '2019-02-01', '2020-02-01');
 INSERT INTO banners(id, picture, slogan, target_url, organization_name, init_colab_date, end_colab_date) VALUES (4, 'https://www.elhogar-animalsanctuary.org/wp-content/uploads/2016/10/fondo-web-2.jpg', '¡El amor nos cambia la vida a todos!', 'https://www.elhogar-animalsanctuary.org/el-santuario-2/', 'Fundación El Hogar', '2018-03-01', '2019-03-01');
 
-INSERT INTO stays(id,pet_id,register_date,release_date,status) VALUES (1,1, '2020-10-01', '2020-10-05',true);
-INSERT INTO stays(id,pet_id,register_date,release_date,status) VALUES (2,2, '2020-10-01', '2020-10-05',null);
-INSERT INTO stays(id,pet_id,register_date,release_date,status) VALUES (3,2, '2020-11-01', '2020-11-05',null);
+INSERT INTO stays(id,pet_id,register_date,release_date,status) VALUES (1,1, '2020-10-01', '2020-10-05',0);
+INSERT INTO stays(id,pet_id,register_date,release_date,status) VALUES (2,2, '2020-10-01', '2020-10-05',2);
+INSERT INTO stays(id,pet_id,register_date,release_date,status) VALUES (3,2, '2020-11-01', '2020-11-05',2);
