@@ -244,17 +244,10 @@ public class StayController {
 		ls.add(Status.ACCEPTED);
 		ls.add(Status.REJECTED);
 
-		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-				.collect(Collectors.toList()).get(0).toString();
-
-		if (authority.equals("admin") ) {
-			Stay stay = this.stayService.findStayById(stayId);
-			modelMap.put("stay", stay);
-			modelMap.put("status", ls);
-			return "pets/createOrUpdateStayFormAdmin";
-		} else {
-			return "redirect:/oups";
-		}
+		Stay stay = this.stayService.findStayById(stayId);
+		modelMap.put("stay", stay);
+		modelMap.put("status", ls);
+		return "pets/createOrUpdateStayFormAdmin";
 	}
 
 	@PostMapping(value = "/admin/stays/{stayId}")
