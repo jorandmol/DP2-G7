@@ -16,18 +16,24 @@
 
 package org.springframework.samples.petclinic.web;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.samples.petclinic.model.Appointment;
 import org.springframework.samples.petclinic.model.MedicalTest;
+import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
-import org.springframework.samples.petclinic.model.Specialty;
 import org.springframework.samples.petclinic.model.Visit;
+import org.springframework.samples.petclinic.service.AppointmentService;
 import org.springframework.samples.petclinic.service.MedicalTestService;
+import org.springframework.samples.petclinic.service.OwnerService;
 import org.springframework.samples.petclinic.service.PetService;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
@@ -46,65 +52,115 @@ import org.springframework.web.bind.annotation.PostMapping;
 @Controller
 public class VisitController {
 
+	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
+
 	private final PetService petService;
 
 	private final MedicalTestService medicalTestService;
 
+	private final AppointmentService appointmentService;
+	
+	private final OwnerService ownerService;
+
 	@Autowired
-	public VisitController(final PetService petService, final MedicalTestService medicalTestService) {
+	public VisitController(final PetService petService, final MedicalTestService medicalTestService,
+			final AppointmentService appointmentService, final OwnerService ownerService) {
 		this.petService = petService;
 		this.medicalTestService = medicalTestService;
+		this.appointmentService = appointmentService;
+		this.ownerService = ownerService;
 	}
 
 	@InitBinder
 	public void setAllowedFields(final WebDataBinder dataBinder) {
 		dataBinder.setDisallowedFields("id");
 	}
-	
+
 	@ModelAttribute("tests")
 	public Collection<MedicalTest> populateSpecialties() {
 		return this.medicalTestService.findMedicalTests();
 	}
 
+	private Boolean securityAccessRequestVisit(Integer petId) {
+		Boolean res = false;
+		Appointment appointment = this.appointmentService.findAppointmentByDate(petId, LocalDate.now());
+		String vetUsername = appointment.getVet().getUser().getUsername();
+
+		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+		Integer numberOfVisits = this.petService.countVisitsByDate(petId, LocalDate.now());
+
+		if (numberOfVisits == 0 && vetUsername.equals(username)) {
+			res = true;
+		}
+		return res;
+	}
+	
+	private Boolean securityAccessRequestProfile(int ownerId) {
+		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+				.collect(Collectors.toList()).get(0).toString();
+		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+		Owner owner = new Owner();
+		
+		if (authority.equals("owner"))
+			owner = this.ownerService.findOwnerById(ownerId);
+
+		return authority.equals("admin") || authority.equals("owner") && username.equals(owner.getUser().getUsername());
+	}
+
 	/**
-	 * Called before each and every @GetMapping or @PostMapping annotated method. 2 goals:
-	 * - Make sure we always have fresh data - Since we do not use the session scope, make
-	 * sure that Pet object always has an id (Even though id is not part of the form
-	 * fields)
+	 * Called before each and every @GetMapping or @PostMapping annotated method. 2
+	 * goals: - Make sure we always have fresh data - Since we do not use the
+	 * session scope, make sure that Pet object always has an id (Even though id is
+	 * not part of the form fields)
 	 * 
 	 * @param petId
 	 * @return Pet
 	 */
-	@ModelAttribute("visit")
-	public Visit loadPetWithVisit(@PathVariable("petId") final int petId) {
-		Pet pet = this.petService.findPetById(petId);
-		Visit visit = new Visit();
-		pet.addVisit(visit);
-		return visit;
-	}
+	
 
-	// Spring MVC calls method loadPetWithVisit(...) before initNewVisitForm is called
+	// Spring MVC calls method loadPetWithVisit(...) before initNewVisitForm is
+	// called
 	@GetMapping(value = "/owners/*/pets/{petId}/visits/new")
 	public String initNewVisitForm(@PathVariable("petId") final int petId, final Map<String, Object> model) {
-		return "pets/createOrUpdateVisitForm";
-	}
-
-	// Spring MVC calls method loadPetWithVisit(...) before processNewVisitForm is called
-	@PostMapping(value = "/owners/{ownerId}/pets/{petId}/visits/new")
-	public String processNewVisitForm(@Valid final Visit visit, final BindingResult result) {
-		if (result.hasErrors()) {
+		if (securityAccessRequestVisit(petId)) {
+			Pet pet = this.petService.findPetById(petId);
+			Visit visit = new Visit();
+			model.put("visit", visit);
+			pet.addVisit(visit);
 			return "pets/createOrUpdateVisitForm";
 		} else {
-			this.petService.saveVisit(visit);
-			//Añadir un mensaje para que el vet sepa que se ha guardado la visita.
-			return "redirect:/appointments";
+			return REDIRECT_TO_OUPS;
 		}
 	}
 
-	@GetMapping(value = "/owners/*/pets/{petId}/visits")
-	public String showVisits(@PathVariable final int petId, final Map<String, Object> model) {
-		model.put("visits", this.petService.findPetById(petId).getVisits());
-		return "visitList";
+	// Spring MVC calls method loadPetWithVisit(...) before processNewVisitForm is
+	// called
+	@PostMapping(value = "/owners/{ownerId}/pets/{petId}/visits/new")
+	public String processNewVisitForm(@PathVariable("petId") final int petId, @Valid final Visit visit,
+			final BindingResult result) {
+		if (securityAccessRequestVisit(petId)) {
+			Pet pet = this.petService.findPetById(petId);
+			pet.addVisit(visit);
+			if (result.hasErrors()) {
+				return "pets/createOrUpdateVisitForm";
+			} else {
+				this.petService.saveVisit(visit);
+				return "redirect:/appointments";
+			}
+		} else {
+			return REDIRECT_TO_OUPS;
+		}
+	}
+
+	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/visits/{visitId}")
+	public String showVisit(@PathVariable final int ownerId, @PathVariable final int visitId, final Map<String, Object> model) {
+		if (securityAccessRequestProfile(ownerId)) {
+			Visit visit = this.petService.findVisitById(visitId);
+			model.put("visit", visit);
+			return "visits/visitDetails";
+		} else {
+			return REDIRECT_TO_OUPS;
+		}
 	}
 
 }

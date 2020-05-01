@@ -5,10 +5,7 @@
 <%@ taglib prefix="petclinic" tagdir="/WEB-INF/tags" %>
 
 <petclinic:layout pageName="treatments">
-	<div class="row">
-		<div class="col-md-10">
-		    <h2>Current Treatments</h2>		
-		</div>
+	<div class="col-md-10"></div>
 		<div class="col-md-2">
             <c:if test="${isVet}">
             <spring:url value="/vets/pets/{petId}/treatments/new" var="addUrl">
@@ -17,9 +14,14 @@
             <a href="${fn:escapeXml(addUrl)}" class="btn btn-default">Add New Treatment</a>
             </c:if>
 		</div>
+	<br/>
+    <br/>
+    
+    <div class="row">
+		<div class="col-md-10">
+		    <h2>Current Treatments</h2>		
+		</div>
 	</div>
-	
-
     <table id="treatmentsTable" class="table table-striped">
         <thead>
         <tr>
@@ -61,9 +63,13 @@
         </c:forEach>
         </tbody>
     </table>
-    <div class="col-md-11">
-    	<h2>Expired Treatments</h2>
-    </div>
+    <br/>
+    <br/>
+    <div class="row">
+    	<div class="col-md-10">
+    		<h2>Expired Treatments</h2>
+   		</div>
+   	</div>
     <table id="treatmentsTable" class="table table-striped">
         <thead>
         <tr>

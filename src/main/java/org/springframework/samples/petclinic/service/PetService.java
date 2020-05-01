@@ -22,6 +22,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Pet;
+import org.springframework.samples.petclinic.model.PetRegistrationStatus;
 import org.springframework.samples.petclinic.model.PetType;
 import org.springframework.samples.petclinic.model.Status;
 import org.springframework.samples.petclinic.model.Stay;
@@ -61,7 +62,17 @@ public class PetService {
 	public Collection<PetType> findPetTypes() throws DataAccessException {
 		return petRepository.findPetTypes();
 	}
+	
+	@Transactional(readOnly = true)
+	public Visit findVisitById(int visitId) {
+		return visitRepository.findById(visitId);
+	}
 
+	@Transactional(readOnly = true)
+	public Integer countVisitsByDate(Integer petId, LocalDate date) {
+		return visitRepository.countByDate(petId, date);
+	}
+	
 	@Transactional
 	public void saveVisit(Visit visit) throws DataAccessException {
 		visitRepository.save(visit);
@@ -85,8 +96,25 @@ public class PetService {
 		return visitRepository.findByPetId(petId);
 	}
 
-	
 	public List<Pet> findAll() {
 		return this.petRepository.findAll();
 	}
+
+	public List<Pet> findPetsRequests(PetRegistrationStatus pending) {
+		return this.petRepository.findPetsRequests(pending);
+	}
+
+	public List<Pet> findMyPetsRequests(PetRegistrationStatus pending, PetRegistrationStatus rejected, Integer ownerId) {
+		return this.petRepository.findPetsRequests(pending, rejected, ownerId);
+	}
+
+	public List<Pet> findMyPetsAcceptedByActive(PetRegistrationStatus accepted, boolean active, Integer ownerId) {
+		return this.petRepository.findMyPetsAcceptedByActive(accepted, active, ownerId);
+	}
+
+	public Integer countMyPetsAcceptedByActive(PetRegistrationStatus accepted, boolean active, int ownerId) {
+		return this.petRepository.countMyPetsAcceptedByActive(accepted, active, ownerId);
+	}
+
+
 }

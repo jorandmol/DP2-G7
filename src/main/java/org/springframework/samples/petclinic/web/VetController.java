@@ -16,10 +16,10 @@
 package org.springframework.samples.petclinic.web;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -27,9 +27,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.samples.petclinic.model.Appointment;
+import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.Specialty;
 import org.springframework.samples.petclinic.model.User;
-import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.model.Vets;
 import org.springframework.samples.petclinic.service.AppointmentService;
@@ -49,8 +49,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import net.bytebuddy.description.annotation.AnnotationList.Empty;
-
 /**
  * @author Juergen Hoeller
  * @author Mark Fisher
@@ -61,9 +59,10 @@ import net.bytebuddy.description.annotation.AnnotationList.Empty;
 public class VetController {
 
 	private final VetService vetService;
-	private final AppointmentService appointmentService;
 	private final PetService petService;
+	private final AppointmentService appointmentService;
 	private static final String VIEWS_VET_CREATE_OR_UPDATE_FORM = "vets/createOrUpdateVetForm";
+	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
 
 	@Autowired
 	public VetController(VetService vetService, AppointmentService appointmentService, PetService petService) {
@@ -88,10 +87,15 @@ public class VetController {
 		// Vet
 		// objects
 		// so it is simpler for Object-Xml mapping
-		Vets vets = new Vets();
-		vets.getVetList().addAll(this.vetService.findVets());
-		model.put("vets", vets);
-		return "vets/vetList";
+
+		if (isAdmin()) {
+			Vets vets = new Vets();
+			vets.getVetList().addAll(this.vetService.findVets());
+			model.put("vets", vets);
+			return "vets/vetList";
+		} else {
+			return REDIRECT_TO_OUPS;
+		}
 	}
 
 	@GetMapping(value = { "/vets.xml" })
@@ -107,92 +111,137 @@ public class VetController {
 
 	@GetMapping(value = "/vets/new")
 	public String initCreationForm(ModelMap model) {
-		Vet vet = new Vet();
-		model.put("vet", vet);
-		return VIEWS_VET_CREATE_OR_UPDATE_FORM;
+		if (isAdmin()) {
+			Vet vet = new Vet();
+			model.put("vet", vet);
+			return VIEWS_VET_CREATE_OR_UPDATE_FORM;
+		} else {
+			return REDIRECT_TO_OUPS;
+		}
 	}
 
 	@PostMapping(value = "/vets/new")
 	public String processCreationForm(@Valid Vet vet, BindingResult result, ModelMap model) {
-		if (result.hasErrors()) {
-			model.addAttribute("vet", vet);
-			return VIEWS_VET_CREATE_OR_UPDATE_FORM;
-		} else {
-			try {
-				this.vetService.saveVet(vet);
-			} catch (Exception ex) {
+		if (isAdmin()) {
+			if (result.hasErrors()) {
+				model.addAttribute("vet", vet);
+				return VIEWS_VET_CREATE_OR_UPDATE_FORM;
+			} else {
+				try {
+					this.vetService.saveVet(vet);
+				} catch (DataIntegrityViolationException ex) {
 
-				if (ex.getClass().equals(DataIntegrityViolationException.class))
 					result.rejectValue("user.username", "duplicate");
 
-				return VIEWS_VET_CREATE_OR_UPDATE_FORM;
+					return VIEWS_VET_CREATE_OR_UPDATE_FORM;
+				}
+				return "redirect:/vets/" + vet.getId();
 			}
-			return "redirect:/vets/" + vet.getId();
+		} else {
+			return REDIRECT_TO_OUPS;
 		}
 	}
 
 	@GetMapping(value = "/vets/{vetId}/edit")
 	public String initUpdateVetForm(@PathVariable("vetId") int vetId, Model model) {
-		Vet vet = this.vetService.findVetById(vetId);
-		model.addAttribute("vet", vet);
-		model.addAttribute("username", vet.getUser().getUsername());
-		model.addAttribute("edit", true);
-		return VIEWS_VET_CREATE_OR_UPDATE_FORM;
+		if (securityAccessRequestProfile(vetId)) {
+			Vet vet = this.vetService.findVetById(vetId);
+			model.addAttribute("vet", vet);
+			model.addAttribute("username", vet.getUser().getUsername());
+			model.addAttribute("edit", true);
+			return VIEWS_VET_CREATE_OR_UPDATE_FORM;
+		} else {
+			return REDIRECT_TO_OUPS;
+		}
 
 	}
 
 	@PostMapping(value = "/vets/{vetId}/edit")
 	public String processUpdateVetForm(@Valid Vet vet, BindingResult result, @PathVariable("vetId") int vetId,
 			ModelMap model) {
+		if (securityAccessRequestProfile(vetId)) {
 
-		model.addAttribute("edit", true);
-		Vet vetToUpdate = this.vetService.findVetById(vetId);
-		model.addAttribute("username", vetToUpdate.getUser().getUsername());
+			model.addAttribute("edit", true);
+			Vet vetToUpdate = this.vetService.findVetById(vetId);
+			model.addAttribute("username", vetToUpdate.getUser().getUsername());
 
-		if (result.hasErrors()) {
-			model.put("vet", vet);
-			return VIEWS_VET_CREATE_OR_UPDATE_FORM;
+			if (result.hasErrors()) {
+				model.put("vet", vet);
+				return VIEWS_VET_CREATE_OR_UPDATE_FORM;
+			} else {
+
+				BeanUtils.copyProperties(vet, vetToUpdate, "id", "specialties", "user");
+				vet.getSpecialties().stream().filter(s -> !vetToUpdate.getSpecialties().contains(s))
+						.forEach(s -> vetToUpdate.addSpecialty(s));
+				User user = vetToUpdate.getUser();
+				user.setPassword(vet.getUser().getPassword());
+				vetToUpdate.setUser(user);
+				this.vetService.saveVet(vetToUpdate);
+
+				return "redirect:/vets/{vetId}";
+			}
 		} else {
-			
-			BeanUtils.copyProperties(vet, vetToUpdate, "id", "specialties", "user");
-			vet.getSpecialties().stream().filter(s -> !vetToUpdate.getSpecialties().contains(s))
-					.forEach(s -> vetToUpdate.addSpecialty(s));
-			User user = vetToUpdate.getUser();
-			user.setPassword(vet.getUser().getPassword());
-			vetToUpdate.setUser(user);
-			this.vetService.saveVet(vetToUpdate);
-
-			return "redirect:/vets/{vetId}";
+			return REDIRECT_TO_OUPS;
 		}
 	}
-	
+
 	@GetMapping(value = { "/appointments" })
-	public String showAppoimentsByVetList(Map<String, Object> model) {
+	public String showAppoimentsByVetList(ModelMap model) {
 		
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		Vet veterinarian= this.vetService.findVetByUsername(username);
 		LocalDate today= LocalDate.now();
 		
-		List<Appointment> appointmentsToday = this.appointmentService.getAppointmentTodayByVetId(veterinarian.getId(), today);
-		model.put("appointmentsToday", appointmentsToday);
+		List<Appointment> appointmentsToday = this.appointmentService.getAppointmentsTodayByVetId(veterinarian.getId(), today);
+		model.addAttribute("appointmentsToday", appointmentsToday);
 		
-		List<Appointment>  nextAppointments = this.appointmentService.getNextAppointmentByVetId(veterinarian.getId(), today);
-		model.put("nextAppointments", nextAppointments);
+		List<Appointment> appointmentsWithVisit = appointmentsToday.stream()
+				.filter(a -> this.petService.countVisitsByDate(a.getPet().getId(), today) > 0).collect(Collectors.toList());
+		model.addAttribute("appointmentsWithVisit", appointmentsWithVisit);
 		
-		return "vets/appointmentList";
+		List<Appointment>  nextAppointments = this.appointmentService.getNextAppointmentsByVetId(veterinarian.getId(), today);
+		model.addAttribute("nextAppointments", nextAppointments);
+		
+		return "vets/appointmentsList";
 	}
 
 	@GetMapping("/vets/{vetId}")
 	public ModelAndView showVet(@PathVariable("vetId") int vetId) {
-		ModelAndView mav = new ModelAndView("vets/vetDetails");
-		mav.addObject(this.vetService.findVetById(vetId));
-		return mav;
+		if (securityAccessRequestProfile(vetId)) {
+			ModelAndView mav = new ModelAndView("vets/vetDetails");
+			mav.addObject(this.vetService.findVetById(vetId));
+			return mav;
+		} else {
+			ModelAndView mavOups = new ModelAndView("redirect:/oups");
+			return mavOups;
+		}
 	}
-	
+
 	@GetMapping(value = "/vets/pets")
 	public String showPetsLit(ModelMap modelMap) {
 		List<Pet> pets = this.petService.findAll();
 		modelMap.put("pets", pets);
 		return "pets/petsList";
 	}
+
+	private boolean isAdmin() {
+		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+				.collect(Collectors.toList()).get(0).toString();
+		return authority.equals("admin");
+	}
+
+	private boolean securityAccessRequestProfile(int vetId) {
+		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+				.collect(Collectors.toList()).get(0).toString();
+		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+		Vet vet = new Vet();
+		if (authority.equals("veterinarian")) {
+			vet = this.vetService.findVetById(vetId);
+		}
+
+		return authority.equals("admin")
+				|| authority.equals("veterinarian") && username.equals(vet.getUser().getUsername());
+	}
+
 }

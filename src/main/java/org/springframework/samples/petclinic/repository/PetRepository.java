@@ -20,6 +20,7 @@ import java.util.List;
 import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.BaseEntity;
 import org.springframework.samples.petclinic.model.Pet;
+import org.springframework.samples.petclinic.model.PetRegistrationStatus;
 import org.springframework.samples.petclinic.model.PetType;
 
 /**
@@ -57,5 +58,13 @@ public interface PetRepository {
 	void save(Pet pet) throws DataAccessException;
 	
 	List<Pet> findAll();
+
+	List<Pet> findPetsRequests(PetRegistrationStatus pending);
+
+	List<Pet> findPetsRequests(PetRegistrationStatus pending, PetRegistrationStatus rejected, Integer ownerId);
+
+	List<Pet> findMyPetsAcceptedByActive(PetRegistrationStatus accepted, boolean active, Integer ownerId);
+
+	int countMyPetsAcceptedByActive(PetRegistrationStatus accepted, boolean active, Integer ownerId);
 
 }

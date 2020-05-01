@@ -59,6 +59,15 @@ public class TreatmentService {
         treatment.setPet(treatment2Edit.getPet());
         saveTreatment(treatment);
     }
+    
+    public TreatmentHistory findTreatmentHistoryById(int treatmentHistoryId) {
+		return this.treatmentHistoryRepository.findById(treatmentHistoryId);
+	}
+    
+    @Transactional
+    public void deleteTreatmentHistoryRegister(final TreatmentHistory register) {
+    	this.treatmentHistoryRepository.delete(register);
+    }
 
     private String medicinesToString(List<Medicine> medicines) {
         String res = "";

@@ -105,7 +105,7 @@ public class UserController {
 				.stream().collect(Collectors.toList()).get(0).toString();
 		System.out.println(authority);
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
-		String url = "";
+		String url = "redirect:/oups";
 		
 		if(authority.equals("owner")) {
 			Owner owner= this.ownerService.findOwnerByUsername(username);

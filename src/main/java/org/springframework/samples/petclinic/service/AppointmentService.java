@@ -93,11 +93,15 @@ public class AppointmentService {
 	    return this.appointmentRepository.countAppointmentsByVetAndDay(vetId, date);
     }
 
-	public List<Appointment> getAppointmentTodayByVetId(Integer vetId, LocalDate date) {
+	public List<Appointment> getAppointmentsTodayByVetId(Integer vetId, LocalDate date) {
 		return this.appointmentRepository.getAppointmentTodayByVetId(vetId, date);
 	}
 
-	public List<Appointment> getNextAppointmentByVetId(Integer vetId, LocalDate date) {
+	public List<Appointment> getNextAppointmentsByVetId(Integer vetId, LocalDate date) {
 		return this.appointmentRepository.getNextAppointmentByVetId(vetId, date);
+	}
+	
+	public Appointment findAppointmentByDate(Integer petId, LocalDate date) {
+		return this.appointmentRepository.findByDate(petId, date);
 	}
 }

@@ -40,17 +40,26 @@
             		<c:out value="${appointment.description}"/>
            		</td>
            		<td>
-                	<spring:url value="/owners/{ownerId}/pets/{petId}/visits/new" var="visitUrl">
-                    	<spring:param name="ownerId" value="${appointment.owner.id}"/>
-                        <spring:param name="petId" value="${appointment.pet.id}"/>
-                    </spring:url>
-                    <a href="${fn:escapeXml(visitUrl)}" class="btn btn-default">Add Visit</a>
+           			<c:choose>
+           				<c:when test="${appointmentsWithVisit.contains(appointment)}">
+           					<c:out value="Already registered"></c:out>
+           				</c:when>
+           				<c:otherwise>
+                			<spring:url value="/owners/{ownerId}/pets/{petId}/visits/new" var="newVisitUrl">
+                    			<spring:param name="ownerId" value="${appointment.owner.id}"/>
+                        		<spring:param name="petId" value="${appointment.pet.id}"/>
+                    		</spring:url>
+                    		<a href="${fn:escapeXml(newVisitUrl)}" class="btn btn-default">Add visit</a>
+                    	</c:otherwise>
+                    </c:choose>
                 </td>
     		</tr>
     	</c:forEach>
     	</tbody>
     </table>
     
+    <br/>
+    <br/>
     <h2>Upcoming appointments</h2>
     
     <table id="AppointmentsTable" class="table table-striped">
@@ -59,7 +68,7 @@
         	<th style="width: 300px;">Appointment date</th>
         	<th style="width: 200px;">Owner</th>
             <th style="width: 200px;">Pet</th>
-            <th style="width: 500px;">Description</th>
+            <th style="width: 800px;">Description</th>
     	</tr>
     	</thead>
     	<tbody>

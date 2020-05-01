@@ -11,4 +11,6 @@ public interface MedicalTestRepository {
 	
 	void save(MedicalTest medicalTest) throws DataAccessException;
 
+	MedicalTest findById(int medicalTestId);
+
 }
