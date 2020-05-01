@@ -20,11 +20,13 @@ import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.MediaType;
 import org.springframework.samples.petclinic.configuration.SecurityConfiguration;
 import org.springframework.samples.petclinic.model.Appointment;
@@ -47,11 +49,16 @@ import org.springframework.test.web.servlet.MockMvc;
 @WebMvcTest(controllers = VetController.class, excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = WebSecurityConfigurer.class), excludeAutoConfiguration = SecurityConfiguration.class)
 class VetControllerTests {
 
-	private static final int TEST_VET_ID = 4;
+	private static final int TEST_VET_ID_4 = 4;
+	
+	private static final int TEST_VET_ID_1 = 1;
 
 	@MockBean
 	private BannerService bannerService;
 
+	@MockBean
+	private VetSpecialtiesFormatter vetSpecialtiesFormatter;
+	
 	@MockBean
 	private VetService vetService;
 
@@ -66,12 +73,15 @@ class VetControllerTests {
 
 	@MockBean
 	private AuthoritiesService authoritiesService;
-
+	
 	@Autowired
 	private MockMvc mockMvc;
 
 	@Mock
 	private Vet rafael;
+	
+	@Mock
+	private Vet juan;
 
 	@Mock
 	private Vet henry;
@@ -93,6 +103,9 @@ class VetControllerTests {
 	
 	@Mock
 	private List<Appointment> nextAppointments;
+	
+	@Mock
+	private Vet vet2 ;
 
 	@BeforeEach
 	void setup() {
@@ -110,12 +123,12 @@ class VetControllerTests {
 		radiology.setId(1);
 		radiology.setName("radiology");
 		Specialty surgery = new Specialty();
-		radiology.setId(2);
-		radiology.setName("surgery");
+		surgery.setId(2);
+		surgery.setName("surgery");
 
 		specialties1.add(radiology);
 		specialties1.add(surgery);
-
+		
 		specialties2.add(surgery);
 
 		appointmentsToday = new ArrayList<>();
@@ -134,7 +147,7 @@ class VetControllerTests {
 
 		// vet1
 		rafael = new Vet();
-		rafael.setId(TEST_VET_ID);
+		rafael.setId(TEST_VET_ID_4);
 		rafael.setFirstName("Rafael");
 		rafael.setLastName("Ortega");
 		rafael.setAddress("110 W. Liberty St.");
@@ -154,22 +167,43 @@ class VetControllerTests {
 		user2.setUsername("vet2");
 		user2.setPassword("veter1n4ri0_2");
 		user2.setEnabled(true);
-		Vet vet2 = new Vet();
+		vet2 = new Vet();
+		vet2.setFirstName("Rafael");
+		vet2.setLastName("Ortega");
+		vet2.setAddress("110 W. Liberty St.");
+		vet2.setCity("Madison");
+		vet2.setTelephone("608555102");
+		vet2.addSpecialty(surgery);
 		vet2.setUser(user2);
-		vet2.setId(2);
+		vet2.setId(TEST_VET_ID_1);
 		this.authoritiesService.saveAuthorities("vet2", "veterinarian");
+		
+		// vet2
+		juan = new Vet();
+		juan.setId(TEST_VET_ID_4);
+		juan.setFirstName("Juan");
+		juan.setLastName("Ortega");
+		juan.setAddress("110 W. Liberty St.");
+		juan.setCity("Madison");
+		juan.setTelephone("608555102");
+		juan.addSpecialty(surgery);
+		juan.addSpecialty(radiology);
+		juan.setUser(user1);
 
-		given(this.vetService.findVetById(TEST_VET_ID)).willReturn(rafael);
+		given(this.vetService.findVetById(TEST_VET_ID_4)).willReturn(rafael);
 		given(this.vetService.findVets()).willReturn(Lists.newArrayList(james, helen));
-		given(this.appointmentService.getAppointmentTodayByVetId(TEST_VET_ID, LocalDate.now()))
+		given(this.appointmentService.getAppointmentTodayByVetId(TEST_VET_ID_4, LocalDate.now()))
 				.willReturn(appointmentsToday);
-		given(this.appointmentService.getNextAppointmentByVetId(TEST_VET_ID, LocalDate.now()))
+		given(this.appointmentService.getNextAppointmentByVetId(TEST_VET_ID_4, LocalDate.now()))
 				.willReturn(nextAppointments);
 		given(this.vetService.findVetByUsername("vet1")).willReturn(rafael);
 		given(this.vetService.findVetByUsername("vet2")).willReturn(vet2);
-
+		given(this.vetService.findSpecialties()).willReturn(specialties1);
+		Mockito.doThrow(DataIntegrityViolationException.class)
+	       .when(this.vetService)
+	       .saveVet(vet2);
 	}
-
+	
 	
 	// TEST para usuario que SI cumple la seguridad
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
@@ -217,42 +251,34 @@ class VetControllerTests {
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
 	@Test
 	void testProcessCreationFormSuccess() throws Exception {
-		mockMvc.perform(post("/vets/new")
-				.param("firstName", "Elena")
-				.param("lastName", "Molino").with(csrf())
-				.param("address", "38 Avenida América")
-				.param("city", "London")
-				.param("telephone", "123456789")
-				.flashAttr("specialties", specialties1)
-				.param("user.username", "vet55")
-				.param("user.password", "v3terinario_55"))
+		mockMvc.perform(post("/vets/new", TEST_VET_ID_4).with(csrf())
+				.flashAttr("vet", rafael))
 				.andExpect(status().is3xxRedirection());
 	}
-
-	// TEST para usuario que NO cumple la seguridad
-	@WithMockUser(username = "vet1", password = "veter1n4ri0_1", authorities = "veterinarian")
+	
+	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
 	@Test
-	void testProcessCreationFormSuccessWithoutAccess() throws Exception {
-		mockMvc.perform(post("/vets/new")
-				.param("firstName", "Elena")
-				.param("lastName", "Molino").with(csrf())
-				.param("address", "38 Avenida América")
-				.param("city", "London")
-				.param("telephone", "123456789")
-				.flashAttr("specialties", specialties1)
-				.param("user.username", "vet55")
-				.param("user.password", "v3terinario_55"))
-				.andExpect(status().is3xxRedirection())
-				.andExpect(view().name("redirect:/oups"));
+	void testProcessCreationFormCatchException() throws Exception {
+		
+		mockMvc.perform(post("/vets/new", TEST_VET_ID_1).with(csrf())
+				.flashAttr("vet", vet2))
+				.andExpect(status().isOk())
+				.andExpect(view().name("vets/createOrUpdateVetForm"));
+
 	}
 	
-
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
 	@Test
 	void testProcessCreationFormHasErrors() throws Exception {
-		mockMvc.perform(post("/vets/new").with(csrf()).param("firstName", "").param("lastName", "Bloggs")
-				.param("city", "London").param("user.username", "joeBloggs").param("address", "44, Los Rosales")
-				.param("telephone", "1234567").param("user.password", "noNumbersPass_")).andExpect(status().isOk())
+		mockMvc.perform(post("/vets/new").with(csrf())
+				.param("firstName", "")
+				.param("lastName", "Bloggs")
+				.param("city", "London")
+				.param("user.username", "joeBloggs")
+				.param("address", "44, Los Rosales")
+				.param("telephone", "1234567")
+				.param("user.password", "noNumbersPass_"))
+				.andExpect(status().isOk())
 				.andExpect(model().attributeHasErrors("vet"))
 				.andExpect(model().attributeHasFieldErrors("vet", "firstName"))
 				.andExpect(model().attributeHasFieldErrors("vet", "telephone"))
@@ -280,13 +306,29 @@ class VetControllerTests {
 				.andExpect(model().attributeHasFieldErrors("vet", "user.password"))
 				.andExpect(view().name("vets/createOrUpdateVetForm"));
 	}
+
+	// TEST para usuario que NO cumple la seguridad
+	@WithMockUser(username = "vet1", password = "veter1n4ri0_1", authorities = "veterinarian")
+	@Test
+	void testProcessCreationFormSuccessWithoutAccess() throws Exception {
+		mockMvc.perform(post("/vets/new")
+				.param("firstName", "Elena")
+				.param("lastName", "Molino").with(csrf())
+				.param("address", "38 Avenida América")
+				.param("city", "London")
+				.param("telephone", "123456789")
+				.param("user.username", "vet55")
+				.param("user.password", "v3terinario_55"))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(view().name("redirect:/oups"));
+	}
 	
 	
 	// TEST para usuarios que SI cumple la seguridad
 	@WithMockUser(username = "vet1", password = "veter1n4ri0_1", authorities = "veterinarian")
 	@Test
 	void testInitUpdateProfileForm() throws Exception {
-		mockMvc.perform(get("/vets/{vetId}/edit", TEST_VET_ID))
+		mockMvc.perform(get("/vets/{vetId}/edit", TEST_VET_ID_4))
 				.andExpect(status().isOk())
 				.andExpect(model().attributeExists("edit"))
 				.andExpect(model().attributeExists("vet"))
@@ -301,7 +343,7 @@ class VetControllerTests {
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
 	@Test
 	void testInitUpdateVetForm() throws Exception {
-		mockMvc.perform(get("/vets/{vetId}/edit", TEST_VET_ID))
+		mockMvc.perform(get("/vets/{vetId}/edit", TEST_VET_ID_4))
 				.andExpect(status().isOk())
 				.andExpect(model().attributeExists("edit"))
 				.andExpect(model().attributeExists("vet"))
@@ -314,27 +356,31 @@ class VetControllerTests {
 	}
 	
 	
-	// TEST para usuario que NO cumple la seguridad
+	// TEST para usuarios que NO cumplen la seguridad
 	@WithMockUser(username = "vet2", password = "veter1n4ri0_2", authorities = "veterinarian")
 	@Test
 	void testInitUpdateVetFormWithoutAccess() throws Exception {
-		mockMvc.perform(get("/vets/{vetId}/edit", TEST_VET_ID))
+		mockMvc.perform(get("/vets/{vetId}/edit", TEST_VET_ID_4))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:/oups"));
 	}
+	
+	@WithMockUser(username = "vet2", password = "veter1n4ri0_2", authorities = "owner")
+	@Test
+	void testInitUpdateVetFormWithoutAuthorities() throws Exception {
+		mockMvc.perform(get("/vets/{vetId}/edit", TEST_VET_ID_4))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(view().name("redirect:/oups"));
+	}
+	
 	
 	// TEST para usuarios que SI cumple la seguridad
 	@WithMockUser(username = "vet1", password = "veter1n4ri0_1", authorities = "veterinarian")
 	@Test
 	void testProcessUpdateProfileFormSuccess() throws Exception {
-		mockMvc.perform(post("/vets/{vetId}/edit", TEST_VET_ID).with(csrf())
-				.param("firstName", "Rafael")
-				.param("lastName", "Bloggs")
-				.param("address", "123 Caramel Street")
-				.param("city", "London")
-				.param("telephone", "123456789")
-				.flashAttr("specialties", specialties1)
-				.param("user.password", "str0ng-passw0rd"))
+		
+		mockMvc.perform(post("/vets/{vetId}/edit", TEST_VET_ID_4).with(csrf())
+				.flashAttr("vet", juan))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:/vets/{vetId}"));
 
@@ -343,41 +389,24 @@ class VetControllerTests {
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
 	@Test
 	void testProcessUpdateVetFormSuccess() throws Exception {
-		mockMvc.perform(post("/vets/{vetId}/edit", TEST_VET_ID).with(csrf())
+		
+		mockMvc.perform(post("/vets/{vetId}/edit", TEST_VET_ID_4).with(csrf())
 				.param("firstName", "Rafael")
 				.param("lastName", "Bloggs")
 				.param("address", "123 Caramel Street")
 				.param("city", "London")
 				.param("telephone", "123456789")
-				.flashAttr("specialties", specialties1)
+				.flashAttr("specialties",specialties1 )
 				.param("user.password", "str0ng-passw0rd"))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:/vets/{vetId}"));
 
 	}
-	
-	// TEST para usuario que NO cumple la seguridad
-	@WithMockUser(username = "vet2", password = "veter1n4ri0_2", authorities = "veterinarian")
-	@Test
-	void testProcessUpdateVetFormSuccessWithoutAccess() throws Exception {
-		mockMvc.perform(post("/vets/{vetId}/edit", TEST_VET_ID).with(csrf())
-				.param("firstName", "Rafael")
-				.param("lastName", "Bloggs")
-				.param("address", "123 Caramel Street")
-				.param("city", "London")
-				.param("telephone", "123456789")
-				.flashAttr("specialties", specialties1)
-				.param("user.password", "str0ng-passw0rd"))
-				.andExpect(status().is3xxRedirection())
-				.andExpect(view().name("redirect:/oups"));
-
-	}
-	
 
 	@WithMockUser(username = "vet1", password = "veter1n4ri0_1", authorities = "veterinarian")
 	@Test
 	void testProcessUpdateVetFormHasErrors() throws Exception {
-		mockMvc.perform(post("/vets/{vetId}/edit", TEST_VET_ID).with(csrf())
+		mockMvc.perform(post("/vets/{vetId}/edit", TEST_VET_ID_4).with(csrf())
 				.param("firstName", "Joe")
 				.param("lastName", "Bloggs")
 				.param("telephone", "123456789")
@@ -390,6 +419,24 @@ class VetControllerTests {
 				.andExpect(model().attributeHasFieldErrors("vet", "city"))
 				.andExpect(view().name("vets/createOrUpdateVetForm"));
 	}
+	
+	// TEST para usuario que NO cumple la seguridad
+	@WithMockUser(username = "vet2", password = "veter1n4ri0_2", authorities = "veterinarian")
+	@Test
+	void testProcessUpdateVetFormSuccessWithoutAccess() throws Exception {
+		mockMvc.perform(post("/vets/{vetId}/edit", TEST_VET_ID_4).with(csrf())
+				.param("firstName", "Rafael")
+				.param("lastName", "Bloggs")
+				.param("address", "123 Caramel Street")
+				.param("city", "London")
+				.param("telephone", "123456789")
+				.flashAttr("specialties", specialties1)
+				.param("user.password", "str0ng-passw0rd"))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(view().name("redirect:/oups"));
+
+	}
+	
 
 	//Comprobar que, las listas de appointments de un vet TIENEN citas 
 	@WithMockUser(username = "vet1", password = "veter1n4ri0_1", authorities = "veterinarian")
@@ -420,7 +467,7 @@ class VetControllerTests {
 	@WithMockUser(username = "vet1", password = "veter1n4ri0_1", authorities = "veterinarian")
 	@Test
 	void testShowVetProfile() throws Exception {
-		mockMvc.perform(get("/vets/{vetId}", TEST_VET_ID)).andExpect(status().isOk())
+		mockMvc.perform(get("/vets/{vetId}", TEST_VET_ID_4)).andExpect(status().isOk())
 				.andExpect(model().attribute("vet", hasProperty("firstName", is("Rafael"))))
 				.andExpect(model().attribute("vet", hasProperty("lastName", is("Ortega"))))
 				.andExpect(model().attribute("vet", hasProperty("address", is("110 W. Liberty St."))))
@@ -432,7 +479,7 @@ class VetControllerTests {
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
 	@Test
 	void testShowVet() throws Exception {
-		mockMvc.perform(get("/vets/{vetId}", TEST_VET_ID)).andExpect(status().isOk())
+		mockMvc.perform(get("/vets/{vetId}", TEST_VET_ID_4)).andExpect(status().isOk())
 				.andExpect(model().attribute("vet", hasProperty("firstName", is("Rafael"))))
 				.andExpect(model().attribute("vet", hasProperty("lastName", is("Ortega"))))
 				.andExpect(model().attribute("vet", hasProperty("address", is("110 W. Liberty St."))))
@@ -441,11 +488,19 @@ class VetControllerTests {
 				.andExpect(view().name("vets/vetDetails"));
 	}
 	
-	// TEST para usuario que NO cumple la seguridad
+	// TEST para usuarios que NO cumplen la seguridad
 	@WithMockUser(username = "vet2", password = "veter1n4ri0_2", authorities = "veterinarian")
 	@Test
 	void testShowVetWithoutAccess() throws Exception {
-		mockMvc.perform(get("/vets/{vetId}", TEST_VET_ID))
+		mockMvc.perform(get("/vets/{vetId}", TEST_VET_ID_4))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(view().name("redirect:/oups"));
+	}
+	
+	@WithMockUser(username = "vet2", password = "veter1n4ri0_2", authorities = "owner")
+	@Test
+	void testShowVetWithoutAuthorities() throws Exception {
+		mockMvc.perform(get("/vets/{vetId}", TEST_VET_ID_4))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:/oups"));
 	}

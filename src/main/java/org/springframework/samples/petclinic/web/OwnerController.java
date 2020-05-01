@@ -58,7 +58,7 @@ public class OwnerController {
 
 	private final OwnerService ownerService;
 	private final PetService petService;
-	
+
 	@Autowired
 	public OwnerController(final OwnerService ownerService, final UserService userService,
 			final AuthoritiesService authoritiesService, PetService petService) {
@@ -97,10 +97,9 @@ public class OwnerController {
 				// creating owner, user and authorities
 				try {
 					this.ownerService.saveOwner(owner);
-				} catch (Exception ex) {
+				} catch (DataIntegrityViolationException ex) {
 
-					if (ex.getClass().equals(DataIntegrityViolationException.class))
-						result.rejectValue("user.username", "duplicate");
+					result.rejectValue("user.username", "duplicate");
 
 					return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 				}
@@ -204,8 +203,10 @@ public class OwnerController {
 		if (securityAccessRequestProfile(ownerId)) {
 			ModelAndView mav = new ModelAndView("owners/ownerDetails");
 			mav.addObject(this.ownerService.findOwnerById(ownerId));
-			mav.addObject("pets",  this.petService.findMyPetsAcceptedByActive(PetRegistrationStatus.ACCEPTED, true, ownerId));
-			mav.addObject("disabled", this.petService.countMyPetsAcceptedByActive(PetRegistrationStatus.ACCEPTED, false, ownerId)!=0);
+			mav.addObject("pets",
+					this.petService.findMyPetsAcceptedByActive(PetRegistrationStatus.ACCEPTED, true, ownerId));
+			mav.addObject("disabled",
+					this.petService.countMyPetsAcceptedByActive(PetRegistrationStatus.ACCEPTED, false, ownerId) != 0);
 			return mav;
 		} else {
 			ModelAndView mavOups = new ModelAndView("redirect:/oups");
@@ -224,7 +225,10 @@ public class OwnerController {
 				.collect(Collectors.toList()).get(0).toString();
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
-		Owner owner = this.ownerService.findOwnerById(ownerId);
+		Owner owner = new Owner();
+		if (authority.equals("owner")) {
+			owner = this.ownerService.findOwnerById(ownerId);
+		}
 
 		return authority.equals("admin") || authority.equals("owner") && username.equals(owner.getUser().getUsername());
 	}

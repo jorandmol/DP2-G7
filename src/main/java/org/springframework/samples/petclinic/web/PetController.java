@@ -53,6 +53,9 @@ public class PetController {
 
 	private static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = "pets/createOrUpdatePetForm";
 	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
+	private static final PetRegistrationStatus accepted= PetRegistrationStatus.ACCEPTED;
+	private static final PetRegistrationStatus pending= PetRegistrationStatus.PENDING;
+	private static final PetRegistrationStatus rejected= PetRegistrationStatus.REJECTED;
 
 	private final PetService petService;
 	private final OwnerService ownerService;
@@ -103,7 +106,7 @@ public class PetController {
 				return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 			} else {
 				try {
-					pet.setStatus(PetRegistrationStatus.PENDING);
+					pet.setStatus(pending);
 					pet.setJustification("");
 					pet.setActive(true);
 					owner.addPet(pet);
@@ -188,12 +191,12 @@ public class PetController {
 			ModelMap model) {
 		if (securityAccessPetRequestAndProfile(ownerId, true)) {
 			Pet pet = this.petService.findPetById(petId);
-			if (pet.getStatus() != null && pet.getStatus().equals(PetRegistrationStatus.REJECTED)) {
+			if (pet.getStatus().equals(rejected)) {
 				model.addAttribute("rejected", true);
 			}
 			List<PetRegistrationStatus> status = new ArrayList<>();
-			status.add(PetRegistrationStatus.REJECTED);
-			status.add(PetRegistrationStatus.ACCEPTED);
+			status.add(rejected);
+			status.add(accepted);
 			model.addAttribute("status", status);
 			model.addAttribute("pet", pet);
 			model.addAttribute("petRequest", pet);
@@ -210,8 +213,8 @@ public class PetController {
 		if (isAdmin()) {
 
 			List<PetRegistrationStatus> status = new ArrayList<>();
-			status.add(PetRegistrationStatus.REJECTED);
-			status.add(PetRegistrationStatus.ACCEPTED);
+			status.add(rejected);
+			status.add(accepted);
 			model.addAttribute("status", status);
 
 			Pet petToUpdate = this.petService.findPetById(petId);
@@ -239,7 +242,7 @@ public class PetController {
 	@GetMapping(value = { "/requests" })
 	public String showPetRequests(Map<String, Object> model) {
 
-		List<Pet> petsRequests = this.petService.findPetsRequests(PetRegistrationStatus.PENDING);
+		List<Pet> petsRequests = this.petService.findPetsRequests(pending);
 		model.put("pets", petsRequests);
 		return "pets/requests";
 	}
@@ -248,8 +251,8 @@ public class PetController {
 	public String showMyPetRequests(Map<String, Object> model) {
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		Owner owner = this.ownerService.findOwnerByUsername(username);
-		List<Pet> myPetsRequests = this.petService.findMyPetsRequests(PetRegistrationStatus.PENDING,
-				PetRegistrationStatus.REJECTED, owner.getId());
+		List<Pet> myPetsRequests = this.petService.findMyPetsRequests(pending,
+				rejected, owner.getId());
 		model.put("pets", myPetsRequests);
 		return "pets/myRequests";
 	}
@@ -258,9 +261,9 @@ public class PetController {
 	public String showMyPetsActive(Map<String, Object> model) {
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		Owner owner = this.ownerService.findOwnerByUsername(username);
-		List<Pet> myPets = this.petService.findMyPetsAcceptedByActive(PetRegistrationStatus.ACCEPTED, true,
+		List<Pet> myPets = this.petService.findMyPetsAcceptedByActive(accepted, true,
 				owner.getId());
-		model.put("disabled", myPets.size() != 0);
+		model.put("disabled", this.petService.countMyPetsAcceptedByActive(accepted, false, owner.getId())!= 0);
 		model.put("owner", owner);
 		model.put("pets", myPets);
 		return "pets/myPetsActive";
@@ -271,7 +274,7 @@ public class PetController {
 		if (securityAccessPetRequestAndProfile(ownerId, true)) {
 
 			Owner owner = this.ownerService.findOwnerById(ownerId);
-			List<Pet> myPets = this.petService.findMyPetsAcceptedByActive(PetRegistrationStatus.ACCEPTED, false,
+			List<Pet> myPets = this.petService.findMyPetsAcceptedByActive(accepted, false,
 					ownerId);
 			model.put("owner", owner);
 			model.put("pets", myPets);

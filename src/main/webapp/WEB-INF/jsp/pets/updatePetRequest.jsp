@@ -33,7 +33,9 @@
    		<br>
    		<br>
    		<h3>Justification:</h3>
-   		<c:out value="${petRequest.justification}"></c:out>
+   		<tr>
+   		<td><c:out value="${petRequest.justification}"></c:out><td/>
+   		<tr>
    	</sec:authorize>
     </c:if>
         

@@ -6,7 +6,7 @@
 	uri="http://www.springframework.org/security/tags"%>
 <!--  >%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%-->
 <%@ attribute name="name" required="true" rtexprvalue="true"
-	description="Name of the active menu: home, owners, vets, banners, pets, requests, appointments or error"%>
+	description="Name of the active menu: home, owners, vets, requests, banners, pets, appointments or error"%>
 
 <nav class="navbar navbar-default" role="navigation">
 	<div class="container">
@@ -68,7 +68,7 @@
 					<span>My Pets</span>
 				</petclinic:menuItem>
 				</sec:authorize>
-				
+	
 				<sec:authorize access="hasAuthority('owner')">
 				<petclinic:menuItem active="${name eq 'requests'}" url="/owner/requests"
 					title="requests">
@@ -76,7 +76,7 @@
 					<span>My Requests</span>
 				</petclinic:menuItem>
 				</sec:authorize>
-	
+			
 				<sec:authorize access="hasAuthority('veterinarian')">
 				<petclinic:menuItem active="${name eq 'appointments'}" url="/appointments"
 					title="appointments">

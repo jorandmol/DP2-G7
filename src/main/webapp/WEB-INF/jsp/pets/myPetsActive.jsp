@@ -6,15 +6,21 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 
 <petclinic:layout pageName="pets">
-
-    <h2>Pets</h2>
-    
-    <c:if test="${disabled}">
-    	<spring:url value="/owners/{ownerId}/pets/disabled" var="disabledPetsUrl">
-    		<spring:param name="ownerId" value="${owner.id}"/>
-    	</spring:url>
-   		<a href="${fn:escapeXml(disabledPetsUrl)}" class="btn btn-default" >Disabled Pets</a>
-	</c:if>
+	<div class="row">
+		<div class="col-md-10">
+    		<h2>Pets</h2>
+    	</div>
+    	<div class="col-md-2">
+    		<c:if test="${disabled}">
+    			<spring:url value="/owners/{ownerId}/pets/disabled" var="disabledPetsUrl">
+    				<spring:param name="ownerId" value="${owner.id}"/>
+    			</spring:url>
+   				<a href="${fn:escapeXml(disabledPetsUrl)}" class="btn btn-default" >Disabled Pets</a>		
+			</c:if>
+		</div>
+	</div>
+	<br/>
+    <br/>
     <table class="table table-striped">
         <c:forEach var="pet" items="${pets}">
             <tr>

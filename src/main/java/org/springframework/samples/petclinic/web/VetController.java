@@ -68,7 +68,7 @@ public class VetController {
 	public VetController(VetService vetService, AppointmentService appointmentService, PetService petService) {
 		this.vetService = vetService;
 		this.appointmentService = appointmentService;
-		this.petService= petService;
+		this.petService = petService;
 	}
 
 	@ModelAttribute("specialties")
@@ -129,10 +129,9 @@ public class VetController {
 			} else {
 				try {
 					this.vetService.saveVet(vet);
-				} catch (Exception ex) {
+				} catch (DataIntegrityViolationException ex) {
 
-					if (ex.getClass().equals(DataIntegrityViolationException.class))
-						result.rejectValue("user.username", "duplicate");
+					result.rejectValue("user.username", "duplicate");
 
 					return VIEWS_VET_CREATE_OR_UPDATE_FORM;
 				}
@@ -207,15 +206,15 @@ public class VetController {
 	@GetMapping("/vets/{vetId}")
 	public ModelAndView showVet(@PathVariable("vetId") int vetId) {
 		if (securityAccessRequestProfile(vetId)) {
-		ModelAndView mav = new ModelAndView("vets/vetDetails");
-		mav.addObject(this.vetService.findVetById(vetId));
-		return mav;
-		}else {
+			ModelAndView mav = new ModelAndView("vets/vetDetails");
+			mav.addObject(this.vetService.findVetById(vetId));
+			return mav;
+		} else {
 			ModelAndView mavOups = new ModelAndView("redirect:/oups");
 			return mavOups;
 		}
 	}
-	
+
 	@GetMapping(value = "/vets/pets")
 	public String showPetsLit(ModelMap modelMap) {
 		List<Pet> pets = this.petService.findAll();
@@ -233,13 +232,14 @@ public class VetController {
 		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
 				.collect(Collectors.toList()).get(0).toString();
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
-		
-		Vet vet=new Vet();
+
+		Vet vet = new Vet();
 		if (authority.equals("veterinarian")) {
 			vet = this.vetService.findVetById(vetId);
 		}
 
-		return authority.equals("admin") || authority.equals("veterinarian") && username.equals(vet.getUser().getUsername());
+		return authority.equals("admin")
+				|| authority.equals("veterinarian") && username.equals(vet.getUser().getUsername());
 	}
 
 }

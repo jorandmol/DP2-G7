@@ -73,8 +73,10 @@
         </tbody>
     </table>
     <div>
-      <sec:authorize access="hasAuthority('owner')">   
-		<a class="btn btn-default" href='<spring:url value="/owners/${pet.owner.id}/pets/${pet.id}/stays/new" htmlEscape="true"/>'>New stay</a>
-      </sec:authorize>  		
+    	<c:if test="${pet.active}">
+      		<sec:authorize access="hasAuthority('owner')">   
+				<a class="btn btn-default" href='<spring:url value="/owners/${pet.owner.id}/pets/${pet.id}/stays/new" htmlEscape="true"/>'>New stay</a>
+     		</sec:authorize>  		
+     	</c:if>
     </div>
 </petclinic:layout>
