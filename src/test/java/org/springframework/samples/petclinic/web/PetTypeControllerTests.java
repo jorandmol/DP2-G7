@@ -80,16 +80,4 @@ public class PetTypeControllerTests {
 		.andExpect(view().name("pet-type/typeForm"));
 
 	}
-	
-//	@WithMockUser(value = "spring")
-//	@Test
-//	void testProcessCreationFormHasErrorsNameExists() throws Exception {
-//		mockMvc.perform(post("/pet-type/new")
-//				.with(csrf())
-//				.param("name", "bird"))
-//		.andExpect(status().isOk())
-//		.andExpect(view().name("pet-type/typeForm"));
-//
-//	}
-
 }

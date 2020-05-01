@@ -49,6 +49,15 @@ public class Pet extends NamedEntity {
 	@Column(name = "birth_date")        
 	@DateTimeFormat(pattern = "yyyy/MM/dd")
 	private LocalDate birthDate;
+	
+	@Column(name = "status")
+	private PetRegistrationStatus status;
+	
+	@Column(name = "justification")
+	private String justification;
+	
+	@Column(name = "active")
+	private boolean active;
 
 	@ManyToOne
 	@JoinColumn(name = "type_id")
@@ -73,6 +82,30 @@ public class Pet extends NamedEntity {
 
 	public LocalDate getBirthDate() {
 		return this.birthDate;
+	}
+
+	public PetRegistrationStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(PetRegistrationStatus status) {
+		this.status = status;
+	}
+
+	public String getJustification() {
+		return justification;
+	}
+
+	public void setJustification(String justification) {
+		this.justification = justification;
+	}
+
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
 	}
 
 	public PetType getType() {

@@ -38,15 +38,15 @@ public class OwnerValidator implements Validator {
 
 		String password = owner.getUser().getPassword();
 
-		if (owner.getFirstName().isEmpty() || owner.getFirstName() == null) {
+		if (owner.getFirstName().isEmpty()) {
 			errors.rejectValue("firstName", "empty", "cannot be empty");
 		}
 
-		if (owner.getLastName().isEmpty() || owner.getLastName() == null) {
+		if (owner.getLastName().isEmpty()) {
 			errors.rejectValue("lastName", "empty", "cannot be empty");
 		}
 
-		if (owner.getTelephone().isEmpty() || owner.getTelephone() == null) {
+		if (owner.getTelephone().isEmpty()) {
 			errors.rejectValue("telephone", "empty", "cannot be empty");
 		}
 
@@ -54,15 +54,15 @@ public class OwnerValidator implements Validator {
 			errors.rejectValue("telephone", "phone.format", "The phone must be made up of 9 numbers");
 		}
 
-		if (owner.getAddress().isEmpty() || owner.getAddress() == null) {
+		if (owner.getAddress().isEmpty()) {
 			errors.rejectValue("address", "empty", "cannot be empty");
 		}
 
-		if (owner.getCity().isEmpty() || owner.getCity() == null) {
+		if (owner.getCity().isEmpty()) {
 			errors.rejectValue("city", "empty", "cannot be empty");
 		}
 		
-		if (password.isEmpty() || password == null) {
+		if (password.isEmpty()) {
 			errors.rejectValue("user.password", "empty", "cannot be empty");
 		}
 

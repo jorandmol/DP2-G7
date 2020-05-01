@@ -377,9 +377,9 @@ isPerformedIn v
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>480</x>
+      <x>490</x>
       <y>290</y>
-      <w>220</w>
+      <w>210</w>
       <h>110</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
@@ -387,7 +387,7 @@ m1=1
 m2=*
 isAssignedTo &gt;
 </panel_attributes>
-    <additional_attributes>190.0;10.0;190.0;50.0;10.0;50.0;10.0;90.0</additional_attributes>
+    <additional_attributes>180.0;10.0;180.0;50.0;10.0;50.0;10.0;90.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>

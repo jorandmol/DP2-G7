@@ -38,15 +38,15 @@ public class VetValidator implements Validator {
 
 		String password = vet.getUser().getPassword();
 
-		if (vet.getFirstName().isEmpty() || vet.getFirstName() == null) {
+		if (vet.getFirstName().isEmpty() ) {
 			errors.rejectValue("firstName", "empty", "cannot be empty");
 		}
 
-		if (vet.getLastName().isEmpty() || vet.getLastName() == null) {
+		if (vet.getLastName().isEmpty() ) {
 			errors.rejectValue("lastName", "empty", "cannot be empty");
 		}
 
-		if (vet.getTelephone().isEmpty() || vet.getTelephone() == null) {
+		if (vet.getTelephone().isEmpty() ) {
 			errors.rejectValue("telephone", "empty", "cannot be empty");
 		}
 
@@ -54,15 +54,15 @@ public class VetValidator implements Validator {
 			errors.rejectValue("telephone", "phone.format", "The phone must be made up of 9 numbers");
 		}
 
-		if (vet.getAddress().isEmpty() || vet.getAddress() == null) {
+		if (vet.getAddress().isEmpty() ) {
 			errors.rejectValue("address", "empty", "cannot be empty");
 		}
 
-		if (vet.getCity().isEmpty() || vet.getCity() == null) {
+		if (vet.getCity().isEmpty() ) {
 			errors.rejectValue("city", "empty", "cannot be empty");
 		}
 
-		if (password.isEmpty() || password == null) {
+		if (password.isEmpty() ) {
 			errors.rejectValue("user.password", "empty", "cannot be empty");
 		}
 
