@@ -29,7 +29,6 @@ public class CreateAppointmentUITest {
     private boolean acceptNextAlert = true;
     private StringBuffer verificationErrors = new StringBuffer();
     private String appointmentDate = PetclinicDates.getFormattedFutureDate(LocalDate.now(), 5, "yyyy/MM/dd");
-    private String expectedAppointmentDate = PetclinicDates.getFormattedFutureDate(LocalDate.now(), 5, "yyyy-MM-dd");
     
     @LocalServerPort
     private int port;
@@ -49,8 +48,8 @@ public class CreateAppointmentUITest {
         driver.findElement(By.id("password")).clear();
         driver.findElement(By.id("password")).sendKeys("0wn3333r_1");
         driver.findElement(By.xpath("//button[@type='submit']")).click();
-        driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
-        driver.findElement(By.linkText("My Profile")).click();
+        driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[2]/a/span[2]")).click();
+        int appointmentsAfter = getNumberOfAppointments();
         driver.findElement(By.linkText("Add Appointment")).click();
         driver.findElement(By.xpath("//input[@id='appointmentDate']")).click();
         driver.findElement(By.id("appointmentDate")).clear();
@@ -61,9 +60,8 @@ public class CreateAppointmentUITest {
         new Select(driver.findElement(By.name("vet"))).selectByVisibleText("Rafael Ortega");
         driver.findElement(By.xpath("//option[@value='4']")).click();
         driver.findElement(By.xpath("//button[@type='submit']")).click();
-        assertEquals(expectedAppointmentDate, driver.findElement(By.xpath("//td[3]/table/tbody/tr[3]/td")).getText());
-        assertEquals("Edit", driver.findElement(By.linkText("Edit")).getText());
-        assertEquals("Delete", driver.findElement(By.linkText("Delete")).getText());
+        int appointmentsBefore = getNumberOfAppointments();
+        assertEquals(appointmentsBefore, appointmentsAfter + 1);
     }
     
     @Test
@@ -75,8 +73,7 @@ public class CreateAppointmentUITest {
         driver.findElement(By.id("password")).clear();
         driver.findElement(By.id("password")).sendKeys("0wn3333r_1");
         driver.findElement(By.xpath("//button[@type='submit']")).click();
-        driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
-        driver.findElement(By.linkText("My Profile")).click();
+        driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[2]/a/span[2]")).click();
         driver.findElement(By.linkText("Add Appointment")).click();
         driver.findElement(By.xpath("//input[@id='appointmentDate']")).click();
         driver.findElement(By.id("appointmentDate")).clear();
@@ -98,6 +95,10 @@ public class CreateAppointmentUITest {
         if (!"".equals(verificationErrorString)) {
             fail(verificationErrorString);
         }
+    }
+    
+    private int getNumberOfAppointments( ) {
+  	  return driver.findElements(By.xpath("//td[3]/table/tbody/tr")).size()-1;
     }
 
     private boolean isElementPresent(By by) {
