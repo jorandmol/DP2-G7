@@ -186,21 +186,23 @@ public class VetController {
 	}
 
 	@GetMapping(value = { "/appointments" })
-	public String showAppoimentsByVetList(Map<String, Object> model) {
-
+	public String showAppoimentsByVetList(ModelMap model) {
+		
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
-		Vet veterinarian = this.vetService.findVetByUsername(username);
-		LocalDate today = LocalDate.now();
-
-		List<Appointment> appointmentsToday = this.appointmentService.getAppointmentTodayByVetId(veterinarian.getId(),
-				today);
-		model.put("appointmentsToday", appointmentsToday);
-
-		List<Appointment> nextAppointments = this.appointmentService.getNextAppointmentByVetId(veterinarian.getId(),
-				today);
-		model.put("nextAppointments", nextAppointments);
-
-		return "vets/appointmentList";
+		Vet veterinarian= this.vetService.findVetByUsername(username);
+		LocalDate today= LocalDate.now();
+		
+		List<Appointment> appointmentsToday = this.appointmentService.getAppointmentsTodayByVetId(veterinarian.getId(), today);
+		model.addAttribute("appointmentsToday", appointmentsToday);
+		
+		List<Appointment> appointmentsWithVisit = appointmentsToday.stream()
+				.filter(a -> this.petService.countVisitsByDate(a.getPet().getId(), today) > 0).collect(Collectors.toList());
+		model.addAttribute("appointmentsWithVisit", appointmentsWithVisit);
+		
+		List<Appointment>  nextAppointments = this.appointmentService.getNextAppointmentsByVetId(veterinarian.getId(), today);
+		model.addAttribute("nextAppointments", nextAppointments);
+		
+		return "vets/appointmentsList";
 	}
 
 	@GetMapping("/vets/{vetId}")

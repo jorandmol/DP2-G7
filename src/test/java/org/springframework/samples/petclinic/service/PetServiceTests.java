@@ -208,6 +208,9 @@ class PetServiceTests {
 			petService.savePet(anotherPet);
 		});
 	}
+	
+	// VISIST
+	
 
 	@Test
 	@Transactional
@@ -238,7 +241,7 @@ class PetServiceTests {
 		assertThat(visitArr[0].getDate()).isNotNull();
 	  assertThat(visitArr[0].getPet().getId()).isEqualTo(8);
 	}
-    
+
 	@Test
 	void shouldFindPetsRequests() {
 		List<Pet> petsRequests = this.petService.findPetsRequests(pending);

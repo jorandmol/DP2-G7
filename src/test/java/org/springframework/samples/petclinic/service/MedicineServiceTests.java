@@ -34,9 +34,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.samples.petclinic.model.Medicine;
-import org.springframework.samples.petclinic.model.Stay;
 import org.springframework.samples.petclinic.service.exceptions.DuplicatedMedicineCodeException;
-import org.springframework.samples.petclinic.service.exceptions.MaximumStaysReached;
 import org.springframework.samples.petclinic.service.exceptions.PastMedicineDateException;
 import org.springframework.samples.petclinic.service.exceptions.WrongMedicineCodeException;
 import org.springframework.stereotype.Service;

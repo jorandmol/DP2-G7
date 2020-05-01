@@ -22,9 +22,7 @@ import java.util.Locale;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.Formatter;
 import org.springframework.samples.petclinic.model.MedicalTest;
-import org.springframework.samples.petclinic.model.Specialty;
 import org.springframework.samples.petclinic.service.MedicalTestService;
-import org.springframework.samples.petclinic.service.VetService;
 import org.springframework.stereotype.Component;
 
 /**

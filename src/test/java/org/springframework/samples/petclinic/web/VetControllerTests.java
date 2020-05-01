@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -30,6 +32,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.MediaType;
 import org.springframework.samples.petclinic.configuration.SecurityConfiguration;
 import org.springframework.samples.petclinic.model.Appointment;
+import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.Specialty;
 import org.springframework.samples.petclinic.model.User;
 import org.springframework.samples.petclinic.model.Vet;
@@ -53,6 +56,8 @@ class VetControllerTests {
 	
 	private static final int TEST_VET_ID_1 = 1;
 
+	private static final Integer TEST_PET_ID_3 = 3;
+	
 	@MockBean
 	private BannerService bannerService;
 
@@ -378,7 +383,6 @@ class VetControllerTests {
 	@WithMockUser(username = "vet1", password = "veter1n4ri0_1", authorities = "veterinarian")
 	@Test
 	void testProcessUpdateProfileFormSuccess() throws Exception {
-		
 		mockMvc.perform(post("/vets/{vetId}/edit", TEST_VET_ID_4).with(csrf())
 				.flashAttr("vet", juan))
 				.andExpect(status().is3xxRedirection())
@@ -388,8 +392,7 @@ class VetControllerTests {
 	
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
 	@Test
-	void testProcessUpdateVetFormSuccess() throws Exception {
-		
+	void testProcessUpdateVetFormSuccess() throws Exception {		
 		mockMvc.perform(post("/vets/{vetId}/edit", TEST_VET_ID_4).with(csrf())
 				.param("firstName", "Rafael")
 				.param("lastName", "Bloggs")
@@ -449,17 +452,26 @@ class VetControllerTests {
 				.andExpect(model().attributeExists("nextAppointments"))
 				.andExpect(model().attribute("nextAppointments", nextAppointments ))
 				.andExpect(view().name("vets/appointmentList"));
-
 	}
 
 	//Comprobar que, las listas de appointments de un vet que no tiene estan VACIAS
 	@WithMockUser(username = "vet2", password = "veter1n4ri0_2", authorities = "veterinarian")
 	@Test
+	void testShowAppoimentsByVetListWithVisits() throws Exception {
+		mockMvc.perform(get("/appointments")).andExpect(status().isOk())
+				.andExpect(model().attributeExists("appointmentsToday"))
+				.andExpect(model().attributeExists("nextAppointments"))
+				.andExpect(view().name("vets/appointmentsList"));
+
+	}
+	
+	@WithMockUser(username="vet3", password="veter1n4ri0_3", authorities="veterinarian")
+	@Test
 	void testShowAppoimentsByVetListEmpty() throws Exception {
 		mockMvc.perform(get("/appointments")).andExpect(status().isOk())
-				.andExpect(model().attribute("appointmentsToday", appointments))
+				.andExpect(model().attribute("appointmentsToday", new ArrayList<>()))
 				.andExpect(model().attribute("nextAppointments", appointments))
-				.andExpect(view().name("vets/appointmentList"));
+				.andExpect(view().name("vets/appointmentsList"));
 
 	}
 
