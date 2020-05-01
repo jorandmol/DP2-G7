@@ -112,3 +112,7 @@ INSERT INTO banners(id, picture, slogan, target_url, organization_name, init_col
 INSERT INTO stays(id,pet_id,register_date,release_date,status) VALUES (1,1, '2020-10-01', '2020-10-05',true);
 INSERT INTO stays(id,pet_id,register_date,release_date,status) VALUES (2,2, '2020-10-01', '2020-10-05',null);
 INSERT INTO stays(id,pet_id,register_date,release_date,status) VALUES (3,2, '2020-11-01', '2020-11-05',null);
+
+INSERT INTO treatments(id,name,description,time_limit,pet_id) VALUES (1,'Treatment 1', 'Description 1','2020-10-01',1);
+
+INSERT INTO treatments_history(id,name,description,time_limit,medicines,treatment_id,pet_id) VALUES (1,'Treatment 1','Description 1','2020-09-01','(BAY-2356)-Paracetamol#(IUP-004)-Ibuprofeno',1,1);

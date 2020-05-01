@@ -180,12 +180,12 @@ public class TreatmentController {
 	}
 	
 	private boolean isEditableTreatment(int petId, int treatmentId) {
-		Treatment treatment = this.treatmentService.findById(treatmentId);
-		boolean isCurrantTreatment = treatment.getTimeLimit().isAfter(LocalDate.now());
-		boolean isAccessibleTreatment = isAccesibleTreatment(petId, treatmentId);
 		boolean res = false;
-		if (isCurrantTreatment && isAccessibleTreatment) {
-			res = true;
+		Treatment treatment = this.treatmentService.findById(treatmentId);
+		if (treatment != null) {
+			boolean isCurrantTreatment = treatment.getTimeLimit().isAfter(LocalDate.now());
+			boolean isAccessibleTreatment = treatment.getPet().getId() == petId;
+			res = isCurrantTreatment && isAccessibleTreatment;
 		}
 		return res;	
 	}
