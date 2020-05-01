@@ -96,7 +96,7 @@ INSERT INTO medical_tests VALUES (2, 'Sonography', 'It uses ultrasonic sound wav
 INSERT INTO visit_medical_tests VALUES (2, 1);
 
 INSERT INTO medicines VALUES (1, 'Paracetamol', 'BAY-2356', 'Antinflamatorio', '2021-07-04');
-INSERT INTO medicines VALUES (2, 'Pet-Dalsy', 'BOT-334', 'Ideal para cachorros', '2024-03-04');
+INSERT INTO medicines VALUES (2, 'Pet Dalsy', 'BOT-334', 'Ideal para cachorros', '2024-03-04');
 INSERT INTO medicines VALUES (3, 'Ibuprofeno', 'IUP-004', 'Elimina síntomas de gripe', '2022-10-14');
 
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (1,'2020-04-20','2020-03-27','Cita médica',1,1,1);
