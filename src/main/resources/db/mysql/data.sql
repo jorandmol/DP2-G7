@@ -101,6 +101,8 @@ INSERT INTO appointments(id,appointment_date,appointment_request_date,descriptio
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (3,'2020-08-30','2020-03-27','Tratamiento de fractura',1,1,1);
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (4,'2020-04-21','2020-03-27','Revisión dental',2,2,1);
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (5,'2020-04-22','2020-03-27','Cita médica',10,12,1);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (6,SYSDATE+2,'2020-03-27','Revisión',1,1,2);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (7,SYSDATE,'2020-03-27','Revisión',1,1,2);
 
 INSERT INTO banners(id, picture, slogan, target_url, organization_name, init_colab_date, end_colab_date) VALUES (1, 'https://pbs.twimg.com/media/ETaS5ThXsAIJST1.jpg', '#YoMeQuedoEnCasa', 'https://twitter.com/asoc_recal?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor', 'Recal: Refugio Canino', '2020-01-01', '2021-01-01');
 INSERT INTO banners(id, picture, slogan, target_url, organization_name, init_colab_date, end_colab_date) VALUES (2, 'https://elrefugio.org/contenido/paginas/El-Refugio-ProyectoEdencabeceroweb.jpg', 'La vida no es eterna, pero el amor sí', 'https://elrefugio.org/default.aspx', 'elrefugio.org', '2019-10-01', '2020-10-01');
