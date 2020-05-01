@@ -16,10 +16,10 @@
 package org.springframework.samples.petclinic.web;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -27,9 +27,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.samples.petclinic.model.Appointment;
+import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.Specialty;
 import org.springframework.samples.petclinic.model.User;
-import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.model.Vets;
 import org.springframework.samples.petclinic.service.AppointmentService;
@@ -48,8 +48,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
-
-import net.bytebuddy.description.annotation.AnnotationList.Empty;
 
 /**
  * @author Juergen Hoeller
@@ -167,19 +165,23 @@ public class VetController {
 	}
 	
 	@GetMapping(value = { "/appointments" })
-	public String showAppoimentsByVetList(Map<String, Object> model) {
+	public String showAppoimentsByVetList(ModelMap model) {
 		
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		Vet veterinarian= this.vetService.findVetByUsername(username);
 		LocalDate today= LocalDate.now();
 		
-		List<Appointment> appointmentsToday = this.appointmentService.getAppointmentTodayByVetId(veterinarian.getId(), today);
-		model.put("appointmentsToday", appointmentsToday);
+		List<Appointment> appointmentsToday = this.appointmentService.getAppointmentsTodayByVetId(veterinarian.getId(), today);
+		model.addAttribute("appointmentsToday", appointmentsToday);
 		
-		List<Appointment>  nextAppointments = this.appointmentService.getNextAppointmentByVetId(veterinarian.getId(), today);
-		model.put("nextAppointments", nextAppointments);
+		List<Appointment> appointmentsWithVisit = appointmentsToday.stream()
+				.filter(a -> this.petService.countVisitsByDate(a.getPet().getId(), today) > 0).collect(Collectors.toList());
+		model.addAttribute("appointmentsWithVisit", appointmentsWithVisit);
 		
-		return "vets/appointmentList";
+		List<Appointment>  nextAppointments = this.appointmentService.getNextAppointmentsByVetId(veterinarian.getId(), today);
+		model.addAttribute("nextAppointments", nextAppointments);
+		
+		return "vets/appointmentsList";
 	}
 
 	@GetMapping("/vets/{vetId}")

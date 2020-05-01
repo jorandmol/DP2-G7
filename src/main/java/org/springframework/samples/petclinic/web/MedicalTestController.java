@@ -12,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -51,5 +52,26 @@ public class MedicalTestController {
 			this.medicalTestService.saveMedicalTest(medicalTest);
 		}
 		return "redirect:/medical-tests";
+	}
+	
+	@GetMapping(value = "/{medicalTestId}/edit")
+	public String initUpdateForm(@PathVariable("medicalTestId") final int medicalTestId, final Map<String, Object> model) {
+		MedicalTest medicalTest = this.medicalTestService.findMedicalTestById(medicalTestId);
+		model.put("medicalTest", medicalTest);
+		return VIEWS_MEDICAL_TEST_CREATE_OR_UPDATE_FORM;
+	}
+	
+	@PostMapping(value = "/{medicalTestId}/edit")
+	public String processUpdateFrom(@PathVariable("medicalTestId") final int medicalTestId, @Valid MedicalTest medicalTest, BindingResult result, ModelMap model) {
+		if (result.hasErrors()) {
+			model.put("medicalTest", medicalTest);
+			return VIEWS_MEDICAL_TEST_CREATE_OR_UPDATE_FORM;
+		} else {
+			MedicalTest medicalTestToUpdate = this.medicalTestService.findMedicalTestById(medicalTestId);
+			medicalTestToUpdate.setName(medicalTest.getName());
+			medicalTestToUpdate.setDescription(medicalTest.getDescription());
+			this.medicalTestService.saveMedicalTest(medicalTestToUpdate);
+			return "redirect:/medical-tests";
+		}
 	}
 }

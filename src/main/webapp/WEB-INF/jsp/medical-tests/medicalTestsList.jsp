@@ -14,6 +14,7 @@
         <tr>
         	<th>Name</th>
             <th>Description</th>
+            <th>Actions</th>
         </tr>
         </thead>
         <tbody>
@@ -22,8 +23,14 @@
                 <td>
                    <c:out value="${medicalTest.name}"/>
                 </td>
-                 <td>
+                <td>
                     <c:out value="${medicalTest.description}"/>
+                </td>
+                <td>
+                	<spring:url value="/medical-tests/{medicalTestId}/edit" var="editMedicalTestUrl">
+                    	<spring:param name="medicalTestId" value="${medicalTest.id}"/>
+                    </spring:url>
+                    <a href="${fn:escapeXml(editMedicalTestUrl)}" class="btn btn-default">Edit</a>
                 </td>              
             </tr>
         </c:forEach>

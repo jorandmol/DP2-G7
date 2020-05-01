@@ -27,4 +27,9 @@ private MedicalTestRepository medicalTestRepository;
 	public void saveMedicalTest(MedicalTest medicalTest) {
 		this.medicalTestRepository.save(medicalTest);
 	}
+
+	@Transactional(readOnly = true)
+	public MedicalTest findMedicalTestById(int medicalTestId) {
+		return this.medicalTestRepository.findById(medicalTestId);
+	}
 }

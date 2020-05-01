@@ -22,6 +22,9 @@
                     <c:when test="${medicalTest['new']}">
                         <button class="btn btn-default" type="submit">Add medical test</button>
                     </c:when>
+                    <c:otherwise>
+                    	<button class="btn btn-default" type="submit">Update medical test</button>
+                    </c:otherwise>
                 </c:choose>
             </div>
         </div>

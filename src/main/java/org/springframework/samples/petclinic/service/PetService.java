@@ -62,7 +62,17 @@ public class PetService {
 	public Collection<PetType> findPetTypes() throws DataAccessException {
 		return petRepository.findPetTypes();
 	}
+	
+	@Transactional(readOnly = true)
+	public Visit findVisitById(int visitId) {
+		return visitRepository.findById(visitId);
+	}
 
+	@Transactional(readOnly = true)
+	public Integer countVisitsByDate(Integer petId, LocalDate date) {
+		return visitRepository.countByDate(petId, date);
+	}
+	
 	@Transactional
 	public void saveVisit(Visit visit) throws DataAccessException {
 		visitRepository.save(visit);
@@ -144,5 +154,6 @@ public class PetService {
 	public List<Pet> findAll() {
 		return this.petRepository.findAll();
 	}
+
 
 }

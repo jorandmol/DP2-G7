@@ -15,6 +15,7 @@
  */
 package org.springframework.samples.petclinic.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.dao.DataAccessException;
@@ -42,5 +43,9 @@ public interface VisitRepository {
 	void save(Visit visit) throws DataAccessException;
 
 	List<Visit> findByPetId(Integer petId);
+
+	Visit findById(int visitId);
+
+	Integer countByDate(Integer petId, LocalDate date);
 
 }

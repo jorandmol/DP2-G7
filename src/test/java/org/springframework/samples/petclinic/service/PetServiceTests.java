@@ -196,6 +196,9 @@ class PetServiceTests {
 			petService.savePet(anotherPet);
 		});		
 	}
+	
+	// VISIST
+	
 
 	@Test
 	@Transactional
@@ -226,6 +229,7 @@ class PetServiceTests {
 		assertThat(visitArr[0].getDate()).isNotNull();
 		assertThat(visitArr[0].getPet().getId()).isEqualTo(7);
 	}
+
 	
 	// STAY
 	

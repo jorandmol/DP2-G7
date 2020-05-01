@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +21,6 @@ import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoSettings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -29,6 +29,7 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
 import org.springframework.samples.petclinic.configuration.SecurityConfiguration;
 import org.springframework.samples.petclinic.model.Appointment;
+import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.Specialty;
 import org.springframework.samples.petclinic.model.User;
 import org.springframework.samples.petclinic.model.Vet;
@@ -48,8 +49,18 @@ import org.springframework.test.web.servlet.MockMvc;
 @WebMvcTest(controllers = VetController.class, excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = WebSecurityConfigurer.class), excludeAutoConfiguration = SecurityConfiguration.class)
 class VetControllerTests {
 
-	private static final int TEST_VET_ID = 4;
+	private static final int TEST_VET_ID_1 = 4;
+	
+	private static final int TEST_VET_ID_2 = 5;
+	
+	private static final int TEST_VET_ID_3 = 6;
 
+	private static final Integer TEST_PET_ID_1 = 1;
+	
+	private static final Integer TEST_PET_ID_2 = 2;
+
+	private static final Integer TEST_PET_ID_3 = 3;
+	
 	@MockBean
 	private BannerService bannerService;
 
@@ -92,6 +103,10 @@ class VetControllerTests {
 	@BeforeEach
 	void setup() {
 		
+		LocalDate date = LocalDate.now();
+		if(date.getDayOfWeek().equals(DayOfWeek.SUNDAY))
+			date.plusDays(1);
+		
 		Vet james = new Vet();
         james.setFirstName("James");
         james.setLastName("Carter");
@@ -113,23 +128,17 @@ class VetControllerTests {
 		
 		specialties2.add(surgery);
 		
-		List<Appointment> appointmentsToday= new ArrayList<>();
-		Appointment appointmentToday = new Appointment();
-		appointmentToday.setAppointmentDate(LocalDate.now());
-		appointmentToday.setVet(rafael);
-		appointmentsToday.add(appointmentToday);
+		Pet pet1 = new Pet();
+		pet1.setId(TEST_PET_ID_1);
+		Pet pet2 = new Pet();
+		pet2.setId(TEST_PET_ID_2);
+		Pet pet3 = new Pet();
+		pet3.setId(TEST_PET_ID_3);
 		
-		List<Appointment> nextAppointments= new ArrayList<>();
-		Appointment nextAppointment = new Appointment();
-		nextAppointment.setAppointmentDate(LocalDate.now().plusDays(3));
-		nextAppointment.setVet(rafael);
-		nextAppointments.add(nextAppointment);
-		
-		appointments= new ArrayList<Appointment>();
 		
 		//vet1
 		rafael = new Vet();
-		rafael.setId(TEST_VET_ID);
+		rafael.setId(TEST_VET_ID_1);
 		rafael.setFirstName("Rafael");
 		rafael.setLastName("Ortega");
 		rafael.setAddress("110 W. Liberty St.");
@@ -143,22 +152,65 @@ class VetControllerTests {
 		rafael.setUser(user1);
 		this.authoritiesService.saveAuthorities("vet1", "veterinarian");
 		
-		//vet2- creado para comprobar que el listado de citas es vacio para este vet
 		User user2 = new User();
 		user2.setUsername("vet2");
 		user2.setPassword("veter1n4ri0_2");
 		user2.setEnabled(true);
 		Vet vet2= new Vet();
 		vet2.setUser(user2);
-		vet2.setId(2);
+		vet2.setId(TEST_VET_ID_2);
 		this.authoritiesService.saveAuthorities("vet2", "veterinarian");
 		
-		given(this.vetService.findVetById(TEST_VET_ID)).willReturn(rafael);
+		//vet3- creado para comprobar que el listado de citas es vacio para este vet
+		User user3 = new User();
+		user3.setUsername("vet3");
+		user3.setPassword("veter1n4ri0_3");
+		user3.setEnabled(true);
+		Vet vet3= new Vet();
+		vet3.setUser(user3);
+		vet3.setId(TEST_VET_ID_3);
+		this.authoritiesService.saveAuthorities("vet3", "veterinarian");
+		
+		List<Appointment> appointmentsToday1 = new ArrayList<>();
+		Appointment appointmentToday1 = new Appointment();
+		appointmentToday1.setAppointmentDate(date);
+		appointmentToday1.setVet(rafael);
+		appointmentToday1.setPet(pet1);
+		appointmentsToday1.add(appointmentToday1);
+		
+		List<Appointment> nextAppointments1 = new ArrayList<>();
+		Appointment nextAppointment = new Appointment();
+		nextAppointment.setAppointmentDate(date.plusWeeks(1));
+		nextAppointment.setVet(rafael);
+		nextAppointment.setPet(pet2);
+		nextAppointments1.add(nextAppointment);
+		
+		appointments= new ArrayList<Appointment>();
+		
+		List<Appointment> appointmentsToday2 = new ArrayList<>();
+		Appointment appointmentToday2 = new Appointment();
+		appointmentToday2.setAppointmentDate(date);
+		appointmentToday2.setVet(vet2);
+		appointmentToday2.setPet(pet3);
+		appointmentsToday2.add(appointmentToday2);
+		
+		List<Appointment> nextAppointments2 = new ArrayList<>();
+		
+		given(this.vetService.findVetById(TEST_VET_ID_1)).willReturn(rafael);
         given(this.vetService.findVets()).willReturn(Lists.newArrayList(james, helen));
-        given(this.appointmentService.getAppointmentTodayByVetId(TEST_VET_ID, LocalDate.now())).willReturn(appointmentsToday);
-        given(this.appointmentService.getNextAppointmentByVetId(TEST_VET_ID, LocalDate.now())).willReturn(nextAppointments);
+        given(this.appointmentService.getAppointmentsTodayByVetId(TEST_VET_ID_1, LocalDate.now())).willReturn(appointmentsToday1);
+        given(this.appointmentService.getNextAppointmentsByVetId(TEST_VET_ID_1, LocalDate.now())).willReturn(nextAppointments1);
+        given(this.appointmentService.getAppointmentsTodayByVetId(TEST_VET_ID_2, LocalDate.now())).willReturn(appointmentsToday2);
+        given(this.appointmentService.getNextAppointmentsByVetId(TEST_VET_ID_2, LocalDate.now())).willReturn(nextAppointments2);
+        given(this.appointmentService.getAppointmentsTodayByVetId(TEST_VET_ID_3, LocalDate.now())).willReturn(appointments);
+        given(this.appointmentService.getNextAppointmentsByVetId(TEST_VET_ID_3, LocalDate.now())).willReturn(appointments);
         given(this.vetService.findVetByUsername("vet1")).willReturn(rafael);
         given(this.vetService.findVetByUsername("vet2")).willReturn(vet2);
+        given(this.vetService.findVetByUsername("vet3")).willReturn(vet3);
+        given(this.petService.countVisitsByDate(TEST_PET_ID_1, date)).willReturn(0);
+        given(this.petService.countVisitsByDate(TEST_PET_ID_2, date)).willReturn(1);
+        given(this.petService.countVisitsByDate(TEST_PET_ID_3, date)).willReturn(1);
+
 		
 	}
 	
@@ -245,7 +297,7 @@ class VetControllerTests {
 	@WithMockUser(value = "spring")
 	@Test
 	void testInitUpdateVetForm() throws Exception {
-		mockMvc.perform(get("/vets/{vetId}/edit", TEST_VET_ID)).andExpect(status().isOk())
+		mockMvc.perform(get("/vets/{vetId}/edit", TEST_VET_ID_1)).andExpect(status().isOk())
 				.andExpect(model().attributeExists("edit"))
 				.andExpect(model().attributeExists("vet"))
 				.andExpect(model().attribute("vet", hasProperty("firstName", is("Rafael"))))
@@ -259,7 +311,7 @@ class VetControllerTests {
 	@WithMockUser(value = "spring")
 	@Test
 	void testProcessUpdateVetFormSuccess() throws Exception {
-		mockMvc.perform(post("/vets/{vetId}/edit", TEST_VET_ID).with(csrf())
+		mockMvc.perform(post("/vets/{vetId}/edit", TEST_VET_ID_1).with(csrf())
 				.param("firstName", "Rafael")
 				.param("lastName", "Bloggs")
 				.param("address", "123 Caramel Street")
@@ -275,7 +327,7 @@ class VetControllerTests {
 	@WithMockUser(value = "spring")
 	@Test
 	void testProcessUpdateVetFormHasErrors() throws Exception {
-		mockMvc.perform(post("/vets/{vetId}/edit", TEST_VET_ID).with(csrf())
+		mockMvc.perform(post("/vets/{vetId}/edit", TEST_VET_ID_1).with(csrf())
 				.param("firstName", "Joe")
 				.param("lastName", "Bloggs")
 				.param("telephone", "123456789")
@@ -296,24 +348,34 @@ class VetControllerTests {
 		mockMvc.perform(get("/appointments")).andExpect(status().isOk())
 				.andExpect(model().attributeExists("appointmentsToday"))
 				.andExpect(model().attributeExists("nextAppointments"))
-				.andExpect(view().name("vets/appointmentList"));
+				.andExpect(view().name("vets/appointmentsList"));
 
 	}
 	
 	@WithMockUser(username="vet2", password="veter1n4ri0_2", authorities="veterinarian")
 	@Test
+	void testShowAppoimentsByVetListWithVisits() throws Exception {
+		mockMvc.perform(get("/appointments")).andExpect(status().isOk())
+				.andExpect(model().attributeExists("appointmentsToday"))
+				.andExpect(model().attributeExists("nextAppointments"))
+				.andExpect(view().name("vets/appointmentsList"));
+
+	}
+	
+	@WithMockUser(username="vet3", password="veter1n4ri0_3", authorities="veterinarian")
+	@Test
 	void testShowAppoimentsByVetListEmpty() throws Exception {
 		mockMvc.perform(get("/appointments")).andExpect(status().isOk())
-				.andExpect(model().attribute("appointmentsToday", appointments))
+				.andExpect(model().attribute("appointmentsToday", new ArrayList<>()))
 				.andExpect(model().attribute("nextAppointments", appointments))
-				.andExpect(view().name("vets/appointmentList"));
+				.andExpect(view().name("vets/appointmentsList"));
 
 	}
 
 	@WithMockUser(value = "spring")
 	@Test
 	void testShowVet() throws Exception {
-		mockMvc.perform(get("/vets/{vetId}", TEST_VET_ID)).andExpect(status().isOk())
+		mockMvc.perform(get("/vets/{vetId}", TEST_VET_ID_1)).andExpect(status().isOk())
 				.andExpect(model().attribute("vet", hasProperty("firstName", is("Rafael"))))
 				.andExpect(model().attribute("vet", hasProperty("lastName", is("Ortega"))))
 				.andExpect(model().attribute("vet", hasProperty("address", is("110 W. Liberty St."))))
