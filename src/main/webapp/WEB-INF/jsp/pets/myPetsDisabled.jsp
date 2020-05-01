@@ -5,62 +5,12 @@
 <%@ taglib prefix="petclinic" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 
-<petclinic:layout pageName="owners">
+<petclinic:layout pageName="pets">
 
-    <h2>Owner Information</h2>
-
-
-    <table class="table table-striped">
-        <tr>
-            <th>Name</th>
-            <td><b><c:out value="${owner.firstName} ${owner.lastName}"/></b></td>
-        </tr>
-        <tr>
-            <th>Address</th>
-            <td><c:out value="${owner.address}"/></td>
-        </tr>
-        <tr>
-            <th>City</th>
-            <td><c:out value="${owner.city}"/></td>
-        </tr>
-        <tr>
-            <th>Telephone</th>
-            <td><c:out value="${owner.telephone}"/></td>
-        </tr>
-        <tr>
-            <th>Username</th>
-            <td><c:out value="${owner.user.username}"/></td>
-        </tr>
-    </table>
-
-    <spring:url value="{ownerId}/edit" var="editUrl">
-        <spring:param name="ownerId" value="${owner.id}"/>
-    </spring:url>
-    <a href="${fn:escapeXml(editUrl)}" class="btn btn-default">Edit Owner</a>
-
-	<sec:authorize access="hasAuthority('owner')">
-    	<spring:url value="{ownerId}/pets/new" var="addUrl">
-       		<spring:param name="ownerId" value="${owner.id}"/>
-    	</spring:url>
-    	<a href="${fn:escapeXml(addUrl)}" class="btn btn-default">Request pet</a>
-	</sec:authorize>
-	
-	<sec:authorize access="hasAuthority('admin')">
-    <br/>
-    <br/>
-    <br/>
     <h2>Pets</h2>
-    
-    <c:if test="${disabled}">
-    	<spring:url value="/owners/{ownerId}/pets/disabled" var="disabledPetsUrl">
-    		<spring:param name="ownerId" value="${owner.id}"/>
-   		</spring:url>
-    	<a href="${fn:escapeXml(disabledPetsUrl)}" class="btn btn-default" >Disabled Pets</a>
-	</c:if>
-	
+
     <table class="table table-striped">
         <c:forEach var="pet" items="${pets}">
-
             <tr>
                 <td valign="top">
                     <dl class="dl-horizontal">
@@ -71,14 +21,12 @@
                         <dt>Type</dt>
                         <dd><c:out value="${pet.type.name}"/></dd>
                         <dt>
-                        	<spring:url value="/owners/{ownerId}/pets/{petId}/edit" var="petUrl">
-                            	<spring:param name="ownerId" value="${owner.id}"/>
-                                <spring:param name="petId" value="${pet.id}"/>
-                            </spring:url>
-                                <a href="${fn:escapeXml(petUrl)}">Edit Pet</a>
-                       	</dt>
-                       	<br>
-                       	</br>
+                        	<spring:url value="/owners/{ownerId}/pets/{petId}/treatments" var="treatmentsUrl">
+       							<spring:param name="ownerId" value="${owner.id}"/>
+       							<spring:param name="petId" value="${pet.id}"/>
+    						</spring:url>
+    						<a href="${fn:escapeXml(treatmentsUrl)}">Treatments</a>
+                        </dt>
                         <dt>
                         	<spring:url value="/owners/{ownerId}/pets/{petId}/stays" var="stayUrl">
                             	<spring:param name="ownerId" value="${owner.id}"/>
@@ -124,5 +72,4 @@
 
         </c:forEach>
     </table>
-    </sec:authorize>
 </petclinic:layout>

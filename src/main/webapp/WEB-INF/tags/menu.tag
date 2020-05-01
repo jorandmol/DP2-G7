@@ -6,7 +6,7 @@
 	uri="http://www.springframework.org/security/tags"%>
 <!--  >%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%-->
 <%@ attribute name="name" required="true" rtexprvalue="true"
-	description="Name of the active menu: home, owners, vets, banners or error"%>
+	description="Name of the active menu: home, owners, vets, requests, banners, pets, appointments or error"%>
 
 <nav class="navbar navbar-default" role="navigation">
 	<div class="container">
@@ -53,6 +53,30 @@
 					</petclinic:menuItem>
 				</sec:authorize>
 
+				<sec:authorize access="hasAuthority('admin')">
+				<petclinic:menuItem active="${name eq 'requests'}" url="/requests"
+					title="requests">
+					<span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+					<span>Requests</span>
+				</petclinic:menuItem>
+				</sec:authorize>
+				
+				<sec:authorize access="hasAuthority('owner')">
+				<petclinic:menuItem active="${name eq 'pets'}" url="/owner/pets"
+					title="pets">
+					<span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+					<span>My Pets</span>
+				</petclinic:menuItem>
+				</sec:authorize>
+	
+				<sec:authorize access="hasAuthority('owner')">
+				<petclinic:menuItem active="${name eq 'requests'}" url="/owner/requests"
+					title="requests">
+					<span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+					<span>My Requests</span>
+				</petclinic:menuItem>
+				</sec:authorize>
+	
 				<sec:authorize access="hasAuthority('veterinarian')">
 					<petclinic:menuItem active="${name eq 'appointments'}"
 						url="/appointments" title="appointments">
@@ -62,13 +86,13 @@
 				</sec:authorize>
 
 				<sec:authorize access="hasAuthority('veterinarian')">
-					<petclinic:menuItem active="${name eq 'appointments'}"
-						url="/vets/pets" title="pets">
-						<span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
-						<span>Pets</span>
-					</petclinic:menuItem>
+				<petclinic:menuItem active="${name eq 'pets'}" url="/vets/pets"
+					title="pets">
+					<span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+					<span>Pets</span>
+				</petclinic:menuItem>
 				</sec:authorize>
-
+				
 				<sec:authorize access="hasAuthority('admin')">
 					<petclinic:menuItem active="${name eq 'stays'}"
 						url="/admin/stays" title="stays">
@@ -76,19 +100,16 @@
 						<span>Stays</span>
 					</petclinic:menuItem>
 				</sec:authorize>
-
-				<sec:authorize access="hasAuthority('admin')">
-					<petclinic:menuItem active="${name eq 'error'}" url="/oups"
-						title="trigger a RuntimeException to see how it is handled">
-						<span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span>
-						<span>Error</span>
-					</petclinic:menuItem>
-				</sec:authorize>
-
-
+        
+	<%-- 		<sec:authorize access="hasAuthority('admin')">
+				<petclinic:menuItem active="${name eq 'error'}" url="/oups"
+					title="trigger a RuntimeException to see how it is handled">
+					<span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span>
+					<span>Error</span>
+				</petclinic:menuItem>
+				</sec:authorize> --%>
+        
 			</ul>
-
-
 
 
 			<ul class="nav navbar-nav navbar-right">
@@ -98,7 +119,7 @@
 				</sec:authorize>
 				<sec:authorize access="isAuthenticated()">
 					<li class="dropdown"><a href="#" class="dropdown-toggle"
-						data-toggle="dropdown"> <span class="glyphicon glyphicon-user"></span> 
+						data-toggle="dropdown"> <span class="glyphicon glyphicon-user"></span>Â 
 							<strong><sec:authentication property="name" /></strong> <span
 							class="glyphicon glyphicon-chevron-down"></span>
 					</a>

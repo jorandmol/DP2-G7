@@ -15,7 +15,10 @@
  */
 package org.springframework.samples.petclinic.web;
 
+import java.time.LocalDate;
+
 import org.springframework.samples.petclinic.model.Pet;
+import org.springframework.samples.petclinic.model.PetRegistrationStatus;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
@@ -23,8 +26,8 @@ import org.springframework.validation.Validator;
 /**
  * <code>Validator</code> for <code>Pet</code> forms.
  * <p>
- * We're not using Bean Validation annotations here because it is easier to define such
- * validation rule in Java.
+ * We're not using Bean Validation annotations here because it is easier to
+ * define such validation rule in Java.
  * </p>
  *
  * @author Ken Krebs
@@ -38,20 +41,43 @@ public class PetValidator implements Validator {
 	public void validate(Object obj, Errors errors) {
 		Pet pet = (Pet) obj;
 		String name = pet.getName();
-		// name validation
-		if (!StringUtils.hasLength(name) || name.length()>50 || name.length()<3) {
-			errors.rejectValue("name", REQUIRED+" and between 3 and 50 characters", REQUIRED+" and between 3 and 50 character");
-		}
 
-		// type validation
-		if (pet.isNew() && pet.getType() == null) {
-			errors.rejectValue("type", REQUIRED, REQUIRED);
-		}
+		if (pet.getStatus() == null) {
 
-		// birth date validation
-		if (pet.getBirthDate() == null) {
-			errors.rejectValue("birthDate", REQUIRED, REQUIRED);
-		}
+			// name validation
+			if (!StringUtils.hasLength(name) || name.length() > 50 || name.length() < 3) {
+				errors.rejectValue("name", REQUIRED + " and between 3 and 50 characters",
+						REQUIRED + " and between 3 and 50 character");
+			}
+
+			// type validation
+			if (pet.isNew() && pet.getType() == null) {
+				errors.rejectValue("type", REQUIRED, REQUIRED);
+			}
+
+			LocalDate now = LocalDate.now();
+			
+			// birth date validation
+			if (pet.getBirthDate() == null) {
+				errors.rejectValue("birthDate", REQUIRED, REQUIRED);
+			}
+			else if(pet.getBirthDate().isAfter(now)) {
+				errors.rejectValue("birthDate", "BirthDate must be before or equal to today ",
+						"BirthDate must be before or equal to today");
+			}
+		} 
+		else if (pet.getStatus() != null) {
+			if(pet.getStatus().equals(PetRegistrationStatus.REJECTED) && pet.getJustification().isEmpty() ) {
+				errors.rejectValue("justification", "justification is mandatory if the application is rejected",
+						"justification is mandatory if the application is rejected");
+			}
+		} 
+//			if (pet.getStatus().equals(PetRegistrationStatus.REJECTED) && pet.getJustification().isEmpty()) {
+//				errors.rejectValue("justification", "justification is mandatory if the application is rejected",
+//						"justification is mandatory if the application is rejected");
+//			}
+//		}
+
 	}
 
 	/**
