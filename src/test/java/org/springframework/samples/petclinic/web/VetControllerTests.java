@@ -197,9 +197,9 @@ class VetControllerTests {
 
 		given(this.vetService.findVetById(TEST_VET_ID_4)).willReturn(rafael);
 		given(this.vetService.findVets()).willReturn(Lists.newArrayList(james, helen));
-		given(this.appointmentService.getAppointmentTodayByVetId(TEST_VET_ID_4, LocalDate.now()))
+		given(this.appointmentService.getAppointmentsTodayByVetId(TEST_VET_ID_4, LocalDate.now()))
 				.willReturn(appointmentsToday);
-		given(this.appointmentService.getNextAppointmentByVetId(TEST_VET_ID_4, LocalDate.now()))
+		given(this.appointmentService.getNextAppointmentsByVetId(TEST_VET_ID_4, LocalDate.now()))
 				.willReturn(nextAppointments);
 		given(this.vetService.findVetByUsername("vet1")).willReturn(rafael);
 		given(this.vetService.findVetByUsername("vet2")).willReturn(vet2);
