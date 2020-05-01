@@ -28,12 +28,14 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.PetRegistrationStatus;
 import org.springframework.samples.petclinic.model.PetType;
+import org.springframework.samples.petclinic.model.Status;
 import org.springframework.samples.petclinic.model.Stay;
 import org.springframework.samples.petclinic.model.Visit;
 import org.springframework.samples.petclinic.service.exceptions.DateNotAllowed;
@@ -76,6 +78,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 
 @DataJpaTest(includeFilters = @ComponentScan.Filter(Service.class))
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class PetServiceTests {
 
 	@Autowired
@@ -228,131 +231,14 @@ class PetServiceTests {
 
 	@Test
 	void shouldFindVisitsByPetId() throws Exception {
-		Collection<Visit> visits = this.petService.findVisitsByPetId(7);
+		Collection<Visit> visits = this.petService.findVisitsByPetId(8);
 		assertThat(visits.size()).isEqualTo(2);
 		Visit[] visitArr = visits.toArray(new Visit[visits.size()]);
 		assertThat(visitArr[0].getPet()).isNotNull();
 		assertThat(visitArr[0].getDate()).isNotNull();
-		assertThat(visitArr[0].getPet().getId()).isEqualTo(7);
+	  assertThat(visitArr[0].getPet().getId()).isEqualTo(8);
 	}
-
-	// STAY
-
-	@Test
-	@Transactional
-	public void shouldAddNewStayForPet() {
-		Pet pet7 = this.petService.findPetById(7);
-		int found = pet7.getStays().size();
-		Stay stay = new Stay();
-		pet7.addStay(stay);
-		stay.setRegisterDate(LocalDate.now());
-		stay.setReleaseDate(LocalDate.now().plusDays(3));
-		try {
-			this.petService.saveStay(stay);
-			this.petService.savePet(pet7);
-		} catch (DuplicatedPetNameException | MaximumStaysReached ex) {
-			Logger.getLogger(PetServiceTests.class.getName()).log(Level.SEVERE, null, ex);
-		}
-
-		pet7 = this.petService.findPetById(7);
-		assertThat(pet7.getStays().size()).isEqualTo(found + 1);
-		assertThat(stay.getId()).isNotNull();
-	}
-
-	@Test
-	void shouldFindStaysByPetId() throws Exception {
-		Collection<Stay> stays = this.petService.findStaysByPetId(1);
-		assertThat(stays.size()).isEqualTo(1);
-		Stay[] stayArr = stays.toArray(new Stay[stays.size()]);
-		assertThat(stayArr[0].getPet()).isNotNull();
-		assertThat(stayArr[0].getRegisterDate()).isNotNull();
-		assertThat(stayArr[0].getPet().getId()).isEqualTo(1);
-	}
-
-	@Test
-	void shouldFindStayWithCorrectId() {
-		Stay stay = this.petService.findStayById(1);
-		assertThat(stay.getPet().getName()).startsWith("Leo");
-		assertThat(stay.getRegisterDate()).isEqualTo(LocalDate.of(2020, 10, 1));
-	}
-
-	@Test
-	void shouldDeleteStayWithCorrectId() {
-		Stay stay = this.petService.findStayById(2);
-		Pet pet = this.petService.findPetById(2);
-		int numStays = pet.getStays().size();
-		try {
-			this.petService.deleteStay(stay);
-		} catch (StayAlreadyConfirmed e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		assertThat(pet.getStays().size()).isEqualTo(numStays - 1);
-	}
-
-	@Test
-	void shouldNotDeleteStayConfirmed() {
-		Stay stay = this.petService.findStayById(1);
-		Pet pet = this.petService.findPetById(1);
-		int numStays = pet.getStays().size();
-
-		assertThrows(StayAlreadyConfirmed.class, () -> {
-			this.petService.deleteStay(stay);
-		});
-		assertThat(pet.getStays().size()).isEqualTo(numStays);
-	}
-
-	@Test
-	void shouldEditStay() {
-		Stay stay = this.petService.findStayById(2);
-		LocalDate d1 = LocalDate.now().plusYears(1);
-		LocalDate d2 = d1.plusDays(3);
-		try {
-			stay.setRegisterDate(d1);
-			stay.setReleaseDate(d2);
-			this.petService.editStay(stay);
-		} catch (MaximumStaysReached | DateNotAllowed | StayAlreadyConfirmed e) {
-			e.printStackTrace();
-		}
-		assertThat(this.petService.findStayById(2).getRegisterDate()).isEqualTo(d1);
-		assertThat(this.petService.findStayById(2).getReleaseDate()).isEqualTo(d2);
-	}
-
-	@Test
-	void shouldNotEditStayMaximumStays() {
-		Stay stay = this.petService.findStayById(2);
-		Stay stay2 = new Stay();
-		BeanUtils.copyProperties(stay, stay2);
-
-		assertThrows(MaximumStaysReached.class, () -> {
-			stay2.setRegisterDate(LocalDate.of(2020, 10, 30));
-			stay2.setReleaseDate(LocalDate.of(2020, 11, 3));
-			this.petService.editStay(stay2);
-		});
-	}
-
-	@Test
-	void shouldNotEditStayStatus() {
-		Stay stay = this.petService.findStayById(1);
-		Stay stay2 = new Stay();
-		BeanUtils.copyProperties(stay, stay2);
-
-		assertThrows(StayAlreadyConfirmed.class, () -> {
-			stay2.setRegisterDate(LocalDate.of(2020, 10, 30));
-			stay2.setReleaseDate(LocalDate.of(2020, 11, 3));
-			this.petService.editStay(stay2);
-		});
-	}
-
-	@Test
-	void shouldNotEditStayRepeatedDate() {
-		Stay stay = this.petService.findStayById(2);
-
-		assertThrows(DateNotAllowed.class, () -> {
-			this.petService.editStay(stay);
-		});
-	}
-
+    
 	@Test
 	void shouldFindPetsRequests() {
 		List<Pet> petsRequests = this.petService.findPetsRequests(pending);
@@ -399,4 +285,5 @@ class PetServiceTests {
 		
 		assertThat(myPetsAcceptedAndDisabled).isEqualTo(1);
 	}
+    
 }
