@@ -219,7 +219,6 @@ public class AppointmentControllerTests {
 	void testProcessNewAppointmentForm() throws Exception{
 		mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/appointments/new", TEST_OWNER_ID, TEST_PET_ID).with(csrf())
 			.param("appointmentDate", dateFuture)
-			.param("appointmentRequestDate", dateToday)
 			.param("description", "Problema con la pata de mi perro")
 			.flashAttr("vet", vet.getId()))
 			.andExpect(status().is3xxRedirection())
@@ -231,7 +230,6 @@ public class AppointmentControllerTests {
 	void testProcessNewAppointmentFormHasErrors() throws Exception{
 		mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/appointments/new", TEST_OWNER_ID, TEST_PET_ID).with(csrf())
 			.param("appointmentDate", "")
-			.param("appointmentRequestDate", dateToday)
 			.param("description", "")
 			.flashAttr("vet", vet.getId()))
 			.andExpect(model().attributeHasErrors("appointment"))
@@ -246,7 +244,6 @@ public class AppointmentControllerTests {
 	void testProcessAppointmentEditForm() throws Exception{
 		mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/edit", TEST_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID_1).with(csrf())
 			.param("appointmentDate", dateFuture)
-			.param("appointmentRequestDate", dateToday)
 			.param("description", "Vacunación de mi perro")
 			.flashAttr("vet", vet.getId()))
 			.andExpect(view().name(REDIRECT_TO_PETS_DETAILS));
@@ -257,7 +254,6 @@ public class AppointmentControllerTests {
 	void testProcessAppointmentEditFormHasErrors() throws Exception{
 		mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/edit", TEST_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID_1).with(csrf())
 			.param("appointmentDate", "")
-			.param("appointmentRequestDate", dateToday)
 			.param("description", "")
 			.flashAttr("vet", vet.getId()))
 			.andExpect(model().attributeHasErrors("appointment"))

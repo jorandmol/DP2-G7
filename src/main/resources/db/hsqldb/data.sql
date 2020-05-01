@@ -95,6 +95,8 @@ INSERT INTO appointments(id,appointment_date,appointment_request_date,descriptio
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (7,'2020-08-30','2020-03-27','Tratamiento de fractura',1,1,1);
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (8,'2020-05-01','2020-03-27','Revisión dental',2,2,1);
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (9,'2020-05-01','2020-03-27','Cita médica',10,12,1);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (10,SYSDATE+2,'2020-03-27','Revisión',1,1,2);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (11,SYSDATE,'2020-03-27','Revisión',1,1,2);
 
 INSERT INTO visits(id,pet_id,visit_date,description) VALUES (1, 7, '2019-01-01', 'rabies shot');
 INSERT INTO visits(id,pet_id,visit_date,description) VALUES (2, 8, '2019-01-02', 'rabies shot');
@@ -118,3 +120,7 @@ INSERT INTO banners(id, picture, slogan, target_url, organization_name, init_col
 INSERT INTO stays(id,pet_id,register_date,release_date,status) VALUES (1,1, '2020-10-01', '2020-10-05',0);
 INSERT INTO stays(id,pet_id,register_date,release_date,status) VALUES (2,2, '2020-10-01', '2020-10-05',2);
 INSERT INTO stays(id,pet_id,register_date,release_date,status) VALUES (3,2, '2020-11-01', '2020-11-05',2);
+
+INSERT INTO treatments(id,name,description,time_limit,pet_id) VALUES (1,'Treatment 1', 'Description 1','2020-10-01',1);
+
+INSERT INTO treatments_history(id,name,description,time_limit,medicines,treatment_id,pet_id) VALUES (1,'Treatment 1','Description 1','2020-09-01','(BAY-2356)-Paracetamol#(IUP-004)-Ibuprofeno',1,1);

@@ -16,6 +16,8 @@ public interface TreatmentHistoryRepository extends Repository<TreatmentHistory,
     TreatmentHistory findById(Integer id);
 
     void save(TreatmentHistory treatmentHistory);
+    
+    void delete(TreatmentHistory treatmentHistory);
 
     @Query("SELECT th FROM TreatmentHistory th WHERE th.treatment.id=:treatmentId ORDER BY th.id DESC")
 	List<TreatmentHistory> findHistoryByTreatment(@Param("treatmentId") int treatmentId);
