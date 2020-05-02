@@ -52,9 +52,9 @@ public class PetController {
 
 	private static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = "pets/createOrUpdatePetForm";
 	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
-	private static final PetRegistrationStatus accepted= PetRegistrationStatus.ACCEPTED;
-	private static final PetRegistrationStatus pending= PetRegistrationStatus.PENDING;
-	private static final PetRegistrationStatus rejected= PetRegistrationStatus.REJECTED;
+	private static final PetRegistrationStatus accepted = PetRegistrationStatus.ACCEPTED;
+	private static final PetRegistrationStatus pending = PetRegistrationStatus.PENDING;
+	private static final PetRegistrationStatus rejected = PetRegistrationStatus.REJECTED;
 
 	private final PetService petService;
 	private final OwnerService ownerService;
@@ -128,7 +128,8 @@ public class PetController {
 		boolean edit = true;
 		Owner owner = this.ownerService.findOwnerById(ownerId);
 		Pet petToUpdate = this.petService.findPetById(petId);
-		Boolean isHisPetAcceptedAndAcctive = owner.getPets().contains(petToUpdate) && petToUpdate.isActive() && petToUpdate.getStatus().equals(accepted);
+		Boolean isHisPetAcceptedAndAcctive = owner.getPets().contains(petToUpdate) && petToUpdate.isActive()
+				&& petToUpdate.getStatus().equals(accepted);
 		if (securityAccessPetRequestAndProfile(ownerId, edit) && isHisPetAcceptedAndAcctive) {
 			Pet pet = this.petService.findPetById(petId);
 			model.put("pet", pet);
@@ -156,14 +157,15 @@ public class PetController {
 			@PathVariable("petId") int petId, ModelMap model) {
 		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
 				.collect(Collectors.toList()).get(0).toString();
-		
+
 		Owner owner = this.ownerService.findOwnerById(ownerId);
 		Pet petToUpdate = this.petService.findPetById(petId);
-		
+
 		boolean edit = true;
-		Boolean isHisPetAcceptedAndAcctive = owner.getPets().contains(petToUpdate) && petToUpdate.isActive() && petToUpdate.getStatus().equals(accepted);
+		Boolean isHisPetAcceptedAndAcctive = owner.getPets().contains(petToUpdate) && petToUpdate.isActive()
+				&& petToUpdate.getStatus().equals(accepted);
 		if (securityAccessPetRequestAndProfile(ownerId, edit) && isHisPetAcceptedAndAcctive) {
-			
+
 			model.addAttribute("owner", owner);
 			model.addAttribute("edit", edit);
 
@@ -256,8 +258,7 @@ public class PetController {
 	public String showMyPetRequests(ModelMap model) {
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		Owner owner = this.ownerService.findOwnerByUsername(username);
-		List<Pet> myPetsRequests = this.petService.findMyPetsRequests(pending,
-				rejected, owner.getId());
+		List<Pet> myPetsRequests = this.petService.findMyPetsRequests(pending, rejected, owner.getId());
 		model.put("pets", myPetsRequests);
 		return "pets/myRequests";
 	}
@@ -266,9 +267,8 @@ public class PetController {
 	public String showMyPetsActive(ModelMap model) {
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		Owner owner = this.ownerService.findOwnerByUsername(username);
-		List<Pet> myPets = this.petService.findMyPetsAcceptedByActive(accepted, true,
-				owner.getId());
-		model.put("disabled", this.petService.countMyPetsAcceptedByActive(accepted, false, owner.getId())!= 0);
+		List<Pet> myPets = this.petService.findMyPetsAcceptedByActive(accepted, true, owner.getId());
+		model.put("disabled", this.petService.countMyPetsAcceptedByActive(accepted, false, owner.getId()) != 0);
 		model.put("owner", owner);
 		model.put("pets", myPets);
 		return "pets/myPetsActive";
@@ -279,8 +279,7 @@ public class PetController {
 		if (securityAccessPetRequestAndProfile(ownerId, true)) {
 
 			Owner owner = this.ownerService.findOwnerById(ownerId);
-			List<Pet> myPets = this.petService.findMyPetsAcceptedByActive(accepted, false,
-					ownerId);
+			List<Pet> myPets = this.petService.findMyPetsAcceptedByActive(accepted, false, ownerId);
 			model.put("owner", owner);
 			model.put("pets", myPets);
 			return "pets/myPetsDisabled";

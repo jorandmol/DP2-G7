@@ -31,11 +31,13 @@ import java.util.List;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.configuration.SecurityConfiguration;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
@@ -46,6 +48,7 @@ import org.springframework.samples.petclinic.service.AuthoritiesService;
 import org.springframework.samples.petclinic.service.BannerService;
 import org.springframework.samples.petclinic.service.OwnerService;
 import org.springframework.samples.petclinic.service.PetService;
+import org.springframework.samples.petclinic.service.exceptions.DuplicatedPetNameException;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -72,6 +75,8 @@ class PetControllerTests {
 
 	private static final int TEST_PET_ID_5 = 5;
 	
+	private static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = "pets/createOrUpdatePetForm";
+	
 	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
 	
 	private static final PetRegistrationStatus accepted = PetRegistrationStatus.ACCEPTED;
@@ -95,7 +100,7 @@ class PetControllerTests {
 	@Autowired
 	private MockMvc mockMvc;
 	
-	private Owner george;
+	private Owner owner1;
 	
 	private Pet rosy;
 	
@@ -104,23 +109,25 @@ class PetControllerTests {
 	private Pet nina;
 	
 	private Pet sara;
+	
+	private Pet petWithSameName; 
 
 	@BeforeEach
-	void setup() {
+	void setup() throws DataAccessException, DuplicatedPetNameException {
 		
 		//OWNER
-		george = new Owner();
-		george.setId(TEST_OWNER_ID1);
-		george.setFirstName("George");
-		george.setLastName("Franklin");
-		george.setAddress("110 W. Liberty St.");
-		george.setCity("Madison");
-		george.setTelephone("608555102");
+		owner1 = new Owner();
+		owner1.setId(TEST_OWNER_ID1);
+		owner1.setFirstName("George");
+		owner1.setLastName("Franklin");
+		owner1.setAddress("110 W. Liberty St.");
+		owner1.setCity("Madison");
+		owner1.setTelephone("608555102");
 		User user = new User();
 		user.setUsername("owner1");
 		user.setPassword("0wn3333r_1");
 		user.setEnabled(true);
-		george.setUser(user);
+		owner1.setUser(user);
 		this.authoritiesService.saveAuthorities("owner1", "owner");
 		
 		//OWNER Se emplea para los accesos no permitidos por seguridad
@@ -179,14 +186,15 @@ class PetControllerTests {
 		gufy.setActive(true);
 		gufy.setStatus(accepted);
 		
-		//PET REPETIDA
-		Pet petRepeName = new Pet();
-		petRepeName.setId(TEST_PET_ID_5);
-		petRepeName.setBirthDate(LocalDate.now().minusDays(20));
-		petRepeName.setName("Rosy");
-		petRepeName.setType(dog);
-		petRepeName.setStatus(pending);
-					
+		//PET With same name 
+		petWithSameName = new Pet();
+		petWithSameName.setId(TEST_PET_ID_5);
+		petWithSameName.setBirthDate(LocalDate.now().minusDays(20));
+		petWithSameName.setName("Rosy");
+		petWithSameName.setType(dog);
+		petWithSameName.setActive(true);
+		petWithSameName.setStatus(accepted);
+		
 		//LIST of PET
 		List<Pet> petStatusPending= new ArrayList<>();
 		petStatusPending.add(rosy);petStatusPending.add(sara);
@@ -200,26 +208,30 @@ class PetControllerTests {
 		List<Pet> petStatusAcceptedAndDisable = new ArrayList<>();
 		petStatusAcceptedAndDisable.add(sara);
 		
-		george.addPet(gufy);
-		george.addPet(rosy);
-		george.addPet(nina);
-		george.addPet(sara);
+		owner1.addPet(gufy);
+		owner1.addPet(rosy);
+		owner1.addPet(nina);
+		owner1.addPet(sara);
+		owner1.addPet(petWithSameName);
 		
 		given(this.petService.findPetTypes()).willReturn(Lists.newArrayList(hamster));
-		given(this.ownerService.findOwnerById(TEST_OWNER_ID1)).willReturn(george);
+		given(this.ownerService.findOwnerById(TEST_OWNER_ID1)).willReturn(owner1);
 		given(this.petService.findPetById(TEST_PET_ID_1)).willReturn(rosy);
 		given(this.petService.findPetById(TEST_PET_ID_2)).willReturn(nina);
 		given(this.petService.findPetById(TEST_PET_ID_3)).willReturn(sara);
 		given(this.petService.findPetById(TEST_PET_ID_4)).willReturn(gufy);
+		given(this.petService.findPetById(TEST_PET_ID_5)).willReturn(petWithSameName);
 		given(this.petService.findPetsRequests(pending)).willReturn(petStatusPending);
 		given(this.petService.findMyPetsRequests(pending, rejected, TEST_OWNER_ID1)).willReturn(petStatusPendingAndRejected);
 		given(this.petService.findMyPetsAcceptedByActive(accepted, true, TEST_OWNER_ID1)).willReturn(petStatusAcceptedAndActive);
 		given(this.petService.findMyPetsAcceptedByActive(accepted, false, TEST_OWNER_ID1)).willReturn(petStatusAcceptedAndDisable);
-		given(this.ownerService.findOwnerByUsername("owner1")).willReturn(george);
+		given(this.ownerService.findOwnerByUsername("owner1")).willReturn(owner1);
 		given(this.ownerService.findOwnerByUsername("owner2")).willReturn(owner2);
 		given(this.petService.countMyPetsAcceptedByActive(accepted, false, TEST_OWNER_ID1)).willReturn(1);
 		given(this.petService.countMyPetsAcceptedByActive(accepted, false, TEST_OWNER_ID2)).willReturn(0);
-//		doThrow(new DuplicatedPetNameException()).when(this.petService).savePet(petRepeName);
+		
+		Mockito.doThrow(new DuplicatedPetNameException())
+		.when(this.petService).savePet(petWithSameName);
 
 	}
 	
@@ -256,6 +268,16 @@ class PetControllerTests {
 	// TEST para usuario que SI cumple la seguridad
 	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
 	@Test
+	void testProcessCreationFormCatchException() throws Exception {
+		mockMvc.perform(post("/owners/{ownerId}/pets/new", TEST_OWNER_ID1)
+				.with(csrf())
+				.flashAttr("pet", petWithSameName))
+				.andExpect(status().isOk())
+				.andExpect(view().name(VIEWS_PETS_CREATE_OR_UPDATE_FORM));
+	}
+	
+	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
+	@Test
 	void testProcessCreationFormSuccess() throws Exception {
 		mockMvc.perform(post("/owners/{ownerId}/pets/new", TEST_OWNER_ID1)
 				.with(csrf())
@@ -265,6 +287,7 @@ class PetControllerTests {
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:/owner/requests"));
 	}
+
 
 	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
 	@Test
@@ -276,7 +299,7 @@ class PetControllerTests {
 				.andExpect(model().attributeHasErrors("pet"))
 				.andExpect(model().attributeHasFieldErrors("pet", "type"))
 				.andExpect(status().isOk())
-				.andExpect(view().name("pets/createOrUpdatePetForm"));
+				.andExpect(view().name(VIEWS_PETS_CREATE_OR_UPDATE_FORM));
 	}
 	
 	// TEST para usuarios que NO cumplen la seguridad
@@ -312,7 +335,7 @@ class PetControllerTests {
 		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/edit", TEST_OWNER_ID1, TEST_PET_ID_4))
 				.andExpect(status().isOk())
 				.andExpect(model().attributeExists("pet"))
-				.andExpect(view().name("pets/createOrUpdatePetForm"));
+				.andExpect(view().name(VIEWS_PETS_CREATE_OR_UPDATE_FORM));
 	}
 	
 	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
@@ -344,7 +367,7 @@ class PetControllerTests {
 		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/edit", TEST_OWNER_ID1, TEST_PET_ID_4))
 				.andExpect(status().isOk())
 				.andExpect(model().attributeExists("pet"))
-				.andExpect(view().name("pets/createOrUpdatePetForm"));
+				.andExpect(view().name(VIEWS_PETS_CREATE_OR_UPDATE_FORM));
 	}
 	
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
@@ -353,7 +376,7 @@ class PetControllerTests {
 		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/edit", TEST_OWNER_ID1, TEST_PET_ID_4))
 				.andExpect(status().isOk())
 				.andExpect(model().attributeExists("pet"))
-				.andExpect(view().name("pets/createOrUpdatePetForm"));
+				.andExpect(view().name(VIEWS_PETS_CREATE_OR_UPDATE_FORM));
 	}
 	
 	// TEST para usuario que NO cumple la seguridad
@@ -378,6 +401,15 @@ class PetControllerTests {
 				.andExpect(view().name("redirect:/owner/pets"));
 	}
 	
+	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
+	@Test
+	void testProcessUpdateMyPetFormCatchException() throws Exception {
+		mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/edit", TEST_OWNER_ID1, TEST_PET_ID_5).with(csrf())
+				.flashAttr("pet", petWithSameName))
+				.andExpect(status().isOk())
+				.andExpect(view().name(VIEWS_PETS_CREATE_OR_UPDATE_FORM));
+	}
+	
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
 	@Test
 	void testProcessUpdatePetFormSuccess() throws Exception {
@@ -398,7 +430,7 @@ class PetControllerTests {
 				.andExpect(model().attributeHasNoErrors("owner"))
 				.andExpect(model().attributeHasErrors("pet"))
 				.andExpect(status().isOk())
-				.andExpect(view().name("pets/createOrUpdatePetForm"));
+				.andExpect(view().name(VIEWS_PETS_CREATE_OR_UPDATE_FORM));
 	}
 	
 	// TEST para usuario que NO cumple la seguridad
@@ -468,6 +500,15 @@ class PetControllerTests {
 				.param("justification", ""))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:/requests"));
+	}
+	
+	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
+	@Test
+	void testAnswerPetRequestThrowsCatchException() throws Exception{
+		mockMvc.perform(post("/owners/{ownerId}/pet/{petId}", TEST_OWNER_ID1, TEST_PET_ID_5).with(csrf())
+				.flashAttr("pet", petWithSameName))
+				.andExpect(status().isOk())
+				.andExpect(view().name("pets/updatePetRequest"));
 	}
 	
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
