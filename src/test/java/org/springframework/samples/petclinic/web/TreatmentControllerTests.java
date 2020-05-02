@@ -26,6 +26,7 @@ import org.springframework.samples.petclinic.model.Medicine;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.Treatment;
+import org.springframework.samples.petclinic.model.TreatmentHistory;
 import org.springframework.samples.petclinic.model.User;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.service.AuthoritiesService;
