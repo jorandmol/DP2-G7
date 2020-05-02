@@ -30,15 +30,15 @@ public class AppointmentControllerE2ETests {
 	private static final String OWNER_ROLE = "owner";
 
 	private static final String VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM = "pets/createOrUpdateAppointmentForm";
-	private static final String VIEWS_OWNER_DETAILS = "owners/ownerDetails";
+	private static final String VIEWS_PETS_DETAILS = "pets/myPetsActive";
 	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
-	private static final String REDIRECT_TO_OWNER_DETAILS = "redirect:/owners/{ownerId}";
+	private static final String REDIRECT_TO_PETS_DETAILS = "redirect:/owner/pets";
 
-	private static final int TEST_APPOINTMENT_ID_1 = 1;
-	private static final int TEST_APPOINTMENT_ID_2 = 2;
-	private static final int TEST_APPOINTMENT_ID_3 = 3;
+	private static final int TEST_APPOINTMENT_ID_5 = 5;
 	private static final int TEST_APPOINTMENT_ID_6 = 6;
 	private static final int TEST_APPOINTMENT_ID_7 = 7;
+	private static final int TEST_APPOINTMENT_ID_10 = 10;
+	private static final int TEST_APPOINTMENT_ID_11 = 11;
 	private static final int TEST_OWNER_ID = 1;
 	private static final int TEST_PET_ID = 1;
 	private static final int TEST_WRONG_OWNER_ID = 2;
@@ -65,7 +65,7 @@ public class AppointmentControllerE2ETests {
 	@Test
 	@WithMockUser(username="owner1", password="0wn3333r_1", authorities=OWNER_ROLE)
 	void testInitAppointmentEditForm() throws Exception{
-		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/edit", TEST_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID_3))
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/edit", TEST_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID_7))
 			.andExpect(status().isOk())
 			.andExpect(model().attributeExists("appointment"))
 			.andExpect(model().attributeExists("edit"))
@@ -76,7 +76,7 @@ public class AppointmentControllerE2ETests {
 	@Test
 	@WithMockUser(username="owner1", password="0wn3333r_1", authorities=OWNER_ROLE)
 	void testNotInitAppointmentEditForm() throws Exception{
-		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/edit", TEST_WRONG_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID_1))
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/edit", TEST_WRONG_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID_5))
 			.andExpect(status().is3xxRedirection())
 			.andExpect(view().name(REDIRECT_TO_OUPS));
 	}
@@ -89,7 +89,7 @@ public class AppointmentControllerE2ETests {
 			.param("description", "Problema con la pata de mi perro")
 			.flashAttr("vet", 6))
 			.andExpect(status().is3xxRedirection())
-			.andExpect(view().name(REDIRECT_TO_OWNER_DETAILS));
+			.andExpect(view().name(REDIRECT_TO_PETS_DETAILS));
 	}
 
 	@Test
@@ -109,21 +109,21 @@ public class AppointmentControllerE2ETests {
 	@Test
 	@WithMockUser(username="owner1", password="0wn3333r_1", authorities=OWNER_ROLE)
 	void testProcessAppointmentEditForm() throws Exception{
-		mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/edit", TEST_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID_2).with(csrf())
+		mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/edit", TEST_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID_6).with(csrf())
 			.param("appointmentDate", "2020/06/30")
 			.param("description", "Vacunación de mi perro")
-			.param("id", "2")
+			.param("id", "6")
 			.param("vet", "1"))
-			.andExpect(view().name(REDIRECT_TO_OWNER_DETAILS));
+			.andExpect(view().name(REDIRECT_TO_PETS_DETAILS));
 	}
 
 	@Test
 	@WithMockUser(username="owner1", password="0wn3333r_1", authorities=OWNER_ROLE)
 	void testProcessAppointmentEditFormHasErrors() throws Exception{
-		mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/edit", TEST_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID_1).with(csrf())
+		mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/edit", TEST_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID_5).with(csrf())
 			.param("appointmentDate", "")
 			.param("description", "")
-			.flashAttr("vet", 6))
+			.flashAttr("vet", 5))
 			.andExpect(model().attributeHasErrors("appointment"))
 			.andExpect(model().attributeHasFieldErrors("appointment", "appointmentDate"))
 			.andExpect(model().attributeHasFieldErrors("appointment","description"))
@@ -134,26 +134,26 @@ public class AppointmentControllerE2ETests {
 	@Test
 	@WithMockUser(username="owner1", password="0wn3333r_1", authorities=OWNER_ROLE)
 	void testProcessDeleteAppointment() throws Exception {
-		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete", TEST_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID_3))
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete", TEST_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID_7))
 			.andExpect(status().is3xxRedirection())
-			.andExpect(view().name(REDIRECT_TO_OWNER_DETAILS));
+			.andExpect(view().name(REDIRECT_TO_PETS_DETAILS));
 	}
 
 	@Test
 	@WithMockUser(username="owner1", password="0wn3333r_1", authorities=OWNER_ROLE)
 	void testProcessDeleteAppointmentErrorsBefore() throws Exception {
-		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete", TEST_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID_6))
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete", TEST_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID_10))
 			.andExpect(model().attributeExists("errors"))
 			.andExpect(status().isOk())
-			.andExpect(view().name(VIEWS_OWNER_DETAILS));
+			.andExpect(view().name(VIEWS_PETS_DETAILS));
 	}
 
 	@Test
 	@WithMockUser(username="owner1", password="0wn3333r_1", authorities=OWNER_ROLE)
 	void testProcessDeleteAppointmentErrorsNow() throws Exception {
-		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete", TEST_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID_7))
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete", TEST_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID_11))
 			.andExpect(model().attributeExists("errors"))
 			.andExpect(status().isOk())
-			.andExpect(view().name(VIEWS_OWNER_DETAILS));
+			.andExpect(view().name(VIEWS_PETS_DETAILS));
 	}
 }
