@@ -69,7 +69,7 @@ public class AppointmentControllerE2ETests {
 			.andExpect(status().isOk())
 			.andExpect(model().attributeExists("appointment"))
 			.andExpect(model().attributeExists("edit"))
-			.andExpect(model().attribute("appointment", hasProperty("description",is("Tratamiento de fractura"))))
+			.andExpect(model().attribute("appointment", hasProperty("description",is("Fracture treatment"))))
 			.andExpect(view().name(VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM));
 	}
 
