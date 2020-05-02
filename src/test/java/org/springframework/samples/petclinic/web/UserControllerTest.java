@@ -2,7 +2,6 @@ package org.springframework.samples.petclinic.web;
 
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
@@ -79,17 +78,6 @@ public class UserControllerTest {
 		
 	}
 	
-	@WithMockUser(value = "spring")
-	@Test
-	void testInitCreationForm() throws Exception {
-		
-		mockMvc.perform(get("/users/new"))
-				.andExpect(status().isOk())
-				.andExpect(model().attributeExists("owner"))
-				.andExpect(view().name("users/createOwnerForm"));
-		
-	}
-	
 	//Usuario con acceso permitido a su perfil
 	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
 	@Test
@@ -108,7 +96,7 @@ public class UserControllerTest {
 				.andExpect(view().name("redirect:/vets/" + TEST_VET_ID));
 	}
 	
-	//Usuario con acceso NO permitido a su perfil
+	//Usuario con acceso NO permitido al perfil
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
 	@Test
 	void testFindUserProfileVetWithoutAccess() throws Exception {
