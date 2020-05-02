@@ -18,7 +18,6 @@ package org.springframework.samples.petclinic.web;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -127,7 +126,10 @@ public class PetController {
 	public String initUpdateForm(@PathVariable("ownerId") int ownerId, @PathVariable("petId") int petId,
 			ModelMap model) {
 		boolean edit = true;
-		if (securityAccessPetRequestAndProfile(ownerId, edit)) {
+		Owner owner = this.ownerService.findOwnerById(ownerId);
+		Pet petToUpdate = this.petService.findPetById(petId);
+		Boolean isHisPetAcceptedAndAcctive = owner.getPets().contains(petToUpdate) && petToUpdate.isActive() && petToUpdate.getStatus().equals(accepted);
+		if (securityAccessPetRequestAndProfile(ownerId, edit) && isHisPetAcceptedAndAcctive) {
 			Pet pet = this.petService.findPetById(petId);
 			model.put("pet", pet);
 			model.addAttribute("owner", pet.getOwner());
@@ -152,12 +154,16 @@ public class PetController {
 	@PostMapping(value = "/owners/{ownerId}/pets/{petId}/edit")
 	public String processUpdateForm(@PathVariable("ownerId") int ownerId, @Valid Pet pet, BindingResult result,
 			@PathVariable("petId") int petId, ModelMap model) {
-
+		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+				.collect(Collectors.toList()).get(0).toString();
+		
+		Owner owner = this.ownerService.findOwnerById(ownerId);
+		Pet petToUpdate = this.petService.findPetById(petId);
+		
 		boolean edit = true;
-		if (securityAccessPetRequestAndProfile(ownerId, edit)) {
-			String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-					.collect(Collectors.toList()).get(0).toString();
-			Owner owner = this.ownerService.findOwnerById(ownerId);
+		Boolean isHisPetAcceptedAndAcctive = owner.getPets().contains(petToUpdate) && petToUpdate.isActive() && petToUpdate.getStatus().equals(accepted);
+		if (securityAccessPetRequestAndProfile(ownerId, edit) && isHisPetAcceptedAndAcctive) {
+			
 			model.addAttribute("owner", owner);
 			model.addAttribute("edit", edit);
 
@@ -165,7 +171,6 @@ public class PetController {
 				model.put("pet", pet);
 				return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 			} else {
-				Pet petToUpdate = this.petService.findPetById(petId);
 				BeanUtils.copyProperties(pet, petToUpdate, "id", "owner", "visits", "status", "justification",
 						"active");
 				try {

@@ -148,16 +148,8 @@ class PetControllerTests {
 		rosy.setBirthDate(LocalDate.now().minusDays(20));
 		rosy.setName("Rosy");
 		rosy.setType(dog);
+		rosy.setActive(false);
 		rosy.setStatus(pending);
-		
-		//PET
-		sara= new Pet();
-		sara.setId(TEST_PET_ID_3);
-		sara.setBirthDate(LocalDate.now().minusDays(20));
-		sara.setName("Sara");
-		sara.setType(dog);
-		sara.setActive(false);
-		sara.setStatus(pending);
 		
 		//PET
 		nina= new Pet();
@@ -168,6 +160,15 @@ class PetControllerTests {
 		nina.setActive(true);
 		nina.setStatus(rejected);
 		nina.setJustification("It is impossible to accept it because the hamster quota has been exceeded");
+		
+		//PET
+		sara= new Pet();
+		sara.setId(TEST_PET_ID_3);
+		sara.setBirthDate(LocalDate.now().minusDays(20));
+		sara.setName("Sara");
+		sara.setType(dog);
+		sara.setActive(false);
+		sara.setStatus(accepted);
 		
 		//PET
 		gufy= new Pet();
@@ -209,7 +210,8 @@ class PetControllerTests {
 		given(this.petService.findPetById(TEST_PET_ID_1)).willReturn(rosy);
 		given(this.petService.findPetById(TEST_PET_ID_2)).willReturn(nina);
 		given(this.petService.findPetById(TEST_PET_ID_3)).willReturn(sara);
-		given(this.petService.findPetsRequests(PetRegistrationStatus.PENDING)).willReturn(petStatusPending);
+		given(this.petService.findPetById(TEST_PET_ID_4)).willReturn(gufy);
+		given(this.petService.findPetsRequests(pending)).willReturn(petStatusPending);
 		given(this.petService.findMyPetsRequests(pending, rejected, TEST_OWNER_ID1)).willReturn(petStatusPendingAndRejected);
 		given(this.petService.findMyPetsAcceptedByActive(accepted, true, TEST_OWNER_ID1)).willReturn(petStatusAcceptedAndActive);
 		given(this.petService.findMyPetsAcceptedByActive(accepted, false, TEST_OWNER_ID1)).willReturn(petStatusAcceptedAndDisable);
@@ -306,8 +308,40 @@ class PetControllerTests {
 	// TEST para usuarios que SI cumplen la seguridad
 	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
 	@Test
-	void testInitUpdateMyPetForm() throws Exception {
+	void testInitUpdateMyPetAcceptedAndActiveForm() throws Exception {
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/edit", TEST_OWNER_ID1, TEST_PET_ID_4))
+				.andExpect(status().isOk())
+				.andExpect(model().attributeExists("pet"))
+				.andExpect(view().name("pets/createOrUpdatePetForm"));
+	}
+	
+	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
+	@Test
+	void testInitUpdateMyPetNotActiveAndPendingForm() throws Exception {
 		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/edit", TEST_OWNER_ID1, TEST_PET_ID_1))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(view().name(REDIRECT_TO_OUPS));
+	}
+	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
+	@Test
+	void testInitUpdateMyPetActiveAndRejectedForm() throws Exception {
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/edit", TEST_OWNER_ID1, TEST_PET_ID_2))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(view().name(REDIRECT_TO_OUPS));
+	} 
+	
+	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
+	@Test
+	void testInitUpdateMyPetDisabledForm() throws Exception {
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/edit", TEST_OWNER_ID1, TEST_PET_ID_3))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(view().name(REDIRECT_TO_OUPS));
+	}
+	
+	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
+	@Test
+	void testInitUpdatePetAcceptedAndActiveForm() throws Exception {
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/edit", TEST_OWNER_ID1, TEST_PET_ID_4))
 				.andExpect(status().isOk())
 				.andExpect(model().attributeExists("pet"))
 				.andExpect(view().name("pets/createOrUpdatePetForm"));
@@ -316,7 +350,7 @@ class PetControllerTests {
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
 	@Test
 	void testInitUpdatePetForm() throws Exception {
-		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/edit", TEST_OWNER_ID1, TEST_PET_ID_1))
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/edit", TEST_OWNER_ID1, TEST_PET_ID_4))
 				.andExpect(status().isOk())
 				.andExpect(model().attributeExists("pet"))
 				.andExpect(view().name("pets/createOrUpdatePetForm"));
@@ -325,7 +359,7 @@ class PetControllerTests {
 	// TEST para usuario que NO cumple la seguridad
 	@WithMockUser(username = "owner2", password = "0wn3333r_2", authorities = "owner")
 	@Test
-	void testInitUpdateOtherPetFormWithoutAccess() throws Exception {
+	void testInitUpdateOtherPetNotActiveAndPendingFormWithoutAccess() throws Exception {
 		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/edit", TEST_OWNER_ID1, TEST_PET_ID_1))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name(REDIRECT_TO_OUPS));
@@ -336,7 +370,7 @@ class PetControllerTests {
 	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
 	@Test
 	void testProcessUpdateMyPetFormSuccess() throws Exception {
-		mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/edit", TEST_OWNER_ID1, TEST_PET_ID_1).with(csrf())
+		mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/edit", TEST_OWNER_ID1, TEST_PET_ID_4).with(csrf())
 				.param("name", "Betty")
 				.param("type", "hamster")
 				.param("birthDate", "2015/02/12"))
@@ -347,7 +381,7 @@ class PetControllerTests {
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
 	@Test
 	void testProcessUpdatePetFormSuccess() throws Exception {
-		mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/edit", TEST_OWNER_ID1, TEST_PET_ID_1).with(csrf())
+		mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/edit", TEST_OWNER_ID1, TEST_PET_ID_4).with(csrf())
 				.param("name", "Betty")
 				.param("type", "hamster")
 				.param("birthDate", "2015/02/12"))
@@ -358,7 +392,7 @@ class PetControllerTests {
 	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
 	@Test
 	void testProcessUpdateFormHasErrors() throws Exception {
-		mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/edit", TEST_OWNER_ID1, TEST_PET_ID_1).with(csrf())
+		mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/edit", TEST_OWNER_ID1, TEST_PET_ID_4).with(csrf())
 				.param("name", "Betty")
 				.param("birthDate", "2015/02/12"))
 				.andExpect(model().attributeHasNoErrors("owner"))

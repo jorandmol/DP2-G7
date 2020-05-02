@@ -14,11 +14,13 @@ import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.samples.petclinic.configuration.SecurityConfiguration;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.PetRegistrationStatus;
@@ -46,6 +48,8 @@ class OwnerControllerTests {
 	
 	private static final int TEST_OWNER_ID2 = 2;
 	
+	private static final int TEST_OWNER_ID3 = 3;
+	
 	private static final String VIEWS_OWNER_CREATE_OR_UPDATE_FORM = "owners/createOrUpdateOwnerForm";
 	
 	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
@@ -69,27 +73,30 @@ class OwnerControllerTests {
 	private MockMvc mockMvc;
 
 	@Mock
-	private Owner george;
+	private Owner owner1;
+	
+	@Mock
+	private Owner owner3;
 
 	@BeforeEach
 	void setup() {
 
-		george = new Owner();
-		george.setId(TEST_OWNER_ID1);
-		george.setFirstName("George");
-		george.setLastName("Franklin");
-		george.setAddress("110 W. Liberty St.");
-		george.setCity("Madison");
-		george.setTelephone("608555102");
-		User user = new User();
-		user.setUsername("owner1");
-		user.setPassword("0wn3333r_1");
-		user.setEnabled(true);
-		george.setUser(user);
+		//owner1
+		owner1 = new Owner();
+		owner1.setId(TEST_OWNER_ID1);
+		owner1.setFirstName("George");
+		owner1.setLastName("Franklin");
+		owner1.setAddress("110 W. Liberty St.");
+		owner1.setCity("Madison");
+		owner1.setTelephone("608555102");
+		User user1 = new User();
+		user1.setUsername("owner1");
+		user1.setPassword("0wn3333r_1");
+		user1.setEnabled(true);
+		owner1.setUser(user1);
 		this.authoritiesService.saveAuthorities("owner1", "owner");
-		given(this.ownerService.findOwnerById(TEST_OWNER_ID1)).willReturn(george);
 
-		// Se emplea para los accesos no permitidos por seguridad
+		//owner2 Se emplea para los accesos no permitidos por seguridad
 		User user2 = new User();
 		user2.setUsername("owner2");
 		user2.setPassword("0wn3333r_2");
@@ -101,9 +108,29 @@ class OwnerControllerTests {
 		owner2.setLastName("Martin");
 		this.authoritiesService.saveAuthorities("owner2", "owner");
 		
+		//owner3 
+		owner3 = new Owner();
+		owner3.setId(TEST_OWNER_ID3);
+		owner3.setFirstName("George");
+		owner3.setLastName("Franklin");
+		owner3.setAddress("110 W. Liberty St.");
+		owner3.setCity("Madison");
+		owner3.setTelephone("608555102");
+		User user3 = new User();
+		user3.setUsername("owner1");
+		user3.setPassword("0wn3333r_3");
+		user3.setEnabled(true);
+		owner3.setUser(user3);
+		
+		
 		given(this.petService.countMyPetsAcceptedByActive(PetRegistrationStatus.ACCEPTED, false, TEST_OWNER_ID1)).willReturn(1);
 		given(this.petService.countMyPetsAcceptedByActive(PetRegistrationStatus.ACCEPTED, false, TEST_OWNER_ID2)).willReturn(0);
+		given(this.ownerService.findOwnerById(TEST_OWNER_ID1)).willReturn(owner1);
 		given(this.ownerService.findOwnerById(TEST_OWNER_ID2)).willReturn(owner2);
+		
+		Mockito.doThrow(DataIntegrityViolationException.class)
+	       .when(this.ownerService)
+	       .saveOwner(owner3);
 
 	}
 
@@ -140,6 +167,15 @@ class OwnerControllerTests {
 				.param("telephone", "013167616")
 				.param("user.username", "owner23").param("user.password", "0wn333r_23"))
 				.andExpect(status().is3xxRedirection());
+	}
+	
+	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
+	@Test
+	void testProcessCreationFormCatchException() throws Exception {
+		mockMvc.perform(post("/owners/new").with(csrf())
+				.flashAttr("owner", owner3))
+				.andExpect(status().isOk())
+				.andExpect(view().name(VIEWS_OWNER_CREATE_OR_UPDATE_FORM));
 	}
 	
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
@@ -223,7 +259,7 @@ class OwnerControllerTests {
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
 	@Test
 	void testProcessFindFormSuccess() throws Exception {
-		given(this.ownerService.findOwnerByLastName("")).willReturn(Lists.newArrayList(george, new Owner()));
+		given(this.ownerService.findOwnerByLastName("")).willReturn(Lists.newArrayList(owner1, new Owner()));
 
 		mockMvc.perform(get("/owners")).andExpect(status().isOk()).andExpect(view().name("owners/ownersList"));
 	}
@@ -231,7 +267,7 @@ class OwnerControllerTests {
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
 	@Test
 	void testProcessFindFormByLastName() throws Exception {
-		given(this.ownerService.findOwnerByLastName(george.getLastName())).willReturn(Lists.newArrayList(george));
+		given(this.ownerService.findOwnerByLastName(owner1.getLastName())).willReturn(Lists.newArrayList(owner1));
 
 		mockMvc.perform(get("/owners").param("lastName", "Franklin")).andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:/owners/" + TEST_OWNER_ID1));
@@ -252,7 +288,7 @@ class OwnerControllerTests {
 	@WithMockUser(username = "owner2", password = "0wn3333r_2", authorities = "owner")
 	@Test
 	void testProcessFindFormSuccessWithoutAccess() throws Exception {
-		given(this.ownerService.findOwnerByLastName("")).willReturn(Lists.newArrayList(george, new Owner()));
+		given(this.ownerService.findOwnerByLastName("")).willReturn(Lists.newArrayList(owner1, new Owner()));
 		mockMvc.perform(get("/owners"))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name(REDIRECT_TO_OUPS));
