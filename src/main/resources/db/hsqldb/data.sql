@@ -118,8 +118,8 @@ INSERT INTO banners(id, picture, slogan, target_url, organization_name, init_col
 INSERT INTO banners(id, picture, slogan, target_url, organization_name, init_colab_date, end_colab_date) VALUES (4, 'https://www.elhogar-animalsanctuary.org/wp-content/uploads/2016/10/fondo-web-2.jpg', '¡El amor nos cambia la vida a todos!', 'https://www.elhogar-animalsanctuary.org/el-santuario-2/', 'Fundación El Hogar', '2018-03-01', '2019-03-01');
 
 INSERT INTO stays(id,pet_id,register_date,release_date,status) VALUES (1,1, '2020-10-01', '2020-10-05',0);
-INSERT INTO stays(id,pet_id,register_date,release_date,status) VALUES (2,2, '2020-10-01', '2020-10-05',2);
-INSERT INTO stays(id,pet_id,register_date,release_date,status) VALUES (3,2, '2020-11-01', '2020-11-05',2);
+INSERT INTO stays(id,pet_id,register_date,release_date,status) VALUES (2,3, '2020-10-01', '2020-10-05',2);
+INSERT INTO stays(id,pet_id,register_date,release_date,status) VALUES (3,3, '2020-11-01', '2020-11-05',2);
 
 INSERT INTO treatments(id,name,description,time_limit,pet_id) VALUES (1,'Treatment 1', 'Description 1','2020-10-01',1);
 

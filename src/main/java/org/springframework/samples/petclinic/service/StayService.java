@@ -28,15 +28,17 @@ public class StayService {
 	
 	@Transactional
 	public void saveStay(Stay stay) throws MaximumStaysReached {
-		Boolean dayExists = this.stayRepository.numOfStaysThatDates(stay.getRegisterDate(), stay.getReleaseDate(),
-				stay.getPet().getId(), 0) > 0;
-		if (dayExists) {
+		if (this.dayExists(stay, -1)) {
 			throw new MaximumStaysReached();
 		} else {
 			stay.setStatus(Status.PENDING);
 			stayRepository.save(stay);
 		}
 
+	}
+	
+	public boolean dayExists(Stay stay, int stayId) {
+		return this.stayRepository.numOfStaysThatDates(stay.getRegisterDate(), stay.getReleaseDate(), stay.getPet().getId(), stayId) > 0;
 	}
 
 	@Transactional(readOnly = true)
@@ -63,23 +65,22 @@ public class StayService {
 	public void editStay(final Stay stay) throws MaximumStaysReached, DateNotAllowed, StayAlreadyConfirmed {
 
 		Stay stayToUpdate = this.stayRepository.findById(stay.getId()).get();
-		LocalDate newDate = stay.getRegisterDate();
-		LocalDate newDate2 = stay.getReleaseDate();
+//		LocalDate newDate = stay.getRegisterDate();
+//		LocalDate newDate2 = stay.getReleaseDate();
 		if ((stayToUpdate.getRegisterDate().equals(stay.getRegisterDate())
 				&& stayToUpdate.getReleaseDate().equals(stay.getReleaseDate()))) {
 			throw new DateNotAllowed();
-		} else if (this.stayRepository.numOfStaysThatDates(stay.getRegisterDate(), stay.getReleaseDate(),
-				stay.getPet().getId(), stay.getId()) > 0) {
+		} else if (this.dayExists(stay, stay.getId())) {
 			throw new MaximumStaysReached();
 		} else if (!stayToUpdate.getStatus().equals(Status.PENDING)) {
 			throw new StayAlreadyConfirmed();
 		}
 
 		else {
-			stayToUpdate.setRegisterDate(stay.getRegisterDate());
-			stayToUpdate.setReleaseDate(stay.getReleaseDate());
-			stay.setRegisterDate(newDate);
-			stay.setReleaseDate(newDate2);
+//			stayToUpdate.setRegisterDate(stay.getRegisterDate());
+//			stayToUpdate.setReleaseDate(stay.getReleaseDate());
+//			stay.setRegisterDate(newDate);
+//			stay.setReleaseDate(newDate2);
 			this.stayRepository.save(stay);
 		}
 	}

@@ -35,8 +35,8 @@ public class PetTypeService {
 		return res == 0;
 	}
 
-	public Optional<PetType> findById(Integer petTypeId) {
+	public PetType findById(Integer petTypeId) {
 		
-		return this.petTypeRepository.findById(petTypeId);
+		return this.petTypeRepository.findById(petTypeId).get();
 	}
 }

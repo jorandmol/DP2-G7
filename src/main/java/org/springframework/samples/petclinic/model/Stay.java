@@ -27,7 +27,6 @@ public class Stay extends BaseEntity {
 	private LocalDate releaseDate;
 	
 	@Column(name= "status")
-	@NotNull
 	private Status status;
 
 	@ManyToOne

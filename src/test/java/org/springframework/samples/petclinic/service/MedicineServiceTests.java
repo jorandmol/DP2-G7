@@ -225,9 +225,11 @@ class MedicineServiceTests {
 	@Test
 	void shouldEditMedicine() {
 		Medicine med = this.medicineService.findMedicineById(1);
+		Medicine m = new Medicine();
+		BeanUtils.copyProperties(med, m);
 		try {
-			med.setDescription("New description");
-			this.medicineService.editMedicine(med);
+			m.setDescription("New description");
+			this.medicineService.editMedicine(m);
 		} catch (WrongMedicineCodeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -246,6 +248,5 @@ class MedicineServiceTests {
 			this.medicineService.editMedicine(m);
 		});
 	}
-
 
 }
