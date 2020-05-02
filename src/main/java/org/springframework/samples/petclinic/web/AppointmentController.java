@@ -166,7 +166,7 @@ public class AppointmentController {
 		if (authority.equals("owner")) {
 			Owner owner = this.ownerService.findOwnerById(ownerId);
 			Pet pet = this.petService.findPetById(petId);
-			isHisPetAcceptedAndActive = owner.getPets().contains(pet) && pet.isActive() && pet.getStatus().equals(accepted);
+			isHisPetAcceptedAndActive = pet.getOwner().getId().equals(owner.getId()) && pet.isActive() && pet.getStatus().equals(accepted);
 			ownerUsername = owner.getUser().getUsername();
 		}
 
