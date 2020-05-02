@@ -28,8 +28,8 @@ public class PetTypeServiceTests {
 
 	@Test
 	void shouldFindPetTypeWithCorrectId() {
-			Optional<PetType> petType1 = this.petTypeService.findById(1);
-			assertThat(petType1.get().getName()).isEqualTo("cat");
+			PetType petType1 = this.petTypeService.findById(1);
+			assertThat(petType1.getName()).isEqualTo("cat");
 
 
 		}
@@ -69,8 +69,8 @@ public class PetTypeServiceTests {
 	@Test
 	@Transactional
 	public void PetTypeAlreadyExists() {
-		Optional<PetType> petType1 = this.petTypeService.findById(1);
-		assertThat(petType1.get().getName()).isEqualTo("cat");
+		PetType petType1 = this.petTypeService.findById(1);
+		assertThat(petType1.getName()).isEqualTo("cat");
 
 		Boolean exists = this.petTypeService.typeNameDontExists("cat");
 

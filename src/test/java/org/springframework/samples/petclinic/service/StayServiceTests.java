@@ -167,7 +167,7 @@ class StayServiceTests {
 	@Test
 	void shouldDeleteStayWithCorrectId() {
 		Stay stay = this.stayService.findStayById(2);
-		Pet pet = this.petService.findPetById(3);
+		Pet pet = this.petService.findPetById(7);
 		int numStays = pet.getStays().size();
 		try {
 			this.stayService.deleteStay(stay);

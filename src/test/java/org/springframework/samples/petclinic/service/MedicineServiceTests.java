@@ -101,7 +101,7 @@ class MedicineServiceTests {
 		med.setCode("MED-123");
             try {
 				this.medicineService.saveMedicine(med);
-			} catch (DuplicatedMedicineCodeException | PastMedicineDateException | WrongMedicineCodeException ex) {
+			} catch (DuplicatedMedicineCodeException ex) {
 				 Logger.getLogger(MedicineServiceTests.class.getName()).log(Level.SEVERE, null, ex);
 			}
         Collection<Medicine> medicines2 = (Collection<Medicine>) this.medicineService.findAll();
@@ -166,20 +166,6 @@ class MedicineServiceTests {
 		});
 	}
 
-	@ParameterizedTest
-	@CsvSource({"2019,12,18","2009,2,8","2019,1,28","2020,2,25"})
-	public void shouldNotInsertMedicinePastDate(int year, int month, int day) {
-		Medicine med = new Medicine();
-		med.setName("Virbaninte");
-		med.setExpirationDate(LocalDate.of(year, month, day));
-		med.setDescription("Desparasitante");
-		med.setCode("BAY-123");
-
-		assertThrows(PastMedicineDateException.class, () -> {
-			this.medicineService.saveMedicine(med);
-		});
-	}
-
 	@Test
 	public void shouldNotInsertMedicineUsedCode() {
 		String usedCode = this.medicineService.findMedicineById(1).getCode();
@@ -190,20 +176,6 @@ class MedicineServiceTests {
 		med.setCode(usedCode);
 
 		assertThrows(DuplicatedMedicineCodeException.class, () -> {
-			this.medicineService.saveMedicine(med);
-		});
-	}
-
-	@ParameterizedTest
-	@CsvSource({"bay-123","123456","123-123","abcd"})
-	public void shouldNotInsertMedicineWrongCode(String code) {
-		Medicine med = new Medicine();
-		med.setName("Virbaninte");
-		med.setExpirationDate(LocalDate.now().plusYears(2));
-		med.setDescription("Desparasitante");
-		med.setCode(code);
-
-		assertThrows(WrongMedicineCodeException.class, () -> {
 			this.medicineService.saveMedicine(med);
 		});
 	}
@@ -230,9 +202,10 @@ class MedicineServiceTests {
 		try {
 			m.setDescription("New description");
 			this.medicineService.editMedicine(m);
-		} catch (WrongMedicineCodeException e) {
+		} catch (DuplicatedMedicineCodeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		
 		}
 		assertThat(this.medicineService.findMedicineById(1).getDescription()).isEqualTo("New description");
 	}
@@ -244,7 +217,7 @@ class MedicineServiceTests {
 		BeanUtils.copyProperties(med, m);
 		String repeatedCode = this.medicineService.findMedicineById(2).getCode();
 		m.setCode(repeatedCode);
-		assertThrows(WrongMedicineCodeException.class,	() -> {
+		assertThrows(DuplicatedMedicineCodeException.class,	() -> {
 			this.medicineService.editMedicine(m);
 		});
 	}

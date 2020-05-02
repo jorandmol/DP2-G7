@@ -58,7 +58,7 @@ public class StayController {
 	private final StayService stayService;
 
 	private final OwnerService ownerService;
-	
+
 	private final PetService petService;
 
 	@Autowired
@@ -136,16 +136,8 @@ public class StayController {
 
 	@GetMapping(value = "/admin/stays")
 	public String initStayListForAdm(ModelMap model) {
-
-		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-				.collect(Collectors.toList()).get(0).toString();
-
-		if (authority.equals("admin")) {
-			model.put("stays", this.stayService.findAllStays());
-			return "pets/staysListAdmin";
-		} else {
-			return "redirect:/oups";
-		}
+		model.put("stays", this.stayService.findAllStays());
+		return "pets/staysListAdmin";
 	}
 
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/stays/new")
@@ -269,7 +261,7 @@ public class StayController {
 	@PostMapping(value = "/admin/stays/{stayId}")
 	public String processStayEditFormAdmin(@Valid final Stay stay, final BindingResult result,
 			@PathVariable("stayId") final int stayId, final ModelMap modelMap) {
-		
+
 		Stay stayToUpdate = this.stayService.findStayById(stayId);
 		BeanUtils.copyProperties(stayToUpdate, stay, "status");
 		List<Status> ls = new ArrayList<Status>();
