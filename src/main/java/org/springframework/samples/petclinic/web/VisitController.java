@@ -77,7 +77,7 @@ public class VisitController {
 	}
 
 	@ModelAttribute("tests")
-	public Collection<MedicalTest> populateSpecialties() {
+	public Collection<MedicalTest> populateMedicalTests() {
 		return this.medicalTestService.findMedicalTests();
 	}
 
