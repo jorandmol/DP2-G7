@@ -19,7 +19,7 @@
     
     <div class="row">
 		<div class="col-md-10">
-		    <h2>Current Treatments</h2>		
+		    <div id="crtT"><h2>Current Treatments</h2></div>
 		</div>
 	</div>
     <table id="treatmentsTable" class="table table-striped">
@@ -67,7 +67,7 @@
     <br/>
     <div class="row">
     	<div class="col-md-10">
-    		<h2>Expired Treatments</h2>
+    		<div id="expT"><h2>Expired Treatments</h2></div>
    		</div>
    	</div>
     <table id="treatmentsTable" class="table table-striped">

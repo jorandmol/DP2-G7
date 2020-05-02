@@ -3,7 +3,6 @@ package org.springframework.samples.petclinic.web;
 
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -47,6 +46,9 @@ public class AppointmentController {
 
 	@Autowired
 	private VetService			vetService;
+	
+	@Autowired
+	private PetController petController;
 
 
 	@ModelAttribute("appointment")
@@ -75,10 +77,15 @@ public class AppointmentController {
 
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/edit")
 	public String initAppointmentEditForm(@PathVariable("appointmentId") final int appointmentId, @PathVariable("petId") final int petId, @PathVariable("ownerId") final int ownerId, final ModelMap modelMap) {		
-		if (securityAccessRequestAppointment(ownerId, petId)) {
-			Appointment appointment = this.appointmentService.getAppointmentById(appointmentId);
+		Appointment appointment = this.appointmentService.getAppointmentById(appointmentId);
+		boolean isYourAppointment = appointment.getOwner().getId().equals(ownerId);
+		if (securityAccessRequestAppointment(ownerId, petId) && isYourAppointment) {
 			modelMap.put("appointment", appointment);
 			modelMap.put("edit", true);
+			if(appointment.getAppointmentDate().minusDays(2).isEqual(LocalDate.now()) || appointment.getAppointmentDate().minusDays(2).isBefore(LocalDate.now())) {
+				modelMap.addAttribute("errors", "You cannot edit an appointment two or less days in advance");
+				return petController.showMyPetsActive(modelMap);
+			}
 			return VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;			
 		} else {
 			return REDIRECT_TO_OUPS;
@@ -95,7 +102,7 @@ public class AppointmentController {
 				try {
 					this.appointmentService.saveAppointment(appointment, vetId);
 				} catch (VeterinarianNotAvailableException e) {
-					modelMap.put("vetError", "Imposible realizar una cita con esos datos");
+					modelMap.put("vetError", "Impossible to register an appointment with this fields");
 					return VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
 				}
 				return REDIRECT_TO_PETS_DETAILS;
@@ -107,8 +114,9 @@ public class AppointmentController {
 
 	@PostMapping(value = "/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/edit")
 	public String processAppointmentEditForm(@Valid final Appointment appointment, final BindingResult result, @PathVariable("petId") final int petId, @PathVariable("ownerId") final int ownerId,
-			@PathVariable("appointmentId") final int appointmentId, final ModelMap modelMap) {	
-		if (securityAccessRequestAppointment(ownerId, petId)) {
+			@PathVariable("appointmentId") final int appointmentId, final ModelMap modelMap) {
+		boolean isYourAppointment = appointment.getOwner().getId().equals(ownerId);
+		if (securityAccessRequestAppointment(ownerId, petId) && isYourAppointment) {
 			modelMap.put("edit", true);
 			if (result.hasErrors()) {
 				return VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
@@ -116,7 +124,7 @@ public class AppointmentController {
 				try {
 					this.appointmentService.editAppointment(appointment);
 				} catch (VeterinarianNotAvailableException e) {
-					modelMap.put("vetError", "Imposible realizar una cita con esos datos");
+					modelMap.put("vetError", "Impossible to register an appointment with this fields");
 					return VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
 				}
 			}
@@ -133,15 +141,10 @@ public class AppointmentController {
 		
 		if (this.securityAccessRequestAppointment(ownerId, petId) && isYourAppointment) {
 			Pet pet = this.petService.findPetById(petId);
-			Owner owner = this.ownerService.findOwnerById(ownerId);
 			
 			if (appointment.getAppointmentDate().minusDays(2).isEqual(LocalDate.now()) || appointment.getAppointmentDate().minusDays(2).isBefore(LocalDate.now())) {
-				model.addAttribute("errors", "No se puede cancelar una cita con dos o menos días de antelación");
-				model.addAttribute("owner", owner);
-				List<Pet> myPets = this.petService.findMyPetsAcceptedByActive(accepted, true, owner.getId());
-				model.put("disabled", this.petService.countMyPetsAcceptedByActive(accepted, false, owner.getId())!= 0);
-				model.put("pets", myPets);
-				return "pets/myPetsActive";
+				model.addAttribute("errors", "You cannot cancel an appointment two or less days in advance");
+				return petController.showMyPetsActive(model);
 			} else {
 				pet.deleteAppointment(appointment);
 				this.appointmentService.deleteAppointment(appointment);
@@ -163,7 +166,7 @@ public class AppointmentController {
 		if (authority.equals("owner")) {
 			Owner owner = this.ownerService.findOwnerById(ownerId);
 			Pet pet = this.petService.findPetById(petId);
-			isHisPetAcceptedAndActive = owner.getPets().contains(pet) && pet.isActive() && pet.getStatus().equals(accepted);
+			isHisPetAcceptedAndActive = pet.getOwner().getId().equals(owner.getId()) && pet.isActive() && pet.getStatus().equals(accepted);
 			ownerUsername = owner.getUser().getUsername();
 		}
 
