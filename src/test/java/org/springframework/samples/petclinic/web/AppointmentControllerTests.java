@@ -26,6 +26,7 @@ import org.springframework.samples.petclinic.configuration.SecurityConfiguration
 import org.springframework.samples.petclinic.model.Appointment;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
+import org.springframework.samples.petclinic.model.PetRegistrationStatus;
 import org.springframework.samples.petclinic.model.User;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.service.AppointmentService;
@@ -44,7 +45,7 @@ public class AppointmentControllerTests {
 	private static final String OWNER_ROLE = "owner";
 
 	private static final String VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM = "pets/createOrUpdateAppointmentForm";
-	private static final String VIEWS_OWNER_DETAILS = "owners/ownerDetails";
+	private static final String VIEW_TO_PETS_ACCEPTED_AND_ACTIVE = "pets/myPetsActive";
 	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
 	private static final String REDIRECT_TO_PETS_DETAILS = "redirect:/owner/pets";
 
@@ -136,27 +137,37 @@ public class AppointmentControllerTests {
 		appointment4.setAppointmentRequestDate(localDateToday.minusDays(10));
 		appointment4.setDescription("Falta de apetito");
 
-		User user = new User();
-		user.setEnabled(true);
-		user.setUsername("owner1");
+		User user1 = new User();
+		user1.setEnabled(true);
+		user1.setUsername("owner1");
+		
+		User user2 = new User();
+		user2.setEnabled(true);
+		user2.setUsername("owner2");
 
 		Pet pet = new Pet();
 		pet.setId(TEST_PET_ID);
+		pet.setActive(true);
+		pet.setStatus(PetRegistrationStatus.ACCEPTED);
 		appointment1.setPet(pet);
 		appointment2.setPet(pet);
 		appointment3.setPet(pet);
 		appointment4.setPet(pet);
 
-		Owner owner = new Owner();
-		owner.setId(TEST_OWNER_ID);
-		owner.setUser(user);
+		Owner owner1 = new Owner();
+		owner1.setId(TEST_OWNER_ID);
+		owner1.setUser(user1);
 		this.authoritiesService.saveAuthorities("owner1", OWNER_ROLE);
-		owner.addPet(pet);
-		appointment1.setOwner(owner);
-		appointment2.setOwner(owner);
-		appointment3.setOwner(owner);
-		appointment4.setOwner(owner);
-
+		owner1.addPet(pet);
+		appointment1.setOwner(owner1);
+		appointment2.setOwner(owner1);
+		appointment3.setOwner(owner1);
+		appointment4.setOwner(owner1);
+		
+		Owner owner2 = new Owner();
+		owner2.setId(TEST_WRONG_OWNER_ID);
+		owner2.setUser(user2);
+		
 		vet = new Vet();
 		vet.setId(1);
 		vet.setFirstName("Rafael");
@@ -172,7 +183,8 @@ public class AppointmentControllerTests {
 
 		given(this.appointmentService.getAppointmentById(TEST_APPOINTMENT_ID_1)).willReturn(appointment1);
 		given(this.petService.findPetById(TEST_PET_ID)).willReturn(pet);
-		given(this.ownerService.findOwnerById(TEST_OWNER_ID)).willReturn(owner);
+		given(this.ownerService.findOwnerById(TEST_OWNER_ID)).willReturn(owner1);
+		given(this.ownerService.findOwnerById(TEST_WRONG_OWNER_ID)).willReturn(owner2);
 		given(this.appointmentService.getAppointmentById(TEST_APPOINTMENT_ID_2)).willReturn(appointment2);
 		given(this.appointmentService.getAppointmentById(TEST_APPOINTMENT_ID_3)).willReturn(appointment3);
 		given(this.appointmentService.getAppointmentById(TEST_APPOINTMENT_ID_4)).willReturn(appointment4);
@@ -277,7 +289,7 @@ public class AppointmentControllerTests {
 		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete", TEST_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID_2))
 			.andExpect(model().attributeExists("errors"))
 			.andExpect(status().isOk())
-			.andExpect(view().name(VIEWS_OWNER_DETAILS));
+			.andExpect(view().name(VIEW_TO_PETS_ACCEPTED_AND_ACTIVE));
 	}
 
 	@Test
@@ -286,6 +298,6 @@ public class AppointmentControllerTests {
 		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete", TEST_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID_3))
 			.andExpect(model().attributeExists("errors"))
 			.andExpect(status().isOk())
-			.andExpect(view().name(VIEWS_OWNER_DETAILS));
+			.andExpect(view().name(VIEW_TO_PETS_ACCEPTED_AND_ACTIVE));
 	}
 }
