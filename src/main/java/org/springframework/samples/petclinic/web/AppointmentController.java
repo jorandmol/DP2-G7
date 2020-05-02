@@ -3,6 +3,7 @@ package org.springframework.samples.petclinic.web;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Appointment;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
+import org.springframework.samples.petclinic.model.PetRegistrationStatus;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.service.AppointmentService;
 import org.springframework.samples.petclinic.service.OwnerService;
@@ -135,7 +137,10 @@ public class AppointmentController {
 			if (appointment.getAppointmentDate().minusDays(2).isEqual(LocalDate.now()) || appointment.getAppointmentDate().minusDays(2).isBefore(LocalDate.now())) {
 				model.addAttribute("errors", "No se puede cancelar una cita con dos o menos días de antelación");
 				model.addAttribute("owner", owner);
-				return "owners/ownerDetails";
+				List<Pet> myPets = this.petService.findMyPetsAcceptedByActive(PetRegistrationStatus.ACCEPTED, true, owner.getId());
+				model.put("disabled", this.petService.countMyPetsAcceptedByActive(PetRegistrationStatus.ACCEPTED, false, owner.getId())!= 0);
+				model.put("pets", myPets);
+				return "pets/myPetsActive";
 			} else {
 				pet.deleteAppointment(appointment);
 				this.appointmentService.deleteAppointment(appointment);

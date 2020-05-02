@@ -144,22 +144,21 @@
 									</div>
 								</div>
 							</li>
+							<sec:authorize access="!hasAuthority('admin')">
 							<li class="divider"></li>
 							<li>
 								<div class="navbar-login navbar-login-session">
 									<div class="row">
 										<div class="col-lg-12">
 											<p>
-												<sec:authorize access="!hasAuthority('admin')">
-													<spring:url value="/users/profile" var="profileUrl"></spring:url>
-													<a href="${fn:escapeXml(profileUrl)}"
-														class="btn btn-primary btn-block">My Profile</a>
-												</sec:authorize>
+												<spring:url value="/users/profile" var="profileUrl"></spring:url>
+												<a href="${fn:escapeXml(profileUrl)}" class="btn btn-primary btn-block">My Profile</a>
 											</p>
 										</div>
 									</div>
 								</div>
 							</li>
+							</sec:authorize>
 						</ul></li>
 				</sec:authorize>
 			</ul>
