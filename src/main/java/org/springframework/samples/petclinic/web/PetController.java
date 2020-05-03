@@ -128,7 +128,7 @@ public class PetController {
 		boolean edit = true;
 		Owner owner = this.ownerService.findOwnerById(ownerId);
 		Pet petToUpdate = this.petService.findPetById(petId);
-		Boolean isHisPetAcceptedAndAcctive = owner.getPets().contains(petToUpdate) && petToUpdate.isActive()
+		Boolean isHisPetAcceptedAndAcctive = petToUpdate.getOwner().getId().equals(owner.getId()) && petToUpdate.isActive()
 				&& petToUpdate.getStatus().equals(accepted);
 		if (securityAccessPetRequestAndProfile(ownerId, edit) && isHisPetAcceptedAndAcctive) {
 			Pet pet = this.petService.findPetById(petId);
@@ -162,7 +162,7 @@ public class PetController {
 		Pet petToUpdate = this.petService.findPetById(petId);
 
 		boolean edit = true;
-		Boolean isHisPetAcceptedAndAcctive = owner.getPets().contains(petToUpdate) && petToUpdate.isActive()
+		Boolean isHisPetAcceptedAndAcctive = petToUpdate.getOwner().getId().equals(owner.getId()) && petToUpdate.isActive()
 				&& petToUpdate.getStatus().equals(accepted);
 		if (securityAccessPetRequestAndProfile(ownerId, edit) && isHisPetAcceptedAndAcctive) {
 

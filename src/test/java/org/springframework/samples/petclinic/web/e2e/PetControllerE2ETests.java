@@ -25,27 +25,18 @@ import org.springframework.transaction.annotation.Transactional;
 public class PetControllerE2ETests {
 
 	private static final int TEST_OWNER_ID1 = 1;
-
 	private static final int TEST_OWNER_ID2 = 2;
-
 	private static final int TEST_OWNER_ID3 = 3;
 
 	private static final int TEST_PET_ID_1 = 1;
-
 	private static final int TEST_PET_ID_2 = 2;
-
 	private static final int TEST_PET_ID_3 = 3;
-
 	private static final int TEST_PET_ID_4 = 4;
-
 	private static final int TEST_PET_ID_5 = 5;
-	
 	private static final int TEST_PET_ID_7 = 7;
-
 	private static final int TEST_PET_ID_17 = 17;
 
 	private static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = "pets/createOrUpdatePetForm";
-
 	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
 
 	@Autowired
