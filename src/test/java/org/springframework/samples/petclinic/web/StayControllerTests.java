@@ -326,7 +326,7 @@ class StayControllerTests {
 		mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/stays/{stayId}/edit",TEST_OWNER_ID,TEST_PET_ID,TEST_STAY_ID)
 							.with(csrf())
 							.flashAttr("stay", stay4))   
-				.andExpect(model().attributeHasErrors("stay")).andExpect(status().isOk())
+				.andExpect(model().attributeHasFieldErrors("stay", "releaseDate")).andExpect(status().isOk())
 				.andExpect(view().name("pets/createOrUpdateStayForm"));
 	}
 	
@@ -336,7 +336,7 @@ class StayControllerTests {
 		mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/stays/{stayId}/edit",TEST_OWNER_ID,TEST_PET_ID,TEST_STAY_ID)
 							.with(csrf())
 							 .flashAttr("stay", stay5))  
-				.andExpect(model().attributeHasErrors("stay")).andExpect(status().isOk())
+				.andExpect(model().attributeHasFieldErrors("stay", "releaseDate")).andExpect(status().isOk())
 				.andExpect(view().name("pets/createOrUpdateStayForm"));
 	}
 	

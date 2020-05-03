@@ -112,7 +112,7 @@ class MedicineControllerE2ETests {
 		mockMvc.perform(post("/medicines/new")
 							.with(csrf())
 							.param("name", "Virbaninte")
-							.param("code", "BOT-334")
+							.param("code", "ATN-674")
 							.param("expirationDate", "2022/03/12")
 							.param("description", "desparasitante"))
 				.andExpect(model().attributeHasErrors("medicine"))
@@ -124,9 +124,8 @@ class MedicineControllerE2ETests {
 	    @Test
 	void testShow() throws Exception {
 		mockMvc.perform(get("/medicines/{medicineId}", TEST_MED_ID)).andExpect(status().isOk())
-		.andExpect(model().attribute("medicine", hasProperty("name", is("Paracetamol"))))
-		.andExpect(model().attribute("medicine", hasProperty("description", is("Antinflamatorio"))))
-		.andExpect(model().attribute("medicine", hasProperty("code", is("BAY-2356"))))
+		.andExpect(model().attribute("medicine", hasProperty("name", is("Penicillin"))))
+		.andExpect(model().attribute("medicine", hasProperty("code", is("PEN-2356"))))
 		.andExpect(model().attribute("medicine", hasProperty("expirationDate", is(LocalDate.of(2021, 7, 4)))))
 		.andExpect(view().name("medicines/medicineDetails"));
 	}
@@ -173,7 +172,7 @@ class MedicineControllerE2ETests {
 		mockMvc.perform(post("/medicines/{medicineId}/edit", TEST_MED_ID)
 							.with(csrf())
 							.param("name", "Name 1")    
-	                        .param("code", "BOT-334")
+	                        .param("code", "ATN-674")
 							.param("expirationDate", "2022/03/12")
 							.param("description", "Testing controller"))
 				.andExpect(model().attributeHasErrors("medicine")).andExpect(status().isOk())
