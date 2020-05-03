@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.AfterEach;
@@ -15,6 +16,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -23,6 +25,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class MedicalTestUITest {
+	
+	private String username;
 	private WebDriver driver;
 	private String baseUrl;
 	private boolean acceptNextAlert = true;
@@ -40,56 +44,89 @@ public class MedicalTestUITest {
 
 	@Test
 	public void testAddMedicalTest() throws Exception {
-		driver.get("http://localhost:" + port);
-		driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
-		driver.findElement(By.id("username")).click();
-		driver.findElement(By.id("username")).sendKeys("admin1");
-		driver.findElement(By.id("password")).click();
-		driver.findElement(By.id("password")).sendKeys("4dm1n");
-		driver.findElement(By.xpath("//button[@type='submit']")).click();
-		driver.findElement(By.xpath("(//a[contains(text(),'Go')])[3]")).click();
-		driver.findElement(By.xpath("//a[contains(@href, 'medical-tests/new')]")).click();
-		driver.findElement(By.id("name")).click();
-		driver.findElement(By.id("name")).clear();
-		driver.findElement(By.id("name")).sendKeys("Análisis de sangre");
-		driver.findElement(By.id("description")).click();
-		driver.findElement(By.id("description")).clear();
-		driver.findElement(By.id("description")).sendKeys("análisis de sangre");
-		driver.findElement(By.xpath("//button[@type='submit']")).click();
-		assertTrue(driver.findElement(By.xpath("//table[@id='medicalTestsTable']/tbody/tr[3]/td[2]")).getText()
-				.matches("^an[\\s\\S]lisis de sangre$"));
-		assertTrue(driver.findElement(By.xpath("//table[@id='medicalTestsTable']/tbody/tr[3]/td")).getText()
-				.matches("^An[\\s\\S]lisis de sangre$"));
-		driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
-		driver.findElement(By.xpath("//a[contains(text(),'Logout')]")).click();
-		driver.findElement(By.xpath("//button[@type='submit']")).click();
+		as("admin1").
+		iClickManagementMedicalTestAndThereAreMedicalsTests();
+		iClickNewMedicalTest();
+		addNewMedicalTest().
+		logOut();
 	}
+
 
 	@Test
 	public void testAddMedicalTestWithErrors() throws Exception {
-		driver.get("http://localhost:" + port);
-		driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
-		driver.findElement(By.id("username")).click();
-		driver.findElement(By.id("username")).clear();
-		driver.findElement(By.id("username")).sendKeys("admin1");
-		driver.findElement(By.id("password")).click();
-		driver.findElement(By.id("password")).clear();
-		driver.findElement(By.id("password")).sendKeys("4dm1n");
-		driver.findElement(By.xpath("//button[@type='submit']")).click();
-		driver.findElement(By.xpath("(//a[contains(text(),'Go')])[3]")).click();
+		as("admin1").
+		iClickManagementMedicalTestAndThereAreMedicalsTests();
+		addNewIncorrectMedicalTest().
+		logOut();
+	}
+	
+	
+	private MedicalTestUITest addNewIncorrectMedicalTest() {
 		driver.findElement(By.xpath("//a[contains(@href, 'medical-tests/new')]")).click();
 		driver.findElement(By.id("name")).click();
 		driver.findElement(By.id("name")).clear();
-		driver.findElement(By.id("name")).sendKeys("Análisis de sangre");
+		driver.findElement(By.id("name")).sendKeys("Blood test");
 		driver.findElement(By.xpath("//button[@type='submit']")).click();
 		assertEquals("", driver.findElement(By.id("description")).getAttribute("value"));
 		driver.findElement(By.id("description")).click();
 		driver.findElement(By.id("description")).clear();
-		driver.findElement(By.id("description")).sendKeys("análisis de sangre");
+		driver.findElement(By.id("description")).sendKeys("blood test");
 		driver.findElement(By.xpath("//button[@type='submit']")).click();
+		return this;
+	}
+
+	private MedicalTestUITest addNewMedicalTest() {
+		driver.findElement(By.id("name")).click();
+		driver.findElement(By.id("name")).clear();
+		driver.findElement(By.id("name")).sendKeys("Blood test");
+		driver.findElement(By.id("description")).click();
+		driver.findElement(By.id("description")).clear();
+		driver.findElement(By.id("description")).sendKeys("blood test");
+		driver.findElement(By.xpath("//button[@type='submit']")).click();
+		
+		WebElement medTable = driver.findElement(By.id("medicalTestsTable"));
+		List<WebElement> medicalTestList = medTable.findElements(By.id("medicalTest"));
+		int medicalTest = medicalTestList.size();
+		
+		assertTrue(driver.findElement(By.xpath("//table[@id='medicalTestsTable']/tbody/tr["+medicalTest+"]/td[2]")).getText()
+				.matches("blood test"));
+		assertTrue(driver.findElement(By.xpath("//table[@id='medicalTestsTable']/tbody/tr["+medicalTest+"]/td")).getText()
+				.matches("Blood test"));
+		
+		return this;
+	}
+	
+	private void iClickNewMedicalTest() {
+	    driver.findElement(By.xpath("//a[contains(@href, 'medical-tests/new')]")).click();
+	}
+
+	private void iClickManagementMedicalTestAndThereAreMedicalsTests() {
 		driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
-		driver.findElement(By.xpath("//a[contains(text(),'Logout')]")).click();
+	    driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/ul/li/div/div/p[2]/strong/a")).click();		
+	}
+
+	private void logOut() {
+		driver.findElement(By.xpath("//div[@id='main-navbar']/ul[3]/li/a")).click();
+	    driver.findElement(By.xpath("//div[@id='main-navbar']/ul[3]/li/ul/li/div/div/div[2]/p[2]/a")).click();
+	    driver.findElement(By.xpath("//button[@type='submit']")).click();
+	}
+
+	private MedicalTestUITest as(String username) {
+		this.username = username;
+		driver.get("http://localhost:" + port);
+		driver.findElement(By.xpath("//div[@id='main-navbar']/ul[3]/li/a")).click();
+		driver.findElement(By.id("username")).click();
+		driver.findElement(By.id("username")).clear();
+		driver.findElement(By.id("username")).sendKeys(username);
+		driver.findElement(By.id("password")).click();
+		driver.findElement(By.id("password")).clear();
+		driver.findElement(By.id("password")).sendKeys(passwordOf(username));
 		driver.findElement(By.xpath("//button[@type='submit']")).click();
+		return this;
+	}
+	
+	private CharSequence passwordOf(String username) {
+		return "4dm1n";
 	}
 
 	@AfterEach

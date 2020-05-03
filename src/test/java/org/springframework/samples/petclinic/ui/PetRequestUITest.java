@@ -52,7 +52,7 @@ public class PetRequestUITest {
 		logOut();
 		
 		as("admin1").whenIamLoggedIntheSystem()
-		.iClickRequestsAndThereArePetsRequetsIncludingNina()
+		.iClickManagementRequestsAndThereArePetsRequetsIncludingNina()
 		.iClickNinaAndAccepted();
 		thereAreLessPet();
 		logOut();
@@ -71,7 +71,7 @@ public class PetRequestUITest {
 		logOut();
 		
 		as("admin1").whenIamLoggedIntheSystem()
-		.iClickRequestsAndThereArePetsRequetsIncludingNina()
+		.iClickManagementRequestsAndThereArePetsRequetsIncludingNina()
 		.iClickNinaAndRejected();
 		thereAreLessPet();
 		logOut();
@@ -91,7 +91,7 @@ public class PetRequestUITest {
 		logOut();
 		
 		as("admin1").whenIamLoggedIntheSystem()
-		.iClickRequestsAndThereArePetsRequetsIncludingNina()
+		.iClickManagementRequestsAndThereArePetsRequetsIncludingNina()
 		.iClickNinaAndRejectedWithErrors();
 		logOut();
 		
@@ -152,8 +152,9 @@ public class PetRequestUITest {
 		
 	}
 
-	private PetRequestUITest iClickRequestsAndThereArePetsRequetsIncludingNina() {
-		driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[5]/a")).click();
+	private PetRequestUITest iClickManagementRequestsAndThereArePetsRequetsIncludingNina() {
+		driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a/strong")).click();
+	    driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/ul/li/div/div/p[4]/strong/a")).click();
 		
 		WebElement petsTable = driver.findElement(By.id("petsTable"));
 		List<WebElement> petsList = petsTable.findElements(By.id("pet"));
@@ -166,9 +167,9 @@ public class PetRequestUITest {
 	}
 
 	private void logOut() {
-		driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
-		driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/ul/li/div/div/div[2]/p[2]/a")).click();
-		driver.findElement(By.xpath("//button[@type='submit']")).click();
+		driver.findElement(By.xpath("//div[@id='main-navbar']/ul[3]/li/a")).click();
+	    driver.findElement(By.xpath("//div[@id='main-navbar']/ul[3]/li/ul/li/div/div/div[2]/p[2]/a")).click();
+	    driver.findElement(By.xpath("//button[@type='submit']")).click();
 	}
 
 	private void iShowNinaInMyRequestPending() {
@@ -195,17 +196,17 @@ public class PetRequestUITest {
 	}
 
 	private PetRequestUITest goToMyProfile() {
-		driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
+		driver.findElement(By.xpath("//div[@id='main-navbar']/ul[3]/li/a")).click();
 		assertEquals("My Profile",
-				driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/ul/li[3]/div/div/div/p/a")).getText());
-		driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/ul/li[3]/div/div/div/p/a")).click();
+				driver.findElement(By.xpath("//div[@id='main-navbar']/ul[3]/li/ul/li[3]/div/div/div/p/a")).getText());
+		driver.findElement(By.xpath("//div[@id='main-navbar']/ul[3]/li/ul/li[3]/div/div/div/p/a")).click();
 		return this;
 	}
 
 	private PetRequestUITest as(String username) {
 		this.username = username;
 		driver.get("http://localhost:" + port);
-		driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
+		driver.findElement(By.xpath("//div[@id='main-navbar']/ul[3]/li/a")).click();
 		driver.findElement(By.id("username")).click();
 		driver.findElement(By.id("username")).clear();
 		driver.findElement(By.id("username")).sendKeys(username);
