@@ -265,6 +265,8 @@ class PetControllerTests {
 	}
 	
 	
+	
+	
 	// TEST para usuario que SI cumple la seguridad
 	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
 	@Test
@@ -287,7 +289,6 @@ class PetControllerTests {
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:/owner/requests"));
 	}
-
 
 	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
 	@Test
@@ -326,6 +327,8 @@ class PetControllerTests {
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name(REDIRECT_TO_OUPS));
 	}
+	
+	
 	
 	
 	// TEST para usuarios que SI cumplen la seguridad
@@ -389,6 +392,8 @@ class PetControllerTests {
 	}
 	
 
+	
+	
 	// TEST para usuarios que SI cumplen la seguridad
 	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
 	@Test
@@ -447,6 +452,7 @@ class PetControllerTests {
 	
 	
 	
+	
 	// TEST para usuarios que SI cumplen la seguridad
 	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
 	@Test
@@ -490,6 +496,9 @@ class PetControllerTests {
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name(REDIRECT_TO_OUPS));
 	}
+	
+	
+	
 	
 	// TEST para usuarios que SI cumplen la seguridad
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
@@ -535,6 +544,8 @@ class PetControllerTests {
 	}
 	
 	
+	
+	
 	// TEST para usuario que SI cumple la seguridad
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
 	@Test
@@ -543,6 +554,8 @@ class PetControllerTests {
 				.andExpect(status().isOk())
 				.andExpect(view().name("pets/requests"));
 	}
+	
+	
 	
 	
 	// TEST para usuario que SI cumple la seguridad
@@ -555,6 +568,7 @@ class PetControllerTests {
 	}
 	
 	
+	
 	// TEST para usuario con pets disabled
 	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
 	@Test
@@ -563,7 +577,9 @@ class PetControllerTests {
 				.andExpect(status().isOk())
 				.andExpect(view().name("pets/myPetsActive"));
 	}
+
 	
+
 	// TEST para usuario sin pets disabled
 	@WithMockUser(username = "owner2", password = "0wn3333r_2", authorities = "owner")
 	@Test
@@ -572,6 +588,7 @@ class PetControllerTests {
 				.andExpect(status().isOk())
 				.andExpect(view().name("pets/myPetsActive"));
 	}
+	
 	
 	
 	// TEST para usuarios que SI cumplen la seguridad
