@@ -99,7 +99,7 @@ public class StayController {
 			Owner owner = this.ownerService.findOwnerById(ownerId);
 			Pet pet = this.petService.findPetById(petId);
 
-			isHisPetAcceptedAndActive = owner.getPets().contains(pet) && pet.isActive()
+			isHisPetAcceptedAndActive = pet.getOwner().getId().equals(owner.getId()) && pet.isActive()
 					&& pet.getStatus().equals(PetRegistrationStatus.ACCEPTED);
 			ownerUsername = owner.getUser().getUsername();
 		}
@@ -117,7 +117,7 @@ public class StayController {
 			Owner owner = this.ownerService.findOwnerById(ownerId);
 			Pet pet = this.petService.findPetById(petId);
 
-			Boolean isHisPetAcceptedAndActiveOrNot = owner.getPets().contains(pet)
+			Boolean isHisPetAcceptedAndActiveOrNot = pet.getOwner().getId().equals(owner.getId())
 					&& (pet.isActive() || pet.isActive() == false)
 					&& pet.getStatus().equals(PetRegistrationStatus.ACCEPTED);
 			String ownerUsername = owner.getUser().getUsername();
