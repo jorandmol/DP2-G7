@@ -196,8 +196,9 @@ public class PetController {
 	@GetMapping(value = "/owners/{ownerId}/pet/{petId}")
 	public String showAndUpdatePetRequest(@PathVariable("ownerId") int ownerId, @PathVariable("petId") int petId,
 			ModelMap model) {
-		if (securityAccessPetRequestAndProfile(ownerId, true)) {
-			Pet pet = this.petService.findPetById(petId);
+		
+		Pet pet = this.petService.findPetById(petId);
+		if (securityAccessPetRequestAndProfile(ownerId, false) || isAdmin() && pet.getStatus().equals(pending)) {
 			if (pet.getStatus().equals(rejected)) {
 				model.addAttribute("rejected", true);
 			}
@@ -217,14 +218,15 @@ public class PetController {
 	public String AnswerPetRequest(@Valid Pet pet, BindingResult result, @PathVariable("ownerId") int ownerId,
 			@PathVariable("petId") int petId, ModelMap model) {
 
-		if (isAdmin()) {
+		Pet petToUpdate = this.petService.findPetById(petId);
+		
+		if (isAdmin() && petToUpdate.getStatus().equals(pending)) {
 
 			List<PetRegistrationStatus> status = new ArrayList<>();
 			status.add(rejected);
 			status.add(accepted);
 			model.addAttribute("status", status);
 
-			Pet petToUpdate = this.petService.findPetById(petId);
 			model.addAttribute("petRequest", petToUpdate);
 			if (result.hasErrors()) {
 				model.put("pet", pet);
@@ -250,7 +252,7 @@ public class PetController {
 	public String showPetRequests(ModelMap model) {
 
 		List<Pet> petsRequests = this.petService.findPetsRequests(pending);
-		model.put("pets", petsRequests);
+		model.addAttribute("pets", petsRequests);
 		return "pets/requests";
 	}
 
@@ -259,7 +261,7 @@ public class PetController {
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		Owner owner = this.ownerService.findOwnerByUsername(username);
 		List<Pet> myPetsRequests = this.petService.findMyPetsRequests(pending, rejected, owner.getId());
-		model.put("pets", myPetsRequests);
+		model.addAttribute("pets", myPetsRequests);
 		return "pets/myRequests";
 	}
 
@@ -268,15 +270,18 @@ public class PetController {
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		Owner owner = this.ownerService.findOwnerByUsername(username);
 		List<Pet> myPets = this.petService.findMyPetsAcceptedByActive(accepted, true, owner.getId());
-		model.put("disabled", this.petService.countMyPetsAcceptedByActive(accepted, false, owner.getId()) != 0);
-		model.put("owner", owner);
-		model.put("pets", myPets);
+		model.addAttribute("disabled", this.petService.countMyPetsAcceptedByActive(accepted, false, owner.getId()) != 0);
+		model.addAttribute("owner", owner);
+		model.addAttribute("pets", myPets);
 		return "pets/myPetsActive";
 	}
 
 	@GetMapping(value = "/owners/{ownerId}/pets/disabled")
 	public String showMyPetsDisabled(@PathVariable("ownerId") int ownerId, ModelMap model) {
-		if (securityAccessPetRequestAndProfile(ownerId, true)) {
+		
+		Boolean havePetDisabled = this.petService.countMyPetsAcceptedByActive(accepted, false, ownerId) !=0;
+		
+		if (securityAccessPetRequestAndProfile(ownerId, true) && havePetDisabled) {
 
 			Owner owner = this.ownerService.findOwnerById(ownerId);
 			List<Pet> myPets = this.petService.findMyPetsAcceptedByActive(accepted, false, ownerId);

@@ -83,7 +83,7 @@ INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id
 INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id) VALUES (2, 'Basil', '2012-08-06', 1, 'It is impossible to accept it because the hamster quota has been exceeded', true , 6, 1);
 INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id) VALUES (3, 'George', '2010-01-20', 2, '', true , 4, 1);
 INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id) VALUES (4, 'Rosy', '2011-04-17', 2, '', true , 2, 3);
-INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id) VALUES (5, 'Jewel', '2010-03-07', 0, '', false , 2, 3 );
+INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id) VALUES (5, 'Jewel', '2010-03-07', 0, '', false , 2, 3);
 INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id) VALUES (6, 'Iggy', '2010-11-30', 1,'It is impossible to accept it because the lizard quota has been exceeded', true , 3, 3 );
 INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id) VALUES (7, 'Samantha', '2012-09-04', 0, '', true , 1, 3);
 INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id) VALUES (8, 'Max', '2012-09-04', 1, 'It is impossible to accept it because the cat quota has been exceeded', true , 1, 6);
@@ -100,6 +100,7 @@ INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id
 INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id) VALUES (19, 'Chispa', '2011-09-03', 0, '', true , 7, 8);
 INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id) VALUES (20, 'Luna', '2018-01-30', 0, '', true , 1, 7);
 INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id) VALUES (21, 'Romeo', '2019-02-18', 0, '', true , 5, 9);
+
 
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (1,'2019-01-01','2018-12-20','Rabies shot',6,7,1);
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (2,'2019-01-02','2018-12-13','Rabies shot',6,8,1);

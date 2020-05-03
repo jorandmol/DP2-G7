@@ -364,15 +364,6 @@ class PetControllerTests {
 				.andExpect(view().name(REDIRECT_TO_OUPS));
 	}
 	
-	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
-	@Test
-	void testInitUpdatePetAcceptedAndActiveForm() throws Exception {
-		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/edit", TEST_OWNER_ID1, TEST_PET_ID_4))
-				.andExpect(status().isOk())
-				.andExpect(model().attributeExists("pet"))
-				.andExpect(view().name(VIEWS_PETS_CREATE_OR_UPDATE_FORM));
-	}
-	
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
 	@Test
 	void testInitUpdatePetForm() throws Exception {
@@ -385,7 +376,7 @@ class PetControllerTests {
 	// TEST para usuario que NO cumple la seguridad
 	@WithMockUser(username = "owner2", password = "0wn3333r_2", authorities = "owner")
 	@Test
-	void testInitUpdateOtherPetNotActiveAndPendingFormWithoutAccess() throws Exception {
+	void testInitUpdatePetOtherOwnerFormWithoutAccess() throws Exception {
 		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/edit", TEST_OWNER_ID1, TEST_PET_ID_1))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name(REDIRECT_TO_OUPS));
@@ -511,14 +502,14 @@ class PetControllerTests {
 				.andExpect(view().name("redirect:/requests"));
 	}
 	
-	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
-	@Test
-	void testAnswerPetRequestThrowsCatchException() throws Exception{
-		mockMvc.perform(post("/owners/{ownerId}/pet/{petId}", TEST_OWNER_ID1, TEST_PET_ID_5).with(csrf())
-				.flashAttr("pet", petWithSameName))
-				.andExpect(status().isOk())
-				.andExpect(view().name("pets/updatePetRequest"));
-	}
+//	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
+//	@Test
+//	void testAnswerPetRequestThrowsCatchException() throws Exception{
+//		mockMvc.perform(post("/owners/{ownerId}/pet/{petId}", TEST_OWNER_ID1, TEST_PET_ID_5).with(csrf())
+//				.flashAttr("pet", petWithSameName))
+//				.andExpect(status().isOk())
+//				.andExpect(view().name("pets/updatePetRequest"));
+//	}
 	
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
 	@Test
@@ -551,6 +542,7 @@ class PetControllerTests {
 	@Test
 	void testShowPetRequests() throws Exception {
 		mockMvc.perform(get("/requests"))
+				.andExpect(model().attributeExists("pets"))
 				.andExpect(status().isOk())
 				.andExpect(view().name("pets/requests"));
 	}
@@ -563,28 +555,22 @@ class PetControllerTests {
 	@Test
 	void testShowMyPetRequests() throws Exception{
 		mockMvc.perform(get("/owner/requests"))
+				.andExpect(model().attributeExists("pets"))
 				.andExpect(status().isOk())
 				.andExpect(view().name("pets/myRequests"));
 	}
 	
 	
-	
-	// TEST para usuario con pets disabled
-	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
-	@Test
-	void testshowMyPetsActive() throws Exception{
-		mockMvc.perform(get("/owner/pets"))
-				.andExpect(status().isOk())
-				.andExpect(view().name("pets/myPetsActive"));
-	}
 
 	
-
-	// TEST para usuario sin pets disabled
+	//TEST para usuario con pets disabled
 	@WithMockUser(username = "owner2", password = "0wn3333r_2", authorities = "owner")
 	@Test
-	void testshowMyPetsActiveWithoutDisabledPets() throws Exception{
+	void testshowMyPetsActiveWithDisabledPets() throws Exception{
 		mockMvc.perform(get("/owner/pets"))
+				.andExpect(model().attributeExists("disabled"))
+				.andExpect(model().attributeExists("owner"))
+				.andExpect(model().attributeExists("pets"))
 				.andExpect(status().isOk())
 				.andExpect(view().name("pets/myPetsActive"));
 	}
@@ -596,6 +582,8 @@ class PetControllerTests {
 	@Test
 	void showMyPetsDisabled() throws Exception{
 		mockMvc.perform(get("/owners/{ownerId}/pets/disabled", TEST_OWNER_ID1))
+				.andExpect(model().attributeExists("owner"))
+				.andExpect(model().attributeExists("pets"))		
 				.andExpect(status().isOk())
 				.andExpect(view().name("pets/myPetsDisabled"));
 	}
@@ -604,6 +592,8 @@ class PetControllerTests {
 	@Test
 	void showOwnerPetsDisabled() throws Exception{
 		mockMvc.perform(get("/owners/{ownerId}/pets/disabled", TEST_OWNER_ID1))
+				.andExpect(model().attributeExists("owner"))
+				.andExpect(model().attributeExists("pets"))
 				.andExpect(status().isOk())
 				.andExpect(view().name("pets/myPetsDisabled"));
 	}
