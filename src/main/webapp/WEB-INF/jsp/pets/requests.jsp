@@ -6,7 +6,7 @@
 <%@ taglib prefix="petclinic" tagdir="/WEB-INF/tags" %>
 
 <petclinic:layout pageName="requests">
-    <h2>Pets Request Pending</h2>
+    <h2>Pending pet requests</h2>
 
     <table id="petsTable" class="table table-striped">
         <thead>

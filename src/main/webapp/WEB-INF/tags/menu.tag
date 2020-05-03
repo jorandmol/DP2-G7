@@ -44,22 +44,6 @@
 						<span>Veterinarians</span>
 					</petclinic:menuItem>
 				</sec:authorize>
-
-				<sec:authorize access="hasAuthority('admin')">
-					<petclinic:menuItem active="${name eq 'banners'}" url="/banners"
-						title="banners">
-						<span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
-						<span>Banners</span>
-					</petclinic:menuItem>
-				</sec:authorize>
-
-				<sec:authorize access="hasAuthority('admin')">
-				<petclinic:menuItem active="${name eq 'requests'}" url="/requests"
-					title="requests">
-					<span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
-					<span>Requests</span>
-				</petclinic:menuItem>
-				</sec:authorize>
 				
 				<sec:authorize access="hasAuthority('owner')">
 				<petclinic:menuItem active="${name eq 'pets'}" url="/owner/pets"
@@ -110,7 +94,45 @@
 				</sec:authorize> --%>
         
 			</ul>
-
+			
+			<ul class="nav navbar-nav">
+				<sec:authorize access="hasAuthority('admin')">
+					<li class="dropdown"><a href="#" class="dropdown-toggle"
+						data-toggle="dropdown"> <span class="glyphicon glyphicon-cog"></span>
+							<strong><c:out value="Management"></c:out></strong> <span
+							class="glyphicon glyphicon-chevron-down"></span>
+					</a>
+						<ul class="dropdown-menu">
+							<li>
+								<div class="navbar-login">
+									<div class="row">
+									<div class="col-lg-3"></div>
+										<p class="text-left">
+        									<strong><a href='<spring:url value="/banners" htmlEscape="true"/>'>Banners</a></strong>
+										</p>		
+										<div class="col-lg-3"></div>
+										<p class="text-left">
+											<strong><a href='<spring:url value="/medical-tests" htmlEscape="true"/>'>Medical tests</a></strong>
+										</p>
+										<div class="col-lg-3"></div>
+										<p class="text-left">
+											<strong><a href='<spring:url value="/medicines" htmlEscape="true"/>'>Medicines</a></strong>
+										</p>
+										<div class="col-lg-3"></div>
+										<p class="text-left">
+											<strong><a href='<spring:url value="/requests" htmlEscape="true"/>'>Pet requests</a></strong>
+										</p>
+										<div class="col-lg-3"></div>
+										<p class="text-left">
+        									<strong><a href='<spring:url value="/pet-type" htmlEscape="true"/>'>Pet types</a></strong>
+										</p>
+									</div>
+								</div>
+							</li>
+						</ul></li>
+				</sec:authorize>
+			</ul>
+		
 
 			<ul class="nav navbar-nav navbar-right">
 				<sec:authorize access="!isAuthenticated()">
