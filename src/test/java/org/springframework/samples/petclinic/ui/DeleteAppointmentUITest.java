@@ -31,8 +31,7 @@ public class DeleteAppointmentUITest {
   private WebDriver driver;
   private boolean acceptNextAlert = true;
   private StringBuffer verificationErrors = new StringBuffer();
-  private String appointmentDateToDelete = PetclinicDates.getFormattedFutureDate(LocalDate.now(), 10, "yyyy/MM/dd");
-  private String appointmentDateToNotDelete = PetclinicDates.getFormattedFutureDate(LocalDate.now(), 1, "yyyy/MM/dd");
+  private String appointmentDateToDelete = PetclinicDates.getFormattedFutureDate(LocalDate.now(), 1000, "yyyy/MM/dd");
   
   @LocalServerPort
   private int port;
@@ -46,15 +45,8 @@ public class DeleteAppointmentUITest {
   @Test
   @Order(1)
   public void testDeleteAppointment() throws Exception {
-    driver.get("http://localhost:" + port);
-    driver.findElement(By.xpath("//a[contains(@href, '/login')]")).click();
-    driver.findElement(By.id("username")).clear();
-    driver.findElement(By.id("username")).sendKeys("owner1");
-    driver.findElement(By.id("password")).clear();
-    driver.findElement(By.id("password")).sendKeys("0wn3333r_1");
-    driver.findElement(By.xpath("//button[@type='submit']")).click();
-    driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a/strong")).click();
-    driver.findElement(By.linkText("My Profile")).click();
+    loginOwner();
+    driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[2]/a/span[2]")).click();
     driver.findElement(By.linkText("Add Appointment")).click();
     driver.findElement(By.xpath("//input[@id='appointmentDate']")).click();
     driver.findElement(By.id("appointmentDate")).clear();
@@ -65,34 +57,18 @@ public class DeleteAppointmentUITest {
     driver.findElement(By.xpath("//option[@value='1']")).click();
     driver.findElement(By.xpath("//button[@type='submit']")).click();
     int nAppointments = getNumberOfAppointments();
-    driver.findElement(By.xpath("//td[3]/table/tbody/tr["+ (nAppointments) +"]/td[4]/a")).click();
+    driver.findElement(By.xpath("//td[3]/table/tbody/tr[1]/td[4]/a")).click();
     assertEquals(getNumberOfAppointments(), nAppointments - 1);
   }
   
   @Test
   @Order(2)
   public void testNotDeleteAppointment() throws Exception {
-    driver.get("http://localhost:" + port);
-    driver.findElement(By.xpath("//a[contains(@href, '/login')]")).click();
-    driver.findElement(By.id("username")).clear();
-    driver.findElement(By.id("username")).sendKeys("owner1");
-    driver.findElement(By.id("password")).clear();
-    driver.findElement(By.id("password")).sendKeys("0wn3333r_1");
-    driver.findElement(By.xpath("//button[@type='submit']")).click();
-    driver.findElement(By.xpath("//a[contains(@href, '#')]")).click();
-    driver.findElement(By.xpath("//a[contains(@href, '/users/profile')]")).click();
-    driver.findElement(By.linkText("Add Appointment")).click();
-    driver.findElement(By.id("appointmentDate")).click();
-    driver.findElement(By.id("appointmentDate")).clear();
-    driver.findElement(By.id("appointmentDate")).sendKeys(appointmentDateToNotDelete);
-    driver.findElement(By.id("description")).clear();
-    driver.findElement(By.id("description")).sendKeys("Description");
-    driver.findElement(By.name("vet")).click();
-    driver.findElement(By.xpath("//option[@value='1']")).click();
-    driver.findElement(By.xpath("//button[@type='submit']")).click();
+    loginOwner();
+    driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[2]/a/span[2]")).click();
     int nAppointments = getNumberOfAppointments();
     driver.findElement(By.xpath("//td[3]/table/tbody/tr["+ (nAppointments) +"]/td[4]/a")).click();
-    assertEquals("No se puede cancelar una cita con dos o menos días de antelación", driver.findElement(By.className("error-text")).getText().trim());
+    assertEquals("You cannot cancel an appointment two or less days in advance", driver.findElement(By.className("error-text")).getText().trim());
   }
 
   @AfterEach
@@ -102,6 +78,16 @@ public class DeleteAppointmentUITest {
     if (!"".equals(verificationErrorString)) {
       fail(verificationErrorString);
     }
+  }
+  
+  private void loginOwner() {
+	  driver.get("http://localhost:" + port);
+	  driver.findElement(By.xpath("//a[contains(@href, '/login')]")).click();
+	  driver.findElement(By.id("username")).clear();
+	  driver.findElement(By.id("username")).sendKeys("owner1");
+	  driver.findElement(By.id("password")).clear();
+	  driver.findElement(By.id("password")).sendKeys("0wn3333r_1");
+	  driver.findElement(By.xpath("//button[@type='submit']")).click();
   }
   
   private int getNumberOfAppointments( ) {

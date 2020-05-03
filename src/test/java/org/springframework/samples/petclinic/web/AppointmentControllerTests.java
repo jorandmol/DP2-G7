@@ -45,7 +45,6 @@ public class AppointmentControllerTests {
 	private static final String OWNER_ROLE = "owner";
 
 	private static final String VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM = "pets/createOrUpdateAppointmentForm";
-	private static final String VIEW_TO_PETS_ACCEPTED_AND_ACTIVE = "pets/myPetsActive";
 	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
 	private static final String REDIRECT_TO_PETS_DETAILS = "redirect:/owner/pets";
 
@@ -53,6 +52,7 @@ public class AppointmentControllerTests {
 	private static final int TEST_APPOINTMENT_ID_2 = 2;
 	private static final int TEST_APPOINTMENT_ID_3 = 3;
 	private static final int TEST_APPOINTMENT_ID_4 = 4;
+	private static final int TEST_APPOINTMENT_ID_5 = 5;
 	private static final int TEST_OWNER_ID = 1;
 	private static final int TEST_PET_ID = 1;
 	private static final int TEST_WRONG_OWNER_ID = 2;
@@ -98,10 +98,12 @@ public class AppointmentControllerTests {
 
 	@Mock
 	private Appointment appointment4;
+	
+	@Mock
+	private Appointment appointment5;
 
 	@Mock Vet vet;
 
-	private String dateToday;
 	private String dateFuture;
 
 	@BeforeEach
@@ -111,7 +113,6 @@ public class AppointmentControllerTests {
 		LocalDate localDateFuture = LocalDate.now().plusDays(10).getDayOfWeek().equals(DayOfWeek.SUNDAY) ?
 				LocalDate.now().plusDays(11) : LocalDate.now().plusDays(10);
 		dateFuture = localDateFuture.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
-		dateToday = localDateToday.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
 
 		appointment1 = new Appointment();
 		appointment1.setId(TEST_APPOINTMENT_ID_1);
@@ -127,15 +128,21 @@ public class AppointmentControllerTests {
 
 		appointment3 = new Appointment();
 		appointment3.setId(TEST_APPOINTMENT_ID_3);
-		appointment3.setAppointmentDate(LocalDate.now().plusDays(2));
+		appointment3.setAppointmentDate(LocalDate.now());
 		appointment3.setAppointmentRequestDate(localDateToday.minusDays(10));
 		appointment3.setDescription("Revisión de perro");
 
 		appointment4 = new Appointment();
 		appointment4.setId(TEST_APPOINTMENT_ID_4);
-		appointment4.setAppointmentDate(localDateFuture.plusDays(2));
+		appointment4.setAppointmentDate(LocalDate.now().plusDays(2));
 		appointment4.setAppointmentRequestDate(localDateToday.minusDays(10));
 		appointment4.setDescription("Falta de apetito");
+		
+		appointment5 = new Appointment();
+		appointment5.setId(TEST_APPOINTMENT_ID_5);
+		appointment5.setAppointmentDate(localDateToday.plusDays(10));
+		appointment5.setAppointmentRequestDate(localDateToday.minusDays(10));
+		appointment5.setDescription("Revisión mensual");
 
 		User user1 = new User();
 		user1.setEnabled(true);
@@ -153,6 +160,12 @@ public class AppointmentControllerTests {
 		appointment2.setPet(pet);
 		appointment3.setPet(pet);
 		appointment4.setPet(pet);
+		
+		Pet pet2 = new Pet();
+		pet2.setId(2);
+		pet2.setActive(true);
+		pet2.setStatus(PetRegistrationStatus.ACCEPTED);
+		appointment5.setPet(pet2);
 
 		Owner owner1 = new Owner();
 		owner1.setId(TEST_OWNER_ID);
@@ -167,6 +180,8 @@ public class AppointmentControllerTests {
 		Owner owner2 = new Owner();
 		owner2.setId(TEST_WRONG_OWNER_ID);
 		owner2.setUser(user2);
+		owner2.addPet(pet2);
+		appointment5.setOwner(owner2);
 		
 		vet = new Vet();
 		vet.setId(1);
@@ -188,6 +203,7 @@ public class AppointmentControllerTests {
 		given(this.appointmentService.getAppointmentById(TEST_APPOINTMENT_ID_2)).willReturn(appointment2);
 		given(this.appointmentService.getAppointmentById(TEST_APPOINTMENT_ID_3)).willReturn(appointment3);
 		given(this.appointmentService.getAppointmentById(TEST_APPOINTMENT_ID_4)).willReturn(appointment4);
+		given(this.appointmentService.getAppointmentById(TEST_APPOINTMENT_ID_5)).willReturn(appointment5);
 		given(this.vetService.findVetById(1)).willReturn(vet);
 	}
 
@@ -216,6 +232,32 @@ public class AppointmentControllerTests {
 			.andExpect(model().attributeExists("edit"))
 			.andExpect(model().attribute("appointment", hasProperty("description",is("Revisión de perro"))))
 			.andExpect(view().name(VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM));
+	}
+
+	@Test
+	@WithMockUser(username="owner1", password="0wn3333r_1", authorities=OWNER_ROLE)
+	void testInitAppointmentEditFormErrorsBefore() throws Exception{
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/edit", TEST_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID_4))
+			.andExpect(model().attributeExists("errors"))
+			.andExpect(status().isOk())
+			.andExpect(view().name("owners/"+TEST_OWNER_ID+"/pets/"+TEST_PET_ID+"/appointments/"+TEST_APPOINTMENT_ID_4+"/edit"));
+	}
+	
+	@Test
+	@WithMockUser(username="owner1", password="0wn3333r_1", authorities=OWNER_ROLE)
+	void testInitAppointmentEditFormErrorsNow() throws Exception{
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/edit", TEST_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID_3))
+			.andExpect(model().attributeExists("errors"))
+			.andExpect(status().isOk())
+			.andExpect(view().name("owners/"+TEST_OWNER_ID+"/pets/"+TEST_PET_ID+"/appointments/"+TEST_APPOINTMENT_ID_3+"/edit"));
+	}
+	
+	@Test
+	@WithMockUser(username="owner1", password="0wn3333_1", authorities=OWNER_ROLE)
+	void testNotInitAppointmentEditFormAppointmentNotYours() throws Exception{
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/edit", TEST_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID_5))
+			.andExpect(status().is3xxRedirection())
+			.andExpect(view().name(REDIRECT_TO_OUPS));
 	}
 
 	@Test
@@ -282,14 +324,14 @@ public class AppointmentControllerTests {
 			.andExpect(status().is3xxRedirection())
 			.andExpect(view().name(REDIRECT_TO_PETS_DETAILS));
 	}
-
+	
 	@Test
 	@WithMockUser(username="owner1", password="0wn3333r_1", authorities=OWNER_ROLE)
 	void testProcessDeleteAppointmentErrorsBefore() throws Exception {
-		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete", TEST_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID_2))
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete", TEST_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID_4))
 			.andExpect(model().attributeExists("errors"))
 			.andExpect(status().isOk())
-			.andExpect(view().name(VIEW_TO_PETS_ACCEPTED_AND_ACTIVE));
+			.andExpect(view().name("owners/"+TEST_OWNER_ID+"/pets/"+TEST_PET_ID+"/appointments/"+TEST_APPOINTMENT_ID_4+"/delete"));
 	}
 
 	@Test
@@ -298,6 +340,6 @@ public class AppointmentControllerTests {
 		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete", TEST_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID_3))
 			.andExpect(model().attributeExists("errors"))
 			.andExpect(status().isOk())
-			.andExpect(view().name(VIEW_TO_PETS_ACCEPTED_AND_ACTIVE));
+			.andExpect(view().name("owners/"+TEST_OWNER_ID+"/pets/"+TEST_PET_ID+"/appointments/"+TEST_APPOINTMENT_ID_3+"/delete"));
 	}
 }

@@ -45,15 +45,27 @@ public class ListTreatmentsUITest {
     driver.findElement(By.id("password")).clear();
     driver.findElement(By.id("password")).sendKeys("0wn3333r_1");
     driver.findElement(By.xpath("//button[@type='submit']")).click();
-    driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a/span[2]")).click();
-    driver.findElement(By.xpath("//a[contains(@href, '/users/profile')]")).click();
-    driver.findElement(By.xpath("//a[contains(@href, '/owners/1/pets/1/treatments')]")).click();
-    assertEquals("Current Treatments", driver.findElement(By.className("col-md-10")).getText());
-    assertEquals("Expired Treatments", driver.findElement(By.className("col-md-11")).getText());
+    driver.findElement(By.xpath("//a[contains(@href, '/owner/pets')]")).click();
+    driver.findElement(By.xpath("//a[contains(text(),'Treatments')]")).click();
+    assertEquals("Current Treatments", driver.findElement(By.id("crtT")).getText());
+    assertEquals("Expired Treatments", driver.findElement(By.id("expT")).getText());
+  }
+
+  @Test
+  public void testUntitledTestCase() throws Exception {
+	driver.get("http://localhost:"+port);
+    driver.findElement(By.xpath("//a[contains(@href, '/login')]")).click();
+    driver.findElement(By.id("username")).clear();
+    driver.findElement(By.id("username")).sendKeys("owner1");
+    driver.findElement(By.id("password")).clear();
+    driver.findElement(By.id("password")).sendKeys("0wn3333r_1");
+    driver.findElement(By.xpath("//button[@type='submit']")).click();
+    driver.findElement(By.xpath("//a[contains(@href, '/owner/pets')]")).click();
+    driver.findElement(By.xpath("//a[contains(text(),'Treatments')]")).click();
     driver.get("http://localhost:"+port+"/owners/1/pets/4/treatments");
     assertEquals("Something happened...", driver.findElement(By.id("uops")).getText());
   }
-
+  
   @AfterEach
   public void tearDown() throws Exception {
     driver.quit();
