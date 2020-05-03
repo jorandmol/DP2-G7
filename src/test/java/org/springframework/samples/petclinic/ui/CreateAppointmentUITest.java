@@ -85,7 +85,7 @@ public class CreateAppointmentUITest {
         new Select(driver.findElement(By.name("vet"))).selectByVisibleText("Rafael Ortega");
         driver.findElement(By.xpath("//option[@value='4']")).click();
         driver.findElement(By.xpath("//button[@type='submit']")).click();
-        assertEquals("Imposible realizar una cita con esos datos", driver.findElement(By.id("vetError")).getText());
+        assertEquals("Impossible to register an appointment with this fields", driver.findElement(By.id("vetError")).getText());
     }
 
     @AfterEach

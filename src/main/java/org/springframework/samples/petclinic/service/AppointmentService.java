@@ -76,7 +76,7 @@ public class AppointmentService {
 	    boolean res = false;
     	LocalDate appointmentDate = appointment.getAppointmentDate();
 	    
-    	if (!appointmentDate.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
+    	if (appointmentDate != null && !appointmentDate.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
 	    	int petId = appointment.getPet().getId();
 	    	res = countAppointmentsByPetAndDay(petId, appointmentDate) == 0 && 
 	    			countAppointmentsByVetAndDay(vetId, appointmentDate) < 6;	    	

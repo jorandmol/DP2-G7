@@ -68,7 +68,7 @@ public class DeleteAppointmentUITest {
     driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[2]/a/span[2]")).click();
     int nAppointments = getNumberOfAppointments();
     driver.findElement(By.xpath("//td[3]/table/tbody/tr["+ (nAppointments) +"]/td[4]/a")).click();
-    assertEquals("No se puede cancelar una cita con dos o menos días de antelación", driver.findElement(By.className("error-text")).getText().trim());
+    assertEquals("You cannot cancel an appointment two or less days in advance", driver.findElement(By.className("error-text")).getText().trim());
   }
 
   @AfterEach
