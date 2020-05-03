@@ -28,15 +28,10 @@ public class MedicineService {
 	}
 	
 	@Transactional
-	public void saveMedicine(Medicine medicine) throws DataAccessException, DuplicatedMedicineCodeException, PastMedicineDateException, WrongMedicineCodeException {
+	public void saveMedicine(Medicine medicine) throws DuplicatedMedicineCodeException {
 		String code = medicine.getCode();	
-		LocalDate date = medicine.getExpirationDate();
 		if (StringUtils.hasLength(code) && this.codeAlreadyExists(code)) {            	
             throw new DuplicatedMedicineCodeException();
-        } else if (date != null && LocalDate.now().isAfter(date)) {
-        	throw new PastMedicineDateException();	
-        } else if (StringUtils.hasLength(code) && !code.matches("^[A-Z]{3}\\-\\d{3,9}$")) {
-        	throw new WrongMedicineCodeException();	
         } else {
              this.medicineRepository.save(medicine);  
         }
@@ -55,11 +50,11 @@ public class MedicineService {
 	}
 
 	@Transactional
-	public void editMedicine(final Medicine medicine) throws WrongMedicineCodeException{
+	public void editMedicine(final Medicine medicine) throws DuplicatedMedicineCodeException{
 		Medicine medicineToUpdate = this.findMedicineById(medicine.getId());
 		String newCode = medicine.getCode();
 		if(this.codeAlreadyExists(newCode) && !newCode.equals(medicineToUpdate.getCode())) {
-			throw new WrongMedicineCodeException();
+			throw new DuplicatedMedicineCodeException();
 		} else {
 			this.medicineRepository.save(medicine);
 		}

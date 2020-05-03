@@ -88,25 +88,58 @@ class StayServiceTests {
 	protected OwnerService ownerService;	
         
     @Test
-	@Transactional
 	public void shouldAddNewStayForPet() {
-		Pet pet7 = this.petService.findPetById(7);
-		int found = pet7.getStays().size();
-		Stay stay = new Stay();
-		pet7.addStay(stay);
-		stay.setRegisterDate(LocalDate.now());
-		stay.setReleaseDate(LocalDate.now().plusDays(3));
-		stay.setStatus(Status.PENDING);
+    	Stay stay = this.stayService.findStayById(1);
+    	Stay s = new Stay();
+    	BeanUtils.copyProperties(stay, s, "id", "status");
+		s.setRegisterDate(LocalDate.now().plusYears(5));
+		s.setReleaseDate(LocalDate.now().plusYears(5).plusDays(3));
             try {
-            	this.stayService.saveStay(stay);
-                this.petService.savePet(pet7);
-            } catch (DuplicatedPetNameException | MaximumStaysReached ex) {
+            	this.stayService.saveStay(s);
+            } catch (MaximumStaysReached ex) {
                 Logger.getLogger(PetServiceTests.class.getName()).log(Level.SEVERE, null, ex);
             }
 
-		pet7 = this.petService.findPetById(7);
-		assertThat(pet7.getStays().size()).isEqualTo(found + 1);
-		assertThat(stay.getId()).isNotNull();
+		assertThat(s.getId()).isNotNull();
+		assertThat(s.getStatus()).isEqualTo(Status.PENDING);
+	}
+    
+    @Test
+    public void datesNotExist() {
+    	Stay stay = this.stayService.findStayById(1);
+    	Stay s = new Stay();
+    	BeanUtils.copyProperties(stay, s, "id", "pet", "status");
+    	Pet pet4 = this.petService.findPetById(4);
+    	s.setPet(pet4);
+    	boolean res = this.stayService.dayExists(s, -1);
+    	
+    	assertThat(res).isFalse();
+    }
+    
+    @Test
+    public void datesExist() {
+    	Stay stay = this.stayService.findStayById(1);
+    	Stay s = new Stay();
+    	BeanUtils.copyProperties(stay, s, "id");
+    	s.setRegisterDate(LocalDate.of(2020, 10, 2));
+		s.setReleaseDate(LocalDate.of(2020, 10, 4));
+		boolean res = this.stayService.dayExists(s, -1);
+		
+    	assertThat(res).isTrue();
+    }
+    
+    @Test
+	public void shouldNotAddNewStayForPet() {
+		Pet pet7 = this.petService.findPetById(1);
+		Stay stay = new Stay();
+		pet7.addStay(stay);
+		stay.setRegisterDate(LocalDate.of(2020, 10, 2));
+		stay.setReleaseDate(LocalDate.of(2020, 10, 4));
+        stay.setPet(pet7);
+		
+		assertThrows(MaximumStaysReached.class, () -> {
+			this.stayService.saveStay(stay);
+		});
 	}
 
 	@Test
@@ -127,9 +160,14 @@ class StayServiceTests {
 	}
 	
 	@Test
+	void shouldFindAllStays() {
+		assertThat(this.stayService.findAllStays().size()).isEqualTo(3);
+	}
+	
+	@Test
 	void shouldDeleteStayWithCorrectId() {
 		Stay stay = this.stayService.findStayById(2);
-		Pet pet = this.petService.findPetById(2);
+		Pet pet = this.petService.findPetById(7);
 		int numStays = pet.getStays().size();
 		try {
 			this.stayService.deleteStay(stay);
@@ -157,10 +195,12 @@ class StayServiceTests {
 		Stay stay = this.stayService.findStayById(2);
 		LocalDate d1 = LocalDate.now().plusYears(1);
 		LocalDate d2 = d1.plusDays(3);
+		Stay stay2 = new Stay();
+		BeanUtils.copyProperties(stay, stay2);
 		try {
-			stay.setRegisterDate(d1);
-			stay.setReleaseDate(d2);
-			this.stayService.editStay(stay);
+			stay2.setRegisterDate(d1);
+			stay2.setReleaseDate(d2);
+			this.stayService.editStay(stay2);
 		} catch (MaximumStaysReached | DateNotAllowed | StayAlreadyConfirmed e) {
 			e.printStackTrace();
 		}
@@ -197,18 +237,21 @@ class StayServiceTests {
 	@Test
 	void shouldNotEditStayRepeatedDate() {
 		Stay stay = this.stayService.findStayById(2);
-		
+		Stay s = new Stay();
+		BeanUtils.copyProperties(stay, s);
 		assertThrows(DateNotAllowed.class, () -> {
-			this.stayService.editStay(stay);
+			this.stayService.editStay(s);
 		});
 	}
 	
 	@Test
 	void shouldEditStayChangeStatus() {
 		Stay stay = this.stayService.findStayById(2);
+		Stay s = new Stay();
+		BeanUtils.copyProperties(stay, s);
 		try {
-			stay.setStatus(Status.ACCEPTED);
-			this.stayService.editStatus(stay);
+			s.setStatus(Status.ACCEPTED);
+			this.stayService.editStatus(s);
 		} catch (StayAlreadyConfirmed e) {
 			e.printStackTrace();
 		}
@@ -218,10 +261,11 @@ class StayServiceTests {
 	@Test
 	void shouldNotEditStayChangeStatus() {
 		Stay stay = this.stayService.findStayById(1);
-			
+		Stay s = new Stay();
+		BeanUtils.copyProperties(stay, s);	
 		assertThrows(StayAlreadyConfirmed.class, () -> {
-			stay.setStatus(Status.REJECTED);
-			this.stayService.editStatus(stay);
+			s.setStatus(Status.REJECTED);
+			this.stayService.editStatus(s);
 		});
 	}
 }
