@@ -67,7 +67,6 @@ public class PetControllerIntegrationTests {
     @Test
 	void testProcessCreationFormSuccess() throws Exception {
     	ModelMap model=new ModelMap();
-    	Owner owner=ownerService.findOwnerById(TEST_OWNER_ID1);
     	Pet newPet=new Pet();
     	PetType petType=petService.findPetTypes().iterator().next();
     	newPet.setName("Betty");
@@ -84,9 +83,7 @@ public class PetControllerIntegrationTests {
     @Test
 	void testProcessCreationFormHasErrors() throws Exception {
 		ModelMap model=new ModelMap();
-    	Owner owner=ownerService.findOwnerById(TEST_OWNER_ID1);
     	Pet newPet=new Pet();
-    	PetType petType=petService.findPetTypes().iterator().next();
     	newPet.setName("Betty");		
 		newPet.setBirthDate(LocalDate.now());    	
 		BindingResult bindingResult=new MapBindingResult(new HashMap(),"");
@@ -113,9 +110,7 @@ public class PetControllerIntegrationTests {
 	@Test
 	void testProcessUpdateFormHasErrors() throws Exception {
 		ModelMap model=new ModelMap();
-    	Owner owner=ownerService.findOwnerById(TEST_OWNER_ID1);
     	Pet newPet=new Pet();
-    	PetType petType=petService.findPetTypes().iterator().next();
     	newPet.setName("Betty");		
 		newPet.setBirthDate(LocalDate.now());    	
 		BindingResult bindingResult=new MapBindingResult(new HashMap(),"");
