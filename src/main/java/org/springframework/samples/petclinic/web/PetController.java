@@ -240,7 +240,7 @@ public class PetController {
 	}
 
 	@GetMapping(value = { "/requests" })
-	public String showPetRequests(Map<String, Object> model) {
+	public String showPetRequests(ModelMap model) {
 
 		List<Pet> petsRequests = this.petService.findPetsRequests(pending);
 		model.put("pets", petsRequests);
@@ -248,7 +248,7 @@ public class PetController {
 	}
 
 	@GetMapping(value = "/owner/requests")
-	public String showMyPetRequests(Map<String, Object> model) {
+	public String showMyPetRequests(ModelMap model) {
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		Owner owner = this.ownerService.findOwnerByUsername(username);
 		List<Pet> myPetsRequests = this.petService.findMyPetsRequests(pending,
@@ -258,7 +258,7 @@ public class PetController {
 	}
 
 	@GetMapping(value = "/owner/pets")
-	public String showMyPetsActive(Map<String, Object> model) {
+	public String showMyPetsActive(ModelMap model) {
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		Owner owner = this.ownerService.findOwnerByUsername(username);
 		List<Pet> myPets = this.petService.findMyPetsAcceptedByActive(accepted, true,
@@ -270,7 +270,7 @@ public class PetController {
 	}
 
 	@GetMapping(value = "/owners/{ownerId}/pets/disabled")
-	public String showMyPetsDisabled(@PathVariable("ownerId") int ownerId, Map<String, Object> model) {
+	public String showMyPetsDisabled(@PathVariable("ownerId") int ownerId, ModelMap model) {
 		if (securityAccessPetRequestAndProfile(ownerId, true)) {
 
 			Owner owner = this.ownerService.findOwnerById(ownerId);

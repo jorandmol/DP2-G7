@@ -94,11 +94,11 @@ public class AppointmentService {
     }
 
 	public List<Appointment> getAppointmentsTodayByVetId(Integer vetId, LocalDate date) {
-		return this.appointmentRepository.getAppointmentTodayByVetId(vetId, date);
+		return this.appointmentRepository.getAppointmentsTodayByVetId(vetId, date);
 	}
 
 	public List<Appointment> getNextAppointmentsByVetId(Integer vetId, LocalDate date) {
-		return this.appointmentRepository.getNextAppointmentByVetId(vetId, date);
+		return this.appointmentRepository.getNextAppointmentsByVetId(vetId, date);
 	}
 	
 	public Appointment findAppointmentByDate(Integer petId, LocalDate date) {

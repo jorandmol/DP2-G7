@@ -55,48 +55,6 @@ public class UserController {
 		this.ownerService = ownerService;
 		this.vetService = vetService;
 	}
-	
-	@InitBinder("owner")
-	public void initPetBinder(WebDataBinder dataBinder) {
-		dataBinder.setValidator(new OwnerValidator());
-	}
-	
-	@InitBinder
-	public void setAllowedFields(WebDataBinder dataBinder) {
-		dataBinder.setDisallowedFields("id");
-	}
-
-	@GetMapping(value = "/users/new")
-	public String initCreationForm(Map<String, Object> model) {
-		Owner owner = new Owner();
-		model.put("owner", owner);
-		return VIEWS_OWNER_CREATE_FORM;
-	}
-
-	@PostMapping(value = "/users/new")
-	public String processCreationForm(@Valid Owner owner, BindingResult result, ModelMap model) {
-		if (result.hasErrors()) {
-			model.addAttribute("owner", owner);
-			return VIEWS_OWNER_CREATE_FORM;
-		}
-		else {
-			//creating owner, user, and authority
-			try {
-				this.ownerService.saveOwner(owner);
-			} catch (Exception ex) {
-
-				if (owner.getUser().getUsername().isEmpty())
-					result.rejectValue("user.username", "empty");
-
-				if (ex.getClass().equals(DataIntegrityViolationException.class))
-					result.rejectValue("user.username", "duplicate");
-
-				return VIEWS_OWNER_CREATE_FORM;
-			}
-			
-			return "redirect:/";
-		}
-	}
 
 	@GetMapping(value= { "/users/profile" })
 	public String findUser() {

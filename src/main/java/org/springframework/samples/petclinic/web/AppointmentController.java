@@ -3,6 +3,7 @@ package org.springframework.samples.petclinic.web;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Appointment;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
+import org.springframework.samples.petclinic.model.PetRegistrationStatus;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.service.AppointmentService;
 import org.springframework.samples.petclinic.service.OwnerService;
@@ -32,6 +34,7 @@ public class AppointmentController {
 	private static final String	VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM = "pets/createOrUpdateAppointmentForm";	
 	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
 	private static final String REDIRECT_TO_PETS_DETAILS = "redirect:/owner/pets";
+	private static final PetRegistrationStatus accepted= PetRegistrationStatus.ACCEPTED;
 
 	@Autowired
 	private AppointmentService	appointmentService;
@@ -135,7 +138,10 @@ public class AppointmentController {
 			if (appointment.getAppointmentDate().minusDays(2).isEqual(LocalDate.now()) || appointment.getAppointmentDate().minusDays(2).isBefore(LocalDate.now())) {
 				model.addAttribute("errors", "No se puede cancelar una cita con dos o menos días de antelación");
 				model.addAttribute("owner", owner);
-				return "owners/ownerDetails";
+				List<Pet> myPets = this.petService.findMyPetsAcceptedByActive(accepted, true, owner.getId());
+				model.put("disabled", this.petService.countMyPetsAcceptedByActive(accepted, false, owner.getId())!= 0);
+				model.put("pets", myPets);
+				return "pets/myPetsActive";
 			} else {
 				pet.deleteAppointment(appointment);
 				this.appointmentService.deleteAppointment(appointment);
@@ -151,18 +157,17 @@ public class AppointmentController {
 		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
 				.collect(Collectors.toList()).get(0).toString();
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
-
-		Owner owner = this.ownerService.findOwnerById(ownerId);
-		Pet pet = this.petService.findPetById(petId);
 		
-		boolean isHisPet = false;
+		boolean isHisPetAcceptedAndActive = false;
 		String ownerUsername = null;
-		if (owner != null) {
-			isHisPet = owner.getPets().contains(pet);
+		if (authority.equals("owner")) {
+			Owner owner = this.ownerService.findOwnerById(ownerId);
+			Pet pet = this.petService.findPetById(petId);
+			isHisPetAcceptedAndActive = pet.getOwner().getId().equals(owner.getId()) && pet.isActive() && pet.getStatus().equals(accepted);
 			ownerUsername = owner.getUser().getUsername();
 		}
 
-		return authority.equals("owner") && username.equals(ownerUsername) && isHisPet;
+		return authority.equals("owner") && username.equals(ownerUsername) && isHisPetAcceptedAndActive;
 	}
 	
 }
