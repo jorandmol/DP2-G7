@@ -26,6 +26,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
+import org.springframework.samples.petclinic.model.PetRegistrationStatus;
 import org.springframework.samples.petclinic.model.Status;
 import org.springframework.samples.petclinic.model.Stay;
 import org.springframework.samples.petclinic.service.OwnerService;
@@ -57,7 +58,7 @@ public class StayController {
 	private final StayService stayService;
 
 	private final OwnerService ownerService;
-	
+
 	private final PetService petService;
 
 	@Autowired
@@ -88,19 +89,21 @@ public class StayController {
 	 */
 
 	private Boolean securityAccessRequest(Integer ownerId, Integer petId) {
-		Boolean res = false;
 		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
 				.collect(Collectors.toList()).get(0).toString();
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
-		Owner owner = this.ownerService.findOwnerById(ownerId);
-		Pet pet = this.petService.findPetById(petId);
-		Boolean isHisPet = owner.getPets().contains(pet);
+		boolean isHisPetAcceptedAndActive = false;
+		String ownerUsername = null;
+		if (authority.equals("owner")) {
+			Owner owner = this.ownerService.findOwnerById(ownerId);
+			Pet pet = this.petService.findPetById(petId);
 
-		if ((authority.equals("owner") && username.equals(owner.getUser().getUsername()) && isHisPet)) {
-			res = true;
+			isHisPetAcceptedAndActive = pet.getOwner().getId().equals(owner.getId()) && pet.isActive()
+					&& pet.getStatus().equals(PetRegistrationStatus.ACCEPTED);
+			ownerUsername = owner.getUser().getUsername();
 		}
-		return res;
+		return authority.equals("owner") && username.equals(ownerUsername) && isHisPetAcceptedAndActive;
 	}
 
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/stays")
@@ -108,8 +111,21 @@ public class StayController {
 		// Esta lista también puede ser accedida por el administrador
 		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
 				.collect(Collectors.toList()).get(0).toString();
+		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+		Boolean res = false;
+		if (authority.equals("owner")) {
+			Owner owner = this.ownerService.findOwnerById(ownerId);
+			Pet pet = this.petService.findPetById(petId);
 
-		if (this.securityAccessRequest(ownerId, petId) || authority.equals("admin")) {
+			Boolean isHisPetAcceptedAndActiveOrNot = pet.getOwner().getId().equals(owner.getId())
+					&& (pet.isActive() || pet.isActive() == false)
+					&& pet.getStatus().equals(PetRegistrationStatus.ACCEPTED);
+			String ownerUsername = owner.getUser().getUsername();
+
+			res = isHisPetAcceptedAndActiveOrNot && username.equals(ownerUsername);
+		}
+
+		if (res || authority.equals("admin")) {
 			model.put("stays", this.stayService.findStaysByPetId(petId));
 			model.put("pet", this.petService.findPetById(petId));
 			return "pets/staysList";
@@ -120,16 +136,8 @@ public class StayController {
 
 	@GetMapping(value = "/admin/stays")
 	public String initStayListForAdm(ModelMap model) {
-
-		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-				.collect(Collectors.toList()).get(0).toString();
-
-		if (authority.equals("admin")) {
-			model.put("stays", this.stayService.findAllStays());
-			return "pets/staysListAdmin";
-		} else {
-			return "redirect:/oups";
-		}
+		model.put("stays", this.stayService.findAllStays());
+		return "pets/staysListAdmin";
 	}
 
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/stays/new")
@@ -253,7 +261,7 @@ public class StayController {
 	@PostMapping(value = "/admin/stays/{stayId}")
 	public String processStayEditFormAdmin(@Valid final Stay stay, final BindingResult result,
 			@PathVariable("stayId") final int stayId, final ModelMap modelMap) {
-		
+
 		Stay stayToUpdate = this.stayService.findStayById(stayId);
 		BeanUtils.copyProperties(stayToUpdate, stay, "status");
 		List<Status> ls = new ArrayList<Status>();

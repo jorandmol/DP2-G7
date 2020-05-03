@@ -9,6 +9,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import static org.mockito.BDDMockito.given;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -34,17 +36,16 @@ public class PetTypeControllerTests {
 
 	@Autowired
 	private MockMvc mockMvc;
+	
+	private PetType pt;
 
 	@BeforeEach
-	void setUp() {
-		PetType petType = new PetType();
-		petType.setId(13);
-		petType.setName("bird");
-		try {
-			this.petTypeService.addPetType(petType);
-		} catch (DuplicatedPetNameException e) {
-			e.printStackTrace();
-		}
+	void setUp() throws DuplicatedPetNameException {
+		pt = new PetType();
+		pt.setId(1);
+		pt.setName("hamster");
+		given(this.petTypeService.findById(1)).willReturn(pt);
+		Mockito.doThrow(DuplicatedPetNameException.class).when(this.petTypeService).addPetType(pt);
 	}
 	
 	@WithMockUser(value = "spring")
@@ -76,6 +77,17 @@ public class PetTypeControllerTests {
 		mockMvc.perform(post("/pet-type/new")
 				.with(csrf())
 				.param("name", ""))
+		.andExpect(status().isOk())
+		.andExpect(view().name("pet-type/typeForm"));
+
+	}
+	
+	@WithMockUser(value = "spring")
+	@Test
+	void testProcessCreationFormHasRepeatedName() throws Exception {
+		mockMvc.perform(post("/pet-type/new")
+				.with(csrf())
+				.flashAttr("petType", pt))
 		.andExpect(status().isOk())
 		.andExpect(view().name("pet-type/typeForm"));
 
