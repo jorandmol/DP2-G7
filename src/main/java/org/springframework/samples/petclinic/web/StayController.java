@@ -261,9 +261,14 @@ public class StayController {
 	@PostMapping(value = "/admin/stays/{stayId}")
 	public String processStayEditFormAdmin(@Valid final Stay stay, final BindingResult result,
 			@PathVariable("stayId") final int stayId, final ModelMap modelMap) {
-
+		Status newStatus;
+		if(stay.getStatus() == null) {
+			newStatus = Status.PENDING;
+		} else {
+			 newStatus = stay.getStatus();
+		}
 		Stay stayToUpdate = this.stayService.findStayById(stayId);
-		BeanUtils.copyProperties(stayToUpdate, stay, "status");
+		BeanUtils.copyProperties(stayToUpdate, stay);
 		List<Status> ls = new ArrayList<Status>();
 		ls.add(Status.ACCEPTED);
 		ls.add(Status.REJECTED);
@@ -274,6 +279,7 @@ public class StayController {
 			return "pets/createOrUpdateStayFormAdmin";
 		} else {
 			try {
+				stay.setStatus(newStatus);
 				this.stayService.editStatus(stay);
 			} catch (StayAlreadyConfirmed e) {
 				result.rejectValue("status", "Stay already confirmed or rejected by admin",
