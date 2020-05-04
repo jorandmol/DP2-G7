@@ -30,6 +30,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 public class MedicalTestControllerTests {
 
+	private static final String VIEWS_MEDICAL_TEST_CREATE_OR_UPDATE_FORM = "medical-tests/createOrUpdateMedicalTestForm";
+	
 	private static final int TEST_MT_ID = 1;
 	
 	@Autowired
@@ -76,7 +78,7 @@ public class MedicalTestControllerTests {
 	void testIinitCreationForm() throws Exception {
 		mockMvc.perform(get("/medical-tests/new")).andExpect(status().isOk())
 				.andExpect(model().attributeExists("medicalTest"))
-				.andExpect(view().name("medical-tests/createOrUpdateMedicalTestForm"));
+				.andExpect(view().name(VIEWS_MEDICAL_TEST_CREATE_OR_UPDATE_FORM));
 	}
 
 	@WithMockUser(value = "spring")
@@ -96,7 +98,7 @@ public class MedicalTestControllerTests {
 				.param("description", ""))
 				.andExpect(model().attributeHasErrors("medicalTest"))
 				.andExpect(model().attributeHasFieldErrors("medicalTest", "description"))
-				.andExpect(view().name("medical-tests/createOrUpdateMedicalTestForm"));
+				.andExpect(view().name(VIEWS_MEDICAL_TEST_CREATE_OR_UPDATE_FORM));
 	}
 	
 	@WithMockUser(value = "spring")
@@ -104,7 +106,7 @@ public class MedicalTestControllerTests {
 	void testIinitUpdateForm() throws Exception {
 		mockMvc.perform(get("/medical-tests/{medicalTestId}/edit", TEST_MT_ID)).andExpect(status().isOk())
 				.andExpect(model().attributeExists("medicalTest"))
-				.andExpect(view().name("medical-tests/createOrUpdateMedicalTestForm"));
+				.andExpect(view().name(VIEWS_MEDICAL_TEST_CREATE_OR_UPDATE_FORM));
 	}
 	
 	@WithMockUser(value = "spring")
@@ -124,6 +126,6 @@ public class MedicalTestControllerTests {
 				.param("description", ""))
 				.andExpect(model().attributeHasErrors("medicalTest"))
 				.andExpect(model().attributeHasFieldErrors("medicalTest", "description"))
-				.andExpect(view().name("medical-tests/createOrUpdateMedicalTestForm"));
+				.andExpect(view().name(VIEWS_MEDICAL_TEST_CREATE_OR_UPDATE_FORM));
 	}
 }

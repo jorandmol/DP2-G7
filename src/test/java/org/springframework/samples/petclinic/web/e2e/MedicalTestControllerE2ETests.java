@@ -23,6 +23,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class MedicalTestControllerE2ETests {
 
+	private static final String VIEWS_MEDICAL_TEST_CREATE_OR_UPDATE_FORM = "medical-tests/createOrUpdateMedicalTestForm";
+
+	private static final String VIEWS_MEDICAL_TEST_LIST = "medical-tests/medicalTestsList";
+	
 	private static final int TEST_MT_ID = 1;
 	
 	@Autowired
@@ -33,7 +37,7 @@ public class MedicalTestControllerE2ETests {
 	void testShowMedicalTestsList() throws Exception {
 		mockMvc.perform(get("/medical-tests")).andExpect(status().isOk())
 				.andExpect(model().attributeExists("medicalTests"))
-				.andExpect(view().name("medical-tests/medicalTestsList"));
+				.andExpect(view().name(VIEWS_MEDICAL_TEST_LIST));
 	}
 
 	@WithMockUser(username="admin1",authorities= {"admin"})
@@ -41,7 +45,7 @@ public class MedicalTestControllerE2ETests {
 	void testIinitCreationForm() throws Exception {
 		mockMvc.perform(get("/medical-tests/new")).andExpect(status().isOk())
 				.andExpect(model().attributeExists("medicalTest"))
-				.andExpect(view().name("medical-tests/createOrUpdateMedicalTestForm"));
+				.andExpect(view().name(VIEWS_MEDICAL_TEST_CREATE_OR_UPDATE_FORM));
 	}
 
 	@WithMockUser(username="admin1",authorities= {"admin"})
@@ -61,7 +65,7 @@ public class MedicalTestControllerE2ETests {
 				.param("description", ""))
 				.andExpect(model().attributeHasErrors("medicalTest"))
 				.andExpect(model().attributeHasFieldErrors("medicalTest", "description"))
-				.andExpect(view().name("medical-tests/createOrUpdateMedicalTestForm"));
+				.andExpect(view().name(VIEWS_MEDICAL_TEST_CREATE_OR_UPDATE_FORM));
 	}
 	
 	@WithMockUser(username="admin1",authorities= {"admin"})
@@ -69,7 +73,7 @@ public class MedicalTestControllerE2ETests {
 	void testIinitUpdateForm() throws Exception {
 		mockMvc.perform(get("/medical-tests/{medicalTestId}/edit", TEST_MT_ID)).andExpect(status().isOk())
 				.andExpect(model().attributeExists("medicalTest"))
-				.andExpect(view().name("medical-tests/createOrUpdateMedicalTestForm"));
+				.andExpect(view().name(VIEWS_MEDICAL_TEST_CREATE_OR_UPDATE_FORM));
 	}
 	
 	@WithMockUser(username="admin1",authorities= {"admin"})
@@ -89,6 +93,6 @@ public class MedicalTestControllerE2ETests {
 				.param("description", ""))
 				.andExpect(model().attributeHasErrors("medicalTest"))
 				.andExpect(model().attributeHasFieldErrors("medicalTest", "description"))
-				.andExpect(view().name("medical-tests/createOrUpdateMedicalTestForm"));
+				.andExpect(view().name(VIEWS_MEDICAL_TEST_CREATE_OR_UPDATE_FORM));
 	}
 }
