@@ -76,7 +76,7 @@ public class AddMedicineUITest {
 		WebElement medTable = driver.findElement(By.id("medicinesTable"));
 		List<WebElement> medicinesList = medTable.findElements(By.id("med"));
 		medicines = medicinesList.size();
-		assertEquals(medicines,4);
+		assertEquals(medicines,7);
   }
 
 	private AddMedicineUITest whenIamLoggedIntheSystem() {	
@@ -84,15 +84,15 @@ public class AddMedicineUITest {
 	}
 	
 	private void iSeeMedicineTextAndClickGo() {
-		assertEquals("Medicines", driver.findElement(By.xpath("(//h3)[2]")).getText());
-		driver.findElement(By.xpath("(//a[contains(text(),'Go')])[2]")).click();
+		driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a/strong")).click();
+	    driver.findElement(By.linkText("Medicines")).click();
 	}
 	
 	private void thereAreMedicines() {
 		WebElement medTable = driver.findElement(By.id("medicinesTable"));
 		List<WebElement> medicinesList = medTable.findElements(By.id("med"));
 		medicines = medicinesList.size();
-		assertEquals(medicines,3);
+		assertEquals(medicines,6);
 		driver.findElement(By.linkText("New medicine")).click();
 	}
 	
@@ -128,7 +128,7 @@ public class AddMedicineUITest {
 	private AddMedicineUITest as(String username) {
 		this.username=username;
 	    driver.get("http://localhost:" + port);
-	    driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
+	    driver.findElement(By.xpath("//a[contains(@href, '/login')]")).click();
 	    driver.findElement(By.id("password")).clear();
 	    driver.findElement(By.id("password")).sendKeys(passwordOf(username));
 	    driver.findElement(By.id("username")).clear();
