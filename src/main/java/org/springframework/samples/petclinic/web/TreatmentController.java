@@ -172,7 +172,7 @@ public class TreatmentController {
 		boolean isHisPet = false;
 		String ownerUsername = null;
 		if (owner != null) {
-			isHisPet = owner.getPets().contains(pet);
+			isHisPet = pet.getOwner().getId().equals(owner.getId());
 			ownerUsername = owner.getUser().getUsername();
 		}
 
