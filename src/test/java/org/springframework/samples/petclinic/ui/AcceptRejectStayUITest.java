@@ -101,7 +101,7 @@ public class AcceptRejectStayUITest {
 	private AcceptRejectStayUITest as(String username) {
 		this.username=username;
 	    driver.get("http://localhost:" + port);
-	    driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
+	    driver.findElement(By.xpath("//a[contains(@href, '/login')]")).click();
 	    driver.findElement(By.id("password")).clear();
 	    driver.findElement(By.id("password")).sendKeys(passwordOf(username));
 	    driver.findElement(By.id("username")).clear();

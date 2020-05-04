@@ -90,7 +90,7 @@ public class CreateStayUITest {
 	
 	private void logIn() {
 		driver.get("http://localhost:" + port + "/");
-		driver.findElement(By.xpath("//a[contains(text(),'Login')]")).click();
+		driver.findElement(By.xpath("//a[contains(@href, '/login')]")).click();
 		driver.findElement(By.id("username")).click();
 		driver.findElement(By.id("username")).clear();
 		driver.findElement(By.id("username")).sendKeys("owner1");
