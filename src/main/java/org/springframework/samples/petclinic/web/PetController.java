@@ -132,7 +132,7 @@ public class PetController {
 				&& petToUpdate.getStatus().equals(accepted);
 		if (securityAccessPetRequestAndProfile(ownerId, edit) && isHisPetAcceptedAndAcctive) {
 			Pet pet = this.petService.findPetById(petId);
-			model.put("pet", pet);
+			model.addAttribute("pet", pet);
 			model.addAttribute("owner", pet.getOwner());
 			model.addAttribute("edit", edit);
 			return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
@@ -173,7 +173,7 @@ public class PetController {
 				model.put("pet", pet);
 				return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 			} else {
-				BeanUtils.copyProperties(pet, petToUpdate, "id", "owner", "visits", "status", "justification",
+				BeanUtils.copyProperties(pet, petToUpdate, "id", "owner", "stays", "appointments", "visits", "status", "justification",
 						"active");
 				try {
 					this.petService.savePet(petToUpdate);
