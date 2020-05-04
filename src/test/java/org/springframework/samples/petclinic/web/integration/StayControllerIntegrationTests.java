@@ -1,7 +1,6 @@
 package org.springframework.samples.petclinic.web.integration;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 import java.time.LocalDate;
 import java.util.Collections;

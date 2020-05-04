@@ -41,7 +41,7 @@ public class AddVisitUITest {
   @Test
   public void testAddVisitUISuccess() throws Exception {
     driver.get("http://localhost:" + port);
-    driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
+    driver.findElement(By.xpath("//div[@id='main-navbar']/ul[3]/li/a")).click();
     driver.findElement(By.id("username")).click();
     driver.findElement(By.id("username")).clear();
     driver.findElement(By.id("username")).sendKeys("vet1");
@@ -58,7 +58,7 @@ public class AddVisitUITest {
     new Select(driver.findElement(By.name("medicalTests"))).selectByVisibleText("Fluid Analysis");
     driver.findElement(By.xpath("//button[@type='submit']")).click();
     assertEquals("Already registered", driver.findElement(By.xpath("//table[@id='AppointmentsTodayTable']/tbody/tr[2]/td[5]")).getText());
-    driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
+    driver.findElement(By.xpath("//div[@id='main-navbar']/ul[3]/li/a")).click();
     driver.findElement(By.xpath("//a[contains(text(),'Logout')]")).click();
     driver.findElement(By.xpath("//button[@type='submit']")).click();
   }
@@ -66,7 +66,7 @@ public class AddVisitUITest {
   @Test
   public void testAddVisitUITestWithErrors() throws Exception {
     driver.get("http://localhost:" + port);
-    driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
+    driver.findElement(By.xpath("//div[@id='main-navbar']/ul[3]/li/a")).click();
     driver.findElement(By.id("username")).click();
     driver.findElement(By.id("username")).clear();
     driver.findElement(By.id("username")).sendKeys("vet1");
@@ -83,7 +83,7 @@ public class AddVisitUITest {
     driver.findElement(By.id("description")).sendKeys("Neutered pet properly");
     driver.findElement(By.xpath("//button[@type='submit']")).click();
     assertEquals("Already registered", driver.findElement(By.xpath("//table[@id='AppointmentsTodayTable']/tbody/tr/td[5]")).getText());
-    driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a/strong")).click();
+    driver.findElement(By.xpath("//div[@id='main-navbar']/ul[3]/li/a/strong")).click();
     driver.findElement(By.xpath("//a[contains(text(),'Logout')]")).click();
     driver.findElement(By.xpath("//button[@type='submit']")).click();
   }
