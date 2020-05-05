@@ -70,8 +70,8 @@ public class PetControllerE2ETests {
 				.andExpect(view().name(REDIRECT_TO_OUPS));
 	}
 
-	
-	
+
+
 	// TEST para usuario que SI cumple la seguridad
 	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
 	@Test
@@ -84,19 +84,19 @@ public class PetControllerE2ETests {
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:/owner/requests"));
 	}
-		
-	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
+
+	@WithMockUser(username = "owner10", password = "0wn3333r_10", authorities = "owner")
 	@Test
 	void testProcessCreationFormCatchException() throws Exception {
-		mockMvc.perform(post("/owners/{ownerId}/pets/new", TEST_OWNER_ID1)
+		mockMvc.perform(post("/owners/{ownerId}/pets/new", 10)
 				.with(csrf())
-				.param("name", "Leo")
-				.param("type", "hamster")
-				.param("birthDate", "2018/02/12"))
+				.param("name", "Sly")
+				.param("type", "cat")
+				.param("birthDate", "2012/06/08"))
 				.andExpect(status().isOk())
 				.andExpect(view().name(VIEWS_PETS_CREATE_OR_UPDATE_FORM));
 	}
-		
+
 
 	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
 	@Test
@@ -110,7 +110,7 @@ public class PetControllerE2ETests {
 				.andExpect(status().isOk())
 				.andExpect(view().name(VIEWS_PETS_CREATE_OR_UPDATE_FORM));
 	}
-		
+
 	// TEST para usuarios que NO cumplen la seguridad
 	@WithMockUser(username = "owner2", password = "0wn3333r_2", authorities = "owner")
 	@Test
@@ -120,7 +120,7 @@ public class PetControllerE2ETests {
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name(REDIRECT_TO_OUPS));
 		}
-		
+
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
 	@Test
 	void testProcessCreationFormSuccessWithoutAccessAdmin() throws Exception {
@@ -129,10 +129,10 @@ public class PetControllerE2ETests {
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name(REDIRECT_TO_OUPS));
 	}
-	
-	
 
-	
+
+
+
 	// TEST para usuarios que SI cumplen la seguridad
 	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
 	@Test
@@ -142,7 +142,7 @@ public class PetControllerE2ETests {
 				.andExpect(model().attributeExists("pet"))
 				.andExpect(view().name(VIEWS_PETS_CREATE_OR_UPDATE_FORM));
 	}
-	
+
 	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
 	@Test
 	void testInitUpdateMyPetActiveAndRejectedForm() throws Exception {
@@ -150,7 +150,7 @@ public class PetControllerE2ETests {
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name(REDIRECT_TO_OUPS));
 	}
-	
+
 	@WithMockUser(username = "owner3", password = "0wn3333r_3", authorities = "owner")
 	@Test
 	void testInitUpdateMyPetDisabledForm() throws Exception {
@@ -158,7 +158,7 @@ public class PetControllerE2ETests {
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name(REDIRECT_TO_OUPS));
 	}
-	
+
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
 	@Test
 	void testInitUpdatePetForm() throws Exception {
@@ -167,7 +167,7 @@ public class PetControllerE2ETests {
 				.andExpect(model().attributeExists("pet"))
 				.andExpect(view().name(VIEWS_PETS_CREATE_OR_UPDATE_FORM));
 	}
-	
+
 	// TEST para usuario que NO cumple la seguridad
 	@WithMockUser(username = "owner2", password = "0wn3333r_2", authorities = "owner")
 	@Test
@@ -176,10 +176,10 @@ public class PetControllerE2ETests {
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name(REDIRECT_TO_OUPS));
 	}
-	
-	
-	
-	
+
+
+
+
 	// TEST para usuarios que SI cumplen la seguridad
 	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
 	@Test
@@ -191,7 +191,7 @@ public class PetControllerE2ETests {
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:/owner/pets"));
 	}
-		
+
 	@WithMockUser(username = "owner2", password = "0wn3333r_2", authorities = "owner")
 	@Test
 	void testProcessUpdateMyPetFormCatchException() throws Exception {
@@ -202,7 +202,7 @@ public class PetControllerE2ETests {
 				.andExpect(status().isOk())
 				.andExpect(view().name(VIEWS_PETS_CREATE_OR_UPDATE_FORM));
 	}
-		
+
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
 	@Test
 	void testProcessUpdatePetFormSuccess() throws Exception {
@@ -225,7 +225,7 @@ public class PetControllerE2ETests {
 				.andExpect(status().isOk())
 				.andExpect(view().name(VIEWS_PETS_CREATE_OR_UPDATE_FORM));
 	}
-		
+
 	// TEST para usuario que NO cumple la seguridad
 	@WithMockUser(username = "owner2", password = "0wn3333r_2", authorities = "owner")
 	@Test
@@ -237,9 +237,9 @@ public class PetControllerE2ETests {
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name(REDIRECT_TO_OUPS));
 	}
-	
-	
-	
+
+
+
 	// TEST para usuarios que SI cumplen la seguridad
 	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
 	@Test
@@ -251,18 +251,18 @@ public class PetControllerE2ETests {
 				.andExpect(status().isOk())
 				.andExpect(view().name("pets/updatePetRequest"));
 	}
-		
+
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
 	@Test
 	void testUpdatePetRequestPending() throws Exception{
-		mockMvc.perform(get("/owners/{ownerId}/pet/{petId}", TEST_OWNER_ID1, TEST_PET_ID_3))
-				.andExpect(model().attributeExists("status"))
+		mockMvc.perform(get("/owners/{ownerId}/pet/{petId}", 10, 12))
+                .andExpect(model().attributeExists("status"))
 				.andExpect(model().attributeExists("pet"))
 				.andExpect(model().attributeExists("petRequest"))
 				.andExpect(status().isOk())
 				.andExpect(view().name("pets/updatePetRequest"));
 	}
-		
+
 	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
 	@Test
 	void testShowPetRequestRejected() throws Exception{
@@ -274,7 +274,7 @@ public class PetControllerE2ETests {
 				.andExpect(status().isOk())
 				.andExpect(view().name("pets/updatePetRequest"));
 	}
-		
+
 	// TEST para usuario que NO cumple la seguridad
 	@WithMockUser(username = "owner2", password = "0wn3333r_2", authorities = "owner")
 	@Test
@@ -283,10 +283,10 @@ public class PetControllerE2ETests {
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name(REDIRECT_TO_OUPS));
 	}
-	
-	
-	
-	
+
+
+
+
 	// TEST para usuarios que SI cumplen la seguridad
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
 	@Test
@@ -297,7 +297,7 @@ public class PetControllerE2ETests {
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:/requests"));
 	}
-		
+
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
 	@Test
 	void testAnswerPetRequestHasErrors() throws Exception{
@@ -309,7 +309,7 @@ public class PetControllerE2ETests {
 				.andExpect(status().isOk())
 				.andExpect(view().name("pets/updatePetRequest"));
 	}
-		
+
 	// TEST para usuario que NO cumple la seguridad
 	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
 	@Test
@@ -320,7 +320,7 @@ public class PetControllerE2ETests {
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name(REDIRECT_TO_OUPS));
 	}
-	
+
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
 	@Test
 	void testAnswerPetRequestWithoutAccessNotPending() throws Exception{
@@ -330,9 +330,9 @@ public class PetControllerE2ETests {
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name(REDIRECT_TO_OUPS));
 	}
-	
-	
-	
+
+
+
 	// TEST para usuario que SI cumple la seguridad
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
 	@Test
@@ -341,17 +341,17 @@ public class PetControllerE2ETests {
 				.andExpect(status().isOk())
 				.andExpect(view().name("pets/requests"));
 	}
-		
+
 	// TEST para usuario que NO cumple la seguridad
 	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
 	@Test
 	void testShowPetRequestsWithoutAccess() throws Exception {
 		mockMvc.perform(get("/requests"))
 				.andExpect(status().is4xxClientError());
-	}	
-	
-	
-	
+	}
+
+
+
 	// TEST para usuario que SI cumple la seguridad
 	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
 	@Test
@@ -360,7 +360,7 @@ public class PetControllerE2ETests {
 				.andExpect(status().isOk())
 				.andExpect(view().name("pets/myRequests"));
 	}
-	
+
 	// TEST para usuario que NO cumple la seguridad
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
 	@Test
@@ -368,10 +368,10 @@ public class PetControllerE2ETests {
 		mockMvc.perform(get("/owner/requests"))
 				.andExpect(status().is4xxClientError());
 	}
-	
-	
-	
-	
+
+
+
+
 	// TEST para usuario sin pets disabled
 	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
 	@Test
@@ -400,20 +400,20 @@ public class PetControllerE2ETests {
 		mockMvc.perform(get("/owner/pets"))
 				.andExpect(status().is4xxClientError());
 	}
-	
-	
-	
+
+
+
 	// TEST para usuarios que SI cumplen la seguridad
 		@WithMockUser(username = "owner3", password = "0wn3333r_3", authorities = "owner")
 		@Test
 		void showMyPetsDisabled() throws Exception{
 			mockMvc.perform(get("/owners/{ownerId}/pets/disabled", TEST_OWNER_ID3))
 					.andExpect(model().attributeExists("owner"))
-					.andExpect(model().attributeExists("pets"))		
+					.andExpect(model().attributeExists("pets"))
 					.andExpect(status().isOk())
 					.andExpect(view().name("pets/myPetsDisabled"));
 		}
-		
+
 		@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
 		@Test
 		void showOwnerPetsDisabled() throws Exception{
@@ -423,7 +423,7 @@ public class PetControllerE2ETests {
 					.andExpect(status().isOk())
 					.andExpect(view().name("pets/myPetsDisabled"));
 		}
-		
+
 		// TEST para usuario que NO cumple la seguridad
 		@WithMockUser(username = "owner2", password = "0wn3333r_2", authorities = "owner")
 		@Test
@@ -432,7 +432,7 @@ public class PetControllerE2ETests {
 					.andExpect(status().is3xxRedirection())
 					.andExpect(view().name(REDIRECT_TO_OUPS));
 		}
-		
+
 		@WithMockUser(username = "owner2", password = "0wn3333r_2", authorities = "owner")
 		@Test
 		void showOtherPetsDisabledWithoutAccess() throws Exception{
@@ -440,5 +440,5 @@ public class PetControllerE2ETests {
 					.andExpect(status().is3xxRedirection())
 					.andExpect(view().name(REDIRECT_TO_OUPS));
 		}
-		
+
 }
