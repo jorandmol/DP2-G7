@@ -50,4 +50,7 @@ public interface SpringDataPetRepository extends PetRepository, Repository<Pet, 
 	@Query("SELECT COUNT(p) FROM Pet p WHERE p.status=:accepted AND p.active=:active AND p.owner.id=:ownerId")
 	int countMyPetsAcceptedByActive(@Param("accepted") PetRegistrationStatus accepted, @Param("active") boolean active, @Param("ownerId") Integer ownerId);
 
+	@Query("SELECT p FROM Pet p WHERE p.owner.id=:ownerId")
+	List<Pet> findAllPetsByOwnerId(@Param("ownerId") Integer ownerId);
+
 }
