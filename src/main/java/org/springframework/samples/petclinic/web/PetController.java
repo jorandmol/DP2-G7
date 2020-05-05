@@ -219,8 +219,8 @@ public class PetController {
 			@PathVariable("petId") int petId, ModelMap model) {
 
 		Pet petToUpdate = this.petService.findPetById(petId);
-		
-		if (isAdmin() && petToUpdate.getStatus().equals(pending)) {
+		Owner owner = this.ownerService.findOwnerById(ownerId);
+		if (isAdmin() && petToUpdate.getStatus().equals(pending) && petToUpdate.getOwner().getId().equals(owner.getId())) {
 
 			List<PetRegistrationStatus> status = new ArrayList<>();
 			status.add(rejected);
@@ -233,7 +233,7 @@ public class PetController {
 				return "pets/updatePetRequest";
 			} else {
 				BeanUtils.copyProperties(pet, petToUpdate, "id", "owner", "visits", "name", "birthDate", "type",
-						"active");
+						"active", "stays", "appointments");
 				try {
 					this.petService.savePet(petToUpdate);
 				} catch (DuplicatedPetNameException ex) {
