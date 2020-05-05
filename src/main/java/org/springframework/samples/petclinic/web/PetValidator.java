@@ -62,7 +62,7 @@ public class PetValidator implements Validator {
 				errors.rejectValue("birthDate", REQUIRED, REQUIRED);
 			}
 			else if(pet.getBirthDate().isAfter(now)) {
-				errors.rejectValue("birthDate", "BirthDate must be before or equal to today ",
+				errors.rejectValue("birthDate", "BirthDate must be before or equal to today",
 						"BirthDate must be before or equal to today");
 			}
 		} 
@@ -72,12 +72,6 @@ public class PetValidator implements Validator {
 						"justification is mandatory if the application is rejected");
 			}
 		} 
-//			if (pet.getStatus().equals(PetRegistrationStatus.REJECTED) && pet.getJustification().isEmpty()) {
-//				errors.rejectValue("justification", "justification is mandatory if the application is rejected",
-//						"justification is mandatory if the application is rejected");
-//			}
-//		}
-
 	}
 
 	/**

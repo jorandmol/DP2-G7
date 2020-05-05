@@ -141,7 +141,7 @@ class VetControllerTests {
 
 		specialties1.add(radiology);
 		specialties1.add(surgery);
-				
+
 		Pet pet1 = new Pet();
 		pet1.setId(TEST_PET_ID_1);
 		Pet pet2 = new Pet();

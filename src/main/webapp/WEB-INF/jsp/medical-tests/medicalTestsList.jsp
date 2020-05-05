@@ -19,7 +19,7 @@
         </thead>
         <tbody>
         <c:forEach items="${medicalTests}" var="medicalTest">
-            <tr>
+            <tr id="medicalTest">
                 <td>
                    <c:out value="${medicalTest.name}"/>
                 </td>

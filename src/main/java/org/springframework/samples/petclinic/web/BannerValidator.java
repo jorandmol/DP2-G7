@@ -38,19 +38,19 @@ public class BannerValidator implements Validator {
 		
 		Banner banner = (Banner) obj;
 
-		if (banner.getPicture().isEmpty() || banner.getPicture() == null) {
+		if (banner.getPicture().isEmpty()) {
 			errors.rejectValue("picture", "empty", "cannot be empty");
 		}
 
-		if (banner.getSlogan().isEmpty() || banner.getSlogan() == null) {
+		if (banner.getSlogan().isEmpty()) {
 			errors.rejectValue("slogan", "empty", "cannot be empty");
 		}
 
-		if (banner.getTargetUrl().isEmpty() || banner.getTargetUrl() == null) {
+		if (banner.getTargetUrl().isEmpty()) {
 			errors.rejectValue("targetUrl", "empty", "cannot be empty");
 		}
 
-		if (banner.getOrganizationName().isEmpty() || banner.getOrganizationName() == null) {
+		if (banner.getOrganizationName().isEmpty()) {
 			errors.rejectValue("organizationName", "empty", "cannot be empty");
 		}
 
