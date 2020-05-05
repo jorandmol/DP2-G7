@@ -52,19 +52,17 @@ import org.springframework.test.web.servlet.MockMvc;
 class VetControllerTests {
 
 	private static final int TEST_VET_ID_1 = 1;
-	
 	private static final int TEST_VET_ID_2 = 2;
-	
 	private static final int TEST_VET_ID_3 = 3;
-	
 	private static final int TEST_VET_ID_5 = 5;
 	
 	private static final Integer TEST_PET_ID_1 = 1;
-	
 	private static final Integer TEST_PET_ID_2 = 2;
-
 	private static final Integer TEST_PET_ID_3 = 3;
 	
+	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
+	private static final String VIEWS_VET_CREATE_OR_UPDATE_FORM = "vets/createOrUpdateVetForm";
+
 	@MockBean
 	private BannerService bannerService;
 
@@ -278,7 +276,7 @@ class VetControllerTests {
 	@WithMockUser(username = "vet1", password = "veter1n4ri0_1", authorities = "veterinarian")
 	@Test
 	void testShowVetListWithoutAccess() throws Exception {
-		mockMvc.perform(get("/vets")).andExpect(status().is3xxRedirection()).andExpect(view().name("redirect:/oups"));
+		mockMvc.perform(get("/vets")).andExpect(status().is3xxRedirection()).andExpect(view().name(REDIRECT_TO_OUPS));
 	}
 
 	
@@ -296,7 +294,7 @@ class VetControllerTests {
 	@Test
 	void testInitCreationForm() throws Exception {
 		mockMvc.perform(get("/vets/new")).andExpect(status().isOk()).andExpect(model().attributeExists("vet"))
-				.andExpect(view().name("vets/createOrUpdateVetForm"));
+				.andExpect(view().name(VIEWS_VET_CREATE_OR_UPDATE_FORM));
 	}
 
 	// TEST para usuario que NO cumple la seguridad
@@ -304,7 +302,7 @@ class VetControllerTests {
 	@Test
 	void testInitCreationFormWithoutAccess() throws Exception {
 		mockMvc.perform(get("/vets/new")).andExpect(status().is3xxRedirection())
-				.andExpect(view().name("redirect:/oups"));
+				.andExpect(view().name(REDIRECT_TO_OUPS));
 	}
 	
 
@@ -324,7 +322,7 @@ class VetControllerTests {
 		mockMvc.perform(post("/vets/new").with(csrf())
 				.flashAttr("vet", vet5))
 				.andExpect(status().isOk())
-				.andExpect(view().name("vets/createOrUpdateVetForm"));
+				.andExpect(view().name(VIEWS_VET_CREATE_OR_UPDATE_FORM));
 
 	}
 	
@@ -344,7 +342,7 @@ class VetControllerTests {
 				.andExpect(model().attributeHasFieldErrors("vet", "firstName"))
 				.andExpect(model().attributeHasFieldErrors("vet", "telephone"))
 				.andExpect(model().attributeHasFieldErrors("vet", "user.password"))
-				.andExpect(view().name("vets/createOrUpdateVetForm"));
+				.andExpect(view().name(VIEWS_VET_CREATE_OR_UPDATE_FORM));
 	}
 
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
@@ -365,7 +363,7 @@ class VetControllerTests {
 				.andExpect(model().attributeHasFieldErrors("vet", "address"))
 				.andExpect(model().attributeHasFieldErrors("vet", "telephone"))
 				.andExpect(model().attributeHasFieldErrors("vet", "user.password"))
-				.andExpect(view().name("vets/createOrUpdateVetForm"));
+				.andExpect(view().name(VIEWS_VET_CREATE_OR_UPDATE_FORM));
 	}
 
 	// TEST para usuario que NO cumple la seguridad
@@ -381,7 +379,7 @@ class VetControllerTests {
 				.param("user.username", "vet55")
 				.param("user.password", "v3terinario_55"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(view().name("redirect:/oups"));
+				.andExpect(view().name(REDIRECT_TO_OUPS));
 	}
 	
 	
@@ -398,7 +396,7 @@ class VetControllerTests {
 				.andExpect(model().attribute("vet", hasProperty("address", is("110 W. Liberty St."))))
 				.andExpect(model().attribute("vet", hasProperty("city", is("Madison"))))
 				.andExpect(model().attribute("vet", hasProperty("telephone", is("608555102"))))
-				.andExpect(view().name("vets/createOrUpdateVetForm"));
+				.andExpect(view().name(VIEWS_VET_CREATE_OR_UPDATE_FORM));
 	}
 	
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
@@ -413,7 +411,7 @@ class VetControllerTests {
 				.andExpect(model().attribute("vet", hasProperty("address", is("110 W. Liberty St."))))
 				.andExpect(model().attribute("vet", hasProperty("city", is("Madison"))))
 				.andExpect(model().attribute("vet", hasProperty("telephone", is("608555102"))))
-				.andExpect(view().name("vets/createOrUpdateVetForm"));
+				.andExpect(view().name(VIEWS_VET_CREATE_OR_UPDATE_FORM));
 	}
 	
 	
@@ -423,7 +421,7 @@ class VetControllerTests {
 	void testInitUpdateVetFormWithoutAccess() throws Exception {
 		mockMvc.perform(get("/vets/{vetId}/edit", TEST_VET_ID_1))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(view().name("redirect:/oups"));
+				.andExpect(view().name(REDIRECT_TO_OUPS));
 	}
 	
 	@WithMockUser(username = "vet2", password = "veter1n4ri0_2", authorities = "owner")
@@ -431,7 +429,7 @@ class VetControllerTests {
 	void testInitUpdateVetFormWithoutAuthorities() throws Exception {
 		mockMvc.perform(get("/vets/{vetId}/edit", TEST_VET_ID_1))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(view().name("redirect:/oups"));
+				.andExpect(view().name(REDIRECT_TO_OUPS));
 	}
 	
 	
@@ -470,7 +468,7 @@ class VetControllerTests {
 				.andExpect(model().attributeHasErrors("vet"))
 				.andExpect(model().attributeHasFieldErrors("vet", "address"))
 				.andExpect(model().attributeHasFieldErrors("vet", "city"))
-				.andExpect(view().name("vets/createOrUpdateVetForm"));
+				.andExpect(view().name(VIEWS_VET_CREATE_OR_UPDATE_FORM));
 	}
 	
 	// TEST para usuario que NO cumple la seguridad
@@ -486,7 +484,7 @@ class VetControllerTests {
 				.flashAttr("specialties", specialties1)
 				.param("user.password", "str0ng-passw0rd"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(view().name("redirect:/oups"));
+				.andExpect(view().name(REDIRECT_TO_OUPS));
 
 	}
 	
@@ -556,7 +554,7 @@ class VetControllerTests {
 	void testShowVetWithoutAccess() throws Exception {
 		mockMvc.perform(get("/vets/{vetId}", TEST_VET_ID_1))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(view().name("redirect:/oups"));
+				.andExpect(view().name(REDIRECT_TO_OUPS));
 	}
 	
 	@WithMockUser(username = "vet2", password = "veter1n4ri0_2", authorities = "owner")
@@ -564,7 +562,7 @@ class VetControllerTests {
 	void testShowVetWithoutAuthorities() throws Exception {
 		mockMvc.perform(get("/vets/{vetId}", TEST_VET_ID_1))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(view().name("redirect:/oups"));
+				.andExpect(view().name(REDIRECT_TO_OUPS));
 	}
 	
 	@WithMockUser(username="vet1", password="veter1n4ri0_1", authorities="veterinarian")
