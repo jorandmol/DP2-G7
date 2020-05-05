@@ -41,7 +41,7 @@ public class AppointmentControllerIntegrationTests {
 	private static final int TEST_VET_ID = 1;
 	private static final int TEST_WRONG_OWNER_ID = 2;
 	
-	private LocalDate date = LocalDate.now().plusDays(5);
+	private LocalDate date = LocalDate.now().plusDays(100);
 	private LocalDate appointmentDate1 = date.getDayOfWeek().equals(DayOfWeek.SUNDAY) ? date.plusDays(1) : date;
 	private LocalDate appointmentDate2 = date.plusDays(1).getDayOfWeek().equals(DayOfWeek.SUNDAY) ? date.plusDays(2) : date.plusDays(1);
 	
