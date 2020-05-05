@@ -95,11 +95,11 @@ class VetServiceTests {
 		vet.setAddress("30, Avenida Reina Mercedes");
 		vet.setCity("Sevilla");
 		vet.setTelephone("123456789");
-                User user=new User();
-                user.setUsername("elenamolino");
-                user.setPassword("p4ss-w0rd-");
-                user.setEnabled(true);
-                vet.setUser(user);
+        User user=new User();
+        user.setUsername("elenamolino");
+        user.setPassword("p4ss-w0rd-");
+        user.setEnabled(true);
+        vet.setUser(user);
 
 		this.vetService.saveVet(vet);
 		assertThat(vet.getId()).isNotEqualTo(0);
@@ -124,14 +124,11 @@ class VetServiceTests {
 		Collection<Specialty> specialties= this.vetService.findSpecialties();
 		vet.addSpecialty(EntityUtils.getById(specialties, Specialty.class, 1));
 		vet.addSpecialty(EntityUtils.getById(specialties, Specialty.class, 2));
-		System.out.println("............................................................");
-		System.out.println(vet.getSpecialties());
-		System.out.println("............................................................");
-                User user=new User();
-                user.setUsername("elenamolino1");
-                user.setPassword("p4ss-w0rd-");
-                user.setEnabled(true);
-                vet.setUser(user);
+        User user=new User();
+        user.setUsername("elenamolino1");
+        user.setPassword("p4ss-w0rd-");
+        user.setEnabled(true);
+        vet.setUser(user);
 
 		this.vetService.saveVet(vet);
 		assertThat(vet.getId()).isNotEqualTo(0);
@@ -149,11 +146,11 @@ class VetServiceTests {
 		vet.setAddress("30, Avenida Reina Mercedes");
 		vet.setCity("Almedralejo");
 		vet.setTelephone("123456789");
-				User user=new User();
-				user.setUsername("elenamolino2");
-				user.setPassword("p4ss-w0rd");
-				user.setEnabled(true);
-				vet.setUser(user);
+        User user=new User();
+        user.setUsername("elenamolino2");
+        user.setPassword("0wn3333r_1");
+        user.setEnabled(true);
+        vet.setUser(user);
 		try {
 			vetService.saveVet(vet);
 		} catch (Exception e) {
@@ -161,10 +158,10 @@ class VetServiceTests {
 		}
 
 		Vet vetWithSameUsername = new Vet();
-			User user1=new User();
-			user1.setUsername("elenamolino2");
-			user1.setPassword("p4ss-w0rd");
-			user1.setEnabled(true);
+        User user1=new User();
+        user1.setUsername("elenamolino2");
+        user1.setPassword("0wn3333r_2");
+        user1.setEnabled(true);
 
 		vetWithSameUsername.setUser(user1);
 		Assertions.assertThrows(DataIntegrityViolationException.class, () ->{
@@ -181,11 +178,11 @@ class VetServiceTests {
 		vet.setAddress("30, Avenida Reina Mercedes");
 		vet.setCity("Almedralejo");
 		vet.setTelephone("123456789");
-				User user=new User();
-				user.setUsername("");
-				user.setPassword("p4ss-w0rd");
-				user.setEnabled(true);
-				vet.setUser(user);
+        User user=new User();
+        user.setUsername("");
+        user.setPassword("0wn3333r_1");
+        user.setEnabled(true);
+        vet.setUser(user);
 		try {
 			vetService.saveVet(vet);
 		} catch (Exception e) {
