@@ -110,18 +110,18 @@ INSERT INTO appointments(id,appointment_date,appointment_request_date,descriptio
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (7,'2020-08-30','2020-03-27','Fracture treatment',1,1,1);
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (8,'2020-05-01','2020-03-27','Dental checkup',2,2,1);
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (9,'2020-05-01','2020-03-27','Medical appointment',10,12,1);
-INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (10,SYSDATE()+2,'2020-03-27','Radiographic study',1,1,2);
-INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (11,SYSDATE(),'2020-03-27','Fracture treatment',1,1,2);
-INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (12,SYSDATE(),'2020-03-15','Rabies shot',4,15,1);
-INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (13,SYSDATE(),'2020-02-23','Annual checkup',7,20,1);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (10,CURRENT_DATE()+2,'2020-03-27','Radiographic study',1,1,2);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (11,CURRENT_DATE(),'2020-03-27','Fracture treatment',1,1,2);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (12,CURRENT_DATE(),'2020-03-15','Rabies shot',4,15,1);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (13,CURRENT_DATE(),'2020-02-23','Annual checkup',7,20,1);
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (14,'2020-03-24','2020-03-20','Radiographic study',2,14,2);
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (15,'2020-03-10','2020-03-08','Toxicologic study',2,17,4);
-INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (16,SYSDATE()+2,'2020-04-18','Dental checkup',6,10,3);
-INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (17,SYSDATE(),'2020-05-02','Dental checkup',8,19,3);
-INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (18,SYSDATE()+3,'2020-04-23','Toxicologic study',9,21,4);
-INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (19,SYSDATE(),'2020-05-02','Examination of spots on the pet''s skin',5,16,5);
-INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (20,SYSDATE()+1,'2020-03-14','Fluid Analysis and CBC test',2,14,6);
-INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (21,SYSDATE(),'2020-02-23','Annual checkup',7,18,1);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (16,CURRENT_DATE()+2,'2020-04-18','Dental checkup',6,10,3);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (17,CURRENT_DATE(),'2020-05-02','Dental checkup',8,19,3);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (18,CURRENT_DATE()+3,'2020-04-23','Toxicologic study',9,21,4);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (19,CURRENT_DATE(),'2020-05-02','Examination of spots on the pet''s skin',5,16,5);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (20,CURRENT_DATE()+1,'2020-03-14','Fluid Analysis and CBC test',2,14,6);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (21,CURRENT_DATE(),'2020-02-23','Annual checkup',7,18,1);
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (22,'2020-01-26','2019-12-05','Sterilization',3,5,4);
 
 INSERT INTO visits(id,pet_id,visit_date,description) VALUES (1, 7, '2019-01-01', 'Successful rabies vaccination');
