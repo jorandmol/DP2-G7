@@ -321,6 +321,8 @@ class VetControllerTests {
 		
 		mockMvc.perform(post("/vets/new").with(csrf())
 				.flashAttr("vet", vet5))
+				.andExpect(model().errorCount(1))
+				.andExpect(model().hasErrors())
 				.andExpect(status().isOk())
 				.andExpect(view().name(VIEWS_VET_CREATE_OR_UPDATE_FORM));
 
@@ -414,7 +416,6 @@ class VetControllerTests {
 				.andExpect(view().name(VIEWS_VET_CREATE_OR_UPDATE_FORM));
 	}
 	
-	
 	// TEST para usuarios que NO cumplen la seguridad
 	@WithMockUser(username = "vet2", password = "veter1n4ri0_2", authorities = "veterinarian")
 	@Test
@@ -431,6 +432,8 @@ class VetControllerTests {
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name(REDIRECT_TO_OUPS));
 	}
+	
+	
 	
 	
 	// TEST para usuarios que SI cumple la seguridad
@@ -481,14 +484,15 @@ class VetControllerTests {
 				.param("address", "123 Caramel Street")
 				.param("city", "London")
 				.param("telephone", "123456789")
-				.flashAttr("specialties", specialties1)
-				.param("user.password", "str0ng-passw0rd"))
+				.param("user.password", "str0ng_passw0rd"))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name(REDIRECT_TO_OUPS));
 
 	}
 	
 
+	
+	
 	//Comprobar que, las listas de appointments de un vet TIENEN citas 
 	@WithMockUser(username = "vet1", password = "veter1n4ri0_1", authorities = "veterinarian")
 	@Test
@@ -497,6 +501,7 @@ class VetControllerTests {
 				.andExpect(status().isOk())
 				.andExpect(model().attributeExists("appointmentsToday"))
 				.andExpect(model().attribute("appointmentsToday", appointmentsToday1))
+				.andExpect(model().attributeExists("appointmentsWithVisit"))
 				.andExpect(model().attributeExists("nextAppointments"))
 				.andExpect(model().attribute("nextAppointments", nextAppointments1 ))
 				.andExpect(view().name("vets/appointmentsList"));
@@ -508,6 +513,7 @@ class VetControllerTests {
 	void testShowAppoimentsByVetListWithVisits() throws Exception {
 		mockMvc.perform(get("/appointments")).andExpect(status().isOk())
 				.andExpect(model().attributeExists("appointmentsToday"))
+				.andExpect(model().attributeExists("appointmentsWithVisit"))
 				.andExpect(model().attributeExists("nextAppointments"))
 				.andExpect(view().name("vets/appointmentsList"));
 
@@ -518,6 +524,7 @@ class VetControllerTests {
 	void testShowAppoimentsByVetListEmpty() throws Exception {
 		mockMvc.perform(get("/appointments")).andExpect(status().isOk())
 				.andExpect(model().attribute("appointmentsToday", appointments))
+				.andExpect(model().attributeExists("appointmentsWithVisit"))
 				.andExpect(model().attribute("nextAppointments", appointments))
 				.andExpect(view().name("vets/appointmentsList"));
 

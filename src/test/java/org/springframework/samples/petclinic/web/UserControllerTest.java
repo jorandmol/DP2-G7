@@ -101,7 +101,8 @@ public class UserControllerTest {
 	@Test
 	void testFindUserProfileVetWithoutAccess() throws Exception {
 		
-		mockMvc.perform(get("/users/profile")).andExpect(status().is3xxRedirection())
+		mockMvc.perform(get("/users/profile"))
+				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:/oups"));
 	}
 	
