@@ -25,6 +25,7 @@ import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.PetRegistrationStatus;
 import org.springframework.samples.petclinic.model.PetType;
 import org.springframework.samples.petclinic.model.Visit;
+import org.springframework.samples.petclinic.repository.OwnerRepository;
 import org.springframework.samples.petclinic.repository.PetRepository;
 import org.springframework.samples.petclinic.repository.VisitRepository;
 import org.springframework.samples.petclinic.service.exceptions.DuplicatedPetNameException;
@@ -42,6 +43,8 @@ import org.springframework.util.StringUtils;
 public class PetService {
 
 	private PetRepository petRepository;
+	
+	private OwnerRepository ownerRepository;
 
 	private VisitRepository visitRepository;
 
@@ -78,13 +81,26 @@ public class PetService {
 	}
 
 	@Transactional(rollbackFor = DuplicatedPetNameException.class)
-	public void savePet(Pet pet) throws DataAccessException, DuplicatedPetNameException {
-		Pet otherPet = pet.getOwner().getPetwithIdDifferent(pet.getName(), pet.getId());
-		if (StringUtils.hasLength(pet.getName()) && (otherPet != null && otherPet.getId() != pet.getId())) {
+	public void savePet(Pet pet) throws DataAccessException, DuplicatedPetNameException {	
+		if (existOtherPetWithSameName(pet)) {
 			throw new DuplicatedPetNameException();
 		} else
 			petRepository.save(pet);
 	}
+	public Boolean existOtherPetWithSameName(Pet newPet) {
+		Boolean res= false;
+		String petName = newPet.getName().toLowerCase();
+		List<Pet> ownerPets= this.petRepository.findAllPetsByOwnerId(newPet.getOwner().getId());
+		for (Pet pet : ownerPets) {
+			String compName = pet.getName();
+			compName = compName.toLowerCase();
+			if (compName.equals(petName) && pet.getId()!=newPet.getId()) {
+				res= true;
+			}
+		}
+		return res;
+	}
+	
 
 	public Collection<Visit> findVisitsByPetId(int petId) {
 		return visitRepository.findByPetId(petId);

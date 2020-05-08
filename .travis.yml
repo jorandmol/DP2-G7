@@ -5,4 +5,8 @@ services:
   - mysql
 before_install:
   - mysql -e 'CREATE DATABASE petclinic;'
+cache:
+  directories:
+  - .autoconf
+  - $HOME/.m2
 script: mvn test -Dspring.profiles.active=mysql-travis

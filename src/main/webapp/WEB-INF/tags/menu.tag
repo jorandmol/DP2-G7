@@ -60,6 +60,14 @@
 					<span>My Requests</span>
 				</petclinic:menuItem>
 				</sec:authorize>
+				
+				<sec:authorize access="hasAuthority('owner')">
+				<petclinic:menuItem active="${name eq 'adoptions'}" url="/adoptions"
+					title="requests">
+					<span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+					<span>Adoptions</span>
+				</petclinic:menuItem>
+				</sec:authorize>
 	
 				<sec:authorize access="hasAuthority('veterinarian')">
 					<petclinic:menuItem active="${name eq 'appointments'}"
