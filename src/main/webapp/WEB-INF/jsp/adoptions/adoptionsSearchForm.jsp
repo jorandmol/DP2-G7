@@ -18,13 +18,22 @@
 				<div class="form-group">
 					<label class="col-sm-2 control-label">Type</label>
 					<div class="col-sm-10">
-						<input type="text" name="type" class="form-control"/>						
+                        <select name="type" class="form-control">
+                            <option value="">Select pet type</option>
+                            <c:forEach var="type" items="${types}">
+                                <option value="${type.name}"><c:out value="${type.name}"></c:out></option>
+                            </c:forEach>
+                        </select>
+                        <c:if test="${error}">
+                            <span><c:out value="${error}"></c:out></span>
+                        </c:if>
 					</div>
 				</div>
 				<div class="form-group">
 					<label class="col-sm-2 control-label">Size</label>
 					<div class="col-sm-10">
 						<select name="size" class="form-control">
+                            <option value="">Select pet size</option>
                             <option value="small">Small</option>
                             <option value="medium">Medium</option>
                             <option value="large">Large</option>
@@ -36,6 +45,7 @@
 					<label class="col-sm-2 control-label">Gender</label>
 					<div class="col-sm-10">
 						<select name="gender" class="form-control">
+                            <option value="">Select pet gender</option>
                             <option value="male">Male</option>
                             <option value="female">Female</option>
                         </select>						
