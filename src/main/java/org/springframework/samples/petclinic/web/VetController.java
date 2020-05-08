@@ -143,7 +143,7 @@ public class VetController {
 	}
 
 	@GetMapping(value = "/vets/{vetId}/edit")
-	public String initUpdateVetForm(@PathVariable("vetId") int vetId, Model model) {
+	public String initUpdateVetForm(@PathVariable("vetId") int vetId, ModelMap model) {
 		if (securityAccessRequestProfile(vetId)) {
 			Vet vet = this.vetService.findVetById(vetId);
 			model.addAttribute("vet", vet);

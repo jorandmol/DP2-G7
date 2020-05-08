@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.time.LocalDate;
 import java.util.Collections;
-import java.util.HashMap;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.PetRegistrationStatus;
-import org.springframework.samples.petclinic.service.OwnerService;
 import org.springframework.samples.petclinic.service.PetService;
 import org.springframework.samples.petclinic.web.PetController;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -51,16 +49,13 @@ public class PetControllerIntegrationTests {
 	
 	@Autowired
 	private PetService petService;
-        
-	@Autowired
-	private OwnerService ownerService;	
 	
 	//Usuario que cumple la seguridad
 	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
     @Test
 	void testInitCreationForm() throws Exception {
 
-		String view=petController.initCreationForm(TEST_OWNER_ID1, model);
+		String view = petController.initCreationForm(TEST_OWNER_ID1, model);
 		
 		assertEquals(view, VIEWS_PETS_CREATE_OR_UPDATE_FORM);
 		assertNotNull(model.get("pet"));		
@@ -70,7 +65,7 @@ public class PetControllerIntegrationTests {
     @Test
 	void testInitCreationFormWithoutAccess() throws Exception {
 
-		String view=petController.initCreationForm(TEST_OWNER_ID2, model);
+		String view = petController.initCreationForm(TEST_OWNER_ID2, model);
 		
 		assertEquals(view, REDIRECT_TO_OUPS);
 		assertNull(model.get("pet"));		
@@ -168,9 +163,8 @@ public class PetControllerIntegrationTests {
     	updateSara.setName("Mini");
     	updateSara.setType(petService.findPetTypes().iterator().next());
     	updateSara.setBirthDate(LocalDate.now());    	
-		BindingResult bindingResult=new MapBindingResult(new HashMap(),"");
 		
-		String view=petController.processUpdateForm(TEST_OWNER_ID2, updateSara, bindingResult, TEST_PET_ID_17, model);
+		String view=petController.processUpdateForm(TEST_OWNER_ID2, updateSara, result, TEST_PET_ID_17, model);
 		
 		assertEquals(view, "redirect:/owner/pets");
 		assertNotNull(model.get("owner"));
