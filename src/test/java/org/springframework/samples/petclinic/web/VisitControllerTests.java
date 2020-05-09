@@ -35,6 +35,7 @@ import org.springframework.samples.petclinic.service.MedicalTestService;
 import org.springframework.samples.petclinic.service.OwnerService;
 import org.springframework.samples.petclinic.service.PetService;
 import org.springframework.samples.petclinic.service.VetService;
+import org.springframework.samples.petclinic.service.VisitService;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -67,6 +68,8 @@ class VisitControllerTests {
 
 	private static final int TEST_OWNER_ID_2 = 2;
 
+	@MockBean
+	private VisitService visitService;
 	
 	@MockBean
 	private AppointmentService appointmentService;
@@ -185,14 +188,14 @@ class VisitControllerTests {
 		given(this.vetService.findVetByUsername("vet1")).willReturn(vet1);
 		given(this.petService.findPetById(TEST_PET_ID_1)).willReturn(pet1);
 		given(this.appointmentService.findAppointmentByDate(TEST_PET_ID_1, date)).willReturn(appointment1);
-		given(this.petService.countVisitsByDate(TEST_PET_ID_1, date)).willReturn(0);
+		given(this.visitService.countVisitsByDate(TEST_PET_ID_1, date)).willReturn(0);
 		
 		given(this.vetService.findVetByUsername("vet2")).willReturn(vet2);
 		given(this.petService.findPetById(TEST_PET_ID_2)).willReturn(pet2);
 		given(this.appointmentService.findAppointmentByDate(TEST_PET_ID_2, date)).willReturn(appointment2);
-		given(this.petService.countVisitsByDate(TEST_PET_ID_2, date)).willReturn(1);
+		given(this.visitService.countVisitsByDate(TEST_PET_ID_2, date)).willReturn(1);
 		
-		given(this.petService.findVisitById(TEST_VISIT_ID)).willReturn(visit1);		
+		given(this.visitService.findVisitById(TEST_VISIT_ID)).willReturn(visit1);		
 		given(this.ownerService.findOwnerById(TEST_OWNER_ID_1)).willReturn(owner1);
 		given(this.ownerService.findOwnerById(TEST_OWNER_ID_2)).willReturn(owner2);
 	}
@@ -259,7 +262,7 @@ class VisitControllerTests {
 				.andExpect(view().name("visits/visitDetails"));
 	}
 	
-	@WithMockUser(username="owner1", password="0wn3333r_1")
+	@WithMockUser(username="owner1", password="0wn3333r_1", authorities="veterinarian")
     @Test
 	void testShowVisitWithoutAuthorities() throws Exception {
 		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/visits/{visitId}", TEST_OWNER_ID_1, TEST_PET_ID_2, TEST_VISIT_ID))

@@ -41,6 +41,7 @@ import org.springframework.samples.petclinic.service.BannerService;
 import org.springframework.samples.petclinic.service.PetService;
 import org.springframework.samples.petclinic.service.UserService;
 import org.springframework.samples.petclinic.service.VetService;
+import org.springframework.samples.petclinic.service.VisitService;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -74,6 +75,9 @@ class VetControllerTests {
 
 	@MockBean
 	private PetService petService;
+	
+	@MockBean
+	private VisitService visitService;
 
 	@MockBean
 	private AppointmentService appointmentService;
@@ -255,9 +259,9 @@ class VetControllerTests {
         given(this.vetService.findVetByUsername("vet1")).willReturn(vet1);
         given(this.vetService.findVetByUsername("vet2")).willReturn(vet2);
         given(this.vetService.findVetByUsername("vet3")).willReturn(vet3);
-        given(this.petService.countVisitsByDate(TEST_PET_ID_1, LocalDate.now())).willReturn(0);
-        given(this.petService.countVisitsByDate(TEST_PET_ID_2, LocalDate.now())).willReturn(1);
-        given(this.petService.countVisitsByDate(TEST_PET_ID_3, LocalDate.now())).willReturn(1);
+        given(this.visitService.countVisitsByDate(TEST_PET_ID_1, LocalDate.now())).willReturn(0);
+        given(this.visitService.countVisitsByDate(TEST_PET_ID_2, LocalDate.now())).willReturn(1);
+        given(this.visitService.countVisitsByDate(TEST_PET_ID_3, LocalDate.now())).willReturn(1);
         Mockito.doThrow(DataIntegrityViolationException.class)
         	.when(this.vetService).saveVet(vet5);
 

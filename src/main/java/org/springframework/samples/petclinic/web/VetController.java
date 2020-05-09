@@ -35,6 +35,7 @@ import org.springframework.samples.petclinic.model.Vets;
 import org.springframework.samples.petclinic.service.AppointmentService;
 import org.springframework.samples.petclinic.service.PetService;
 import org.springframework.samples.petclinic.service.VetService;
+import org.springframework.samples.petclinic.service.VisitService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -60,15 +61,17 @@ public class VetController {
 
 	private final VetService vetService;
 	private final PetService petService;
+	private final VisitService visitService;
 	private final AppointmentService appointmentService;
 	private static final String VIEWS_VET_CREATE_OR_UPDATE_FORM = "vets/createOrUpdateVetForm";
 	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
 
 	@Autowired
-	public VetController(VetService vetService, AppointmentService appointmentService, PetService petService) {
+	public VetController(VetService vetService, AppointmentService appointmentService, PetService petService, VisitService visitService) {
 		this.vetService = vetService;
 		this.appointmentService = appointmentService;
 		this.petService = petService;
+		this.visitService = visitService;
 	}
 
 	@ModelAttribute("specialties")
@@ -196,7 +199,7 @@ public class VetController {
 		model.addAttribute("appointmentsToday", appointmentsToday);
 		
 		List<Appointment> appointmentsWithVisit = appointmentsToday.stream()
-				.filter(a -> this.petService.countVisitsByDate(a.getPet().getId(), today) > 0).collect(Collectors.toList());
+				.filter(a -> this.visitService.countVisitsByDate(a.getPet().getId(), today) > 0).collect(Collectors.toList());
 		model.addAttribute("appointmentsWithVisit", appointmentsWithVisit);
 		
 		List<Appointment>  nextAppointments = this.appointmentService.getNextAppointmentsByVetId(veterinarian.getId(), today);
