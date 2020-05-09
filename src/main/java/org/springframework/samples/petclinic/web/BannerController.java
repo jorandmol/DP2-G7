@@ -28,13 +28,15 @@ public class BannerController {
 
 	private static final String VIEWS_BANNER_CREATE_FORM = "banners/createBannerForm";
 
+	private static final String VIEWS_BANNERS_LIST = "banners/bannersList";
+
 	@Autowired
 	public BannerController(BannerService bannerService) {
 		this.bannerService = bannerService;
 	}
 
 	@InitBinder("banner")
-	public void initPetBinder(WebDataBinder dataBinder) {
+	public void initBannerBinder(WebDataBinder dataBinder) {
 		dataBinder.setValidator(new BannerValidator());
 	}
 
@@ -42,7 +44,7 @@ public class BannerController {
 	public String showBannersList(Map<String, Object> model) {
 		Collection<Banner> banners = this.bannerService.findBanners();
 		model.put("banners", banners);
-		return "banners/bannersList";
+		return VIEWS_BANNERS_LIST;
 	}
 
 	@GetMapping(value = "/banners/new")
@@ -68,25 +70,21 @@ public class BannerController {
 	public String processDeleteBanner(@PathVariable("bannerId") int bannerId, ModelMap model) {
 
 		model.addAttribute("banners", this.bannerService.findBanners());
-
 		Banner banner = this.bannerService.findBannerById(bannerId);
 
 		if (!banner.getEndColabDate().isBefore(LocalDate.now())) {
 			model.addAttribute("error", "cannot be deleted if the collaboration end date has not expired");
-			return "banners/bannersList";
+			return VIEWS_BANNERS_LIST;
 		} else {
 			this.bannerService.deleteBannerById(bannerId);
 			return "redirect:/banners";
-
 		}
 
 	}
 
 	@ModelAttribute("bannerPhoto")
 	public Banner getBanner() {
-
 		Banner result = this.bannerService.findRandomBanner();
-
 		return result;
 	}
 
