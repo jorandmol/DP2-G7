@@ -71,7 +71,7 @@
                 <th>Register date</th>
                 <th>Exit date</th>
             </tr>
-            <c:forEach var="stay" items="${stay.pet.stays}">
+            <c:forEach var="stay" items="${pet.stays}">
                 <c:if test="${!stay['new']}">
                     <tr>
                         <td><petclinic:localDate
