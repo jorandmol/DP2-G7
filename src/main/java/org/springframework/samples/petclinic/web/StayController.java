@@ -148,6 +148,7 @@ public class StayController {
 			Pet pet = this.petService.findPetById(petId);
 			pet.addStay(stay);
 			model.put("stay", stay);
+			model.put("pet", pet);
 			return "pets/createOrUpdateStayForm";
 		} else {
 			return "redirect:/oups";
@@ -156,17 +157,19 @@ public class StayController {
 
 	@PostMapping(value = "/owners/{ownerId}/pets/{petId}/stays/new")
 	public String processNewStayForm(@Valid Stay stay, BindingResult result, @PathVariable("ownerId") int ownerId,
-			@PathVariable("petId") int petId) {
+			@PathVariable("petId") int petId, Map<String, Object> model) {
+		Pet pet = this.petService.findPetById(petId);
 		if (this.securityAccessRequest(ownerId, petId)) {
 			if (result.hasErrors()) {
+				model.put("pet", pet);
 				return "pets/createOrUpdateStayForm";
 			} else {
 				try {
-					Pet pet = this.petService.findPetById(petId);
 					stay.setPet(pet);
 					this.stayService.saveStay(stay);
 				} catch (MaximumStaysReached ex) {
 					result.rejectValue("releaseDate", "There exists already a Stay", "There exists already a Stay");
+					model.put("pet", pet);
 					return "pets/createOrUpdateStayForm";
 				}
 
@@ -194,6 +197,7 @@ public class StayController {
 			} catch (StayAlreadyConfirmed ex) {
 				mav.addObject("errors", "This stay is already confirmed");
 			}
+			mav.addObject("stays", this.petService.findPetById(petId).getStays());
 			return mav;
 		} else {
 			return new ModelAndView("exception");
@@ -203,10 +207,12 @@ public class StayController {
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/stays/{stayId}/edit")
 	public String initStayEditForm(@PathVariable("stayId") final int stayId, @PathVariable("petId") final int petId,
 			@PathVariable("ownerId") final int ownerId, final ModelMap modelMap) {
+		Pet pet = petService.findPetById(petId);
 		if (securityAccessRequest(ownerId, petId)) {
 			Stay stay = this.stayService.findStayById(stayId);
 			modelMap.put("stay", stay);
 			modelMap.put("edit", true);
+			modelMap.put("pet", pet);
 			return "pets/createOrUpdateStayForm";
 		} else {
 			return "redirect:/oups";
@@ -217,14 +223,16 @@ public class StayController {
 	public String processStayEditForm(@Valid final Stay stay, final BindingResult result,
 			@PathVariable("petId") final int petId, @PathVariable("ownerId") final int ownerId,
 			@PathVariable("stayId") final int stayId, final ModelMap modelMap) {
+		Pet pet = petService.findPetById(petId);
 		if (securityAccessRequest(ownerId, petId)) {
 			modelMap.put("edit", true);
 			if (result.hasErrors()) {
+				modelMap.put("pet", pet);
 				return "pets/createOrUpdateStayForm";
 			} else {
 				try {
 					Stay stayToUpdate = this.stayService.findStayById(stayId);
-					BeanUtils.copyProperties(stayToUpdate, stay, "registerDate", "releaseDate", "status");
+					BeanUtils.copyProperties(stayToUpdate, stay, "registerDate", "releaseDate");
 					this.stayService.editStay(stay);
 				} catch (MaximumStaysReached | DateNotAllowed | StayAlreadyConfirmed e) {
 					if (e.getClass().equals(MaximumStaysReached.class)) {
@@ -235,7 +243,7 @@ public class StayController {
 						result.rejectValue("releaseDate", "Stay already confirmed or rejected by admin",
 								"Stay already confirmed or rejected by admin");
 					}
-
+					modelMap.put("pet", pet);
 					return "pets/createOrUpdateStayForm";
 				}
 			}

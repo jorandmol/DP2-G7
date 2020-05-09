@@ -84,7 +84,7 @@ public class StayControllerIntegrationTests {
 		stay.setRegisterDate(LocalDate.of(2021, 10, 10));
 		stay.setPet(petService.findPetById(7));
 
-		String view = stayController.processNewStayForm(stay, result, 3, 7);
+		String view = stayController.processNewStayForm(stay, result, 3, 7, modelMap);
 
 		Assert.assertEquals(view, "redirect:/owners/{ownerId}/pets/{petId}/stays");
 	}
@@ -99,7 +99,7 @@ public class StayControllerIntegrationTests {
 
 
 
-		String view = stayController.processNewStayForm(stay, result, 3, 7);
+		String view = stayController.processNewStayForm(stay, result, 3, 7, modelMap);
 
 		Assert.assertEquals(view, "redirect:/oups");
 	}
@@ -113,7 +113,7 @@ public class StayControllerIntegrationTests {
 
 
         result.reject("registerDate" , "Register date must be included");
-		String view = stayController.processNewStayForm(stay, result, 3, 7);
+		String view = stayController.processNewStayForm(stay, result, 3, 7, modelMap);
 
 		Assert.assertEquals(view, VIEWS_STAY_CREATE_OR_UPDATE_FORM);
 	}
@@ -129,7 +129,7 @@ public class StayControllerIntegrationTests {
 
 
         result.reject("registerDate" , "Register date must be included");
-		String view = stayController.processNewStayForm(stay, result, 3, 7);
+		String view = stayController.processNewStayForm(stay, result, 3, 7, modelMap);
 
 		Assert.assertEquals(view, VIEWS_STAY_CREATE_OR_UPDATE_FORM);
 
