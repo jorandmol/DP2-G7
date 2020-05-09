@@ -24,8 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class MedicalTestControllerE2ETests {
 
 	private static final String VIEWS_MEDICAL_TEST_CREATE_OR_UPDATE_FORM = "medical-tests/createOrUpdateMedicalTestForm";
-
-	private static final String VIEWS_MEDICAL_TEST_LIST = "medical-tests/medicalTestsList";
 	
 	private static final int TEST_MT_ID = 1;
 	
@@ -37,7 +35,7 @@ public class MedicalTestControllerE2ETests {
 	void testShowMedicalTestsList() throws Exception {
 		mockMvc.perform(get("/medical-tests")).andExpect(status().isOk())
 				.andExpect(model().attributeExists("medicalTests"))
-				.andExpect(view().name(VIEWS_MEDICAL_TEST_LIST));
+				.andExpect(view().name("medical-tests/medicalTestsList"));
 	}
 
 	@WithMockUser(username="admin1",authorities= {"admin"})

@@ -135,6 +135,7 @@ INSERT INTO visits(id,pet_id,visit_date,description) VALUES (7, 12, '2020-05-01'
 INSERT INTO visits(id,pet_id,visit_date,description) VALUES (8, 14, '2020-03-24', 'Radiographic study: Some radiographies made, everything looks correct.');
 INSERT INTO visits(id,pet_id,visit_date,description) VALUES (9, 17, '2020-03-10', 'Toxicologic study: At least one toxic substance has been found. A penicillin treatment is necessary.');
 INSERT INTO visits(id,pet_id,visit_date,description) VALUES (10, 5, '2020-01-26', 'Neutered pet properly');
+INSERT INTO visits(id,pet_id,visit_date,description) VALUES (11, 18, SYSDATE, 'Annual checkup: Everything looks correct.');
 
 INSERT INTO medical_tests VALUES (1, 'Radiography', 'It is used to diagnose or treat patients by recording images of the internal structure of the body to assess the presence or absence of disease, foreign objects, and structural damage or anomaly. During a radiographic procedure, an x-ray beam is passed through the body.');
 INSERT INTO medical_tests VALUES (2, 'Sonography', 'It uses ultrasonic sound waves in the frequency range of 1.5-15 megahertz (MHz) to create images of body structures based on the pattern of echoes reflected from the tissues and organs being imaged.');
