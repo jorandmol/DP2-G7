@@ -15,7 +15,12 @@
         </c:if>
             <div class="col-md-4">
                 <div class="thumbnail">
-                    <img src="${animal.photos[0].full}" alt="">
+                	<c:if test="${animal.photos[0].full != null}">
+	                    <img src="${animal.photos[0].full}" alt="">
+                	</c:if>
+                	<c:if test="${animal.photos[0].full == null}">
+	                    <img src="/resources/images/adoptions.png" alt="">
+                	</c:if>
                     <div class="caption">
                         <h3><c:out value="${animal.name}"></c:out></h3>
                         <ul>
@@ -25,7 +30,7 @@
                         </ul>
                         <p><c:out value="${animal.description}"></c:out></p>
                         <br>
-                        <p><a href="#" class="btn btn-default" role="button">Adopt</a></p>
+                        <p><a href="#" class="btn btn-default" role="button"></a></p>
                     </div>
                 </div>
             </div>
