@@ -199,7 +199,6 @@ class MedicineServiceTests {
 			m.setDescription("New description");
 			this.medicineService.editMedicine(m);
 		} catch (DuplicatedMedicineCodeException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		
 		}

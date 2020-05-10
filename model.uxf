@@ -480,4 +480,36 @@ PetRegistrationStatus
 </panel_attributes>
     <additional_attributes/>
   </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1100</x>
+      <y>470</y>
+      <w>160</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>TreatmentHistory
+-
++ petId: Integer
++ description: String
++ timeLimit: LocalDate
++ medicines: String
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1020</x>
+      <y>400</y>
+      <w>180</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-x
+m1=1
+m2=*
+&lt; belongs
+</panel_attributes>
+    <additional_attributes>10.0;20.0;160.0;20.0;160.0;70.0</additional_attributes>
+  </element>
 </diagram>

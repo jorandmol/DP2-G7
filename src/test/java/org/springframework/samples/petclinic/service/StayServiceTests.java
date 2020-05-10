@@ -165,7 +165,6 @@ class StayServiceTests {
 		try {
 			this.stayService.deleteStay(stay);
 		} catch (StayAlreadyConfirmed e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		assertThat(pet.getStays().size()).isEqualTo(numStays - 1);
