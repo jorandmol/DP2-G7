@@ -16,7 +16,7 @@
     </jsp:attribute>
     <jsp:body>
     <h2>
-        <c:if test="${!edit}">">New </c:if> Medicine
+        <c:if test="${!edit}">New </c:if> Medicine
     </h2>
     <form:form modelAttribute="medicine" class="form-horizontal" id="add-medicine-form">
         <div class="form-group has-feedback">

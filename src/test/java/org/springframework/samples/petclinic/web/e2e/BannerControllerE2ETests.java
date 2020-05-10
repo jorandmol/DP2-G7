@@ -1,6 +1,5 @@
-package org.springframework.samples.petclinic.web;
+package org.springframework.samples.petclinic.web.e2e;
 
-import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -8,89 +7,48 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
-import org.springframework.samples.petclinic.configuration.SecurityConfiguration;
-import org.springframework.samples.petclinic.model.Banner;
-import org.springframework.samples.petclinic.service.BannerService;
-import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
-@WebMvcTest(controllers = BannerController.class, excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = WebSecurityConfigurer.class), excludeAutoConfiguration = SecurityConfiguration.class)
-public class BannerControllerTests {
+@ExtendWith(SpringExtension.class)
+@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.MOCK)
+@AutoConfigureMockMvc
+@Transactional
+public class BannerControllerE2ETests {
 
 	private static final String VIEWS_BANNER_CREATE_FORM = "banners/createBannerForm";
 	
 	private static final String VIEWS_BANNERS_LIST = "banners/bannersList";
 	
-	private static final int TEST_BANNER_ID1 = 1;
+	private static final int TEST_BANNER_ID_1 = 1;
 	
-	private static final int TEST_BANNER_ID2 = 2;
-
-	@MockBean
-	private BannerService bannerService;
+	private static final int TEST_BANNER_ID_2 = 3;
 
 	@Autowired
 	private MockMvc mockMvc;
-
-	@Mock
-	private Banner banner1;
 	
-	@Mock
-	private Banner banner2;
-
-	@BeforeEach
-	void setup() {
-
-		banner1 = new Banner();
-		banner1.setId(TEST_BANNER_ID1);
-		banner1.setPicture("https://www.us.es/sites/default/files/logoPNG_3.png");
-		banner1.setSlogan("us-slogan");
-		banner1.setTargetUrl("https://www.us.es/");
-		banner1.setOrganizationName("US");
-		banner1.setInitColabDate(LocalDate.of(2020, 01, 01));
-		banner1.setEndColabDate(LocalDate.of(2020, 10, 01));
-		given(this.bannerService.findBannerById(TEST_BANNER_ID1)).willReturn(banner1);
-		
-		banner2 = new Banner();
-		banner2.setId(TEST_BANNER_ID2);
-		banner2.setPicture("https://www.us.es/sites/default/files/logoPNG_3.png");
-		banner2.setSlogan("us-slogan");
-		banner2.setTargetUrl("https://www.us.es/");
-		banner2.setOrganizationName("US");
-		banner2.setInitColabDate(LocalDate.of(2020, 01, 01));
-		banner2.setEndColabDate(LocalDate.of(2020, 03, 01));
-		given(this.bannerService.findBannerById(TEST_BANNER_ID2)).willReturn(banner2);
-		
-		given(this.bannerService.findBanners()).willReturn(new ArrayList<>());
-
-	}
-
-	@WithMockUser(value = "spring")
+	@WithMockUser(username="admin1",authorities= {"admin"})
 	@Test
 	void testShowBannersList() throws Exception {
 		mockMvc.perform(get("/banners")).andExpect(status().isOk()).andExpect(model().attributeExists("banners"))
 				.andExpect(view().name(VIEWS_BANNERS_LIST));
 	}
 	
-	@WithMockUser(value = "spring")
+	@WithMockUser(username="admin1",authorities= {"admin"})
 	@Test
 	void testInitCreationForm() throws Exception {
 		mockMvc.perform(get("/banners/new")).andExpect(status().isOk()).andExpect(model().attributeExists("banner"))
 				.andExpect(view().name(VIEWS_BANNER_CREATE_FORM));
 	}
 
-	@WithMockUser(value = "spring")
+	@WithMockUser(username="admin1",authorities= {"admin"})
 	@Test
 	void testProcessCreationFormSuccess() throws Exception {
 		mockMvc.perform(post("/banners/new")
@@ -103,7 +61,7 @@ public class BannerControllerTests {
 				.andExpect(status().is3xxRedirection());
 	}
 	
-	@WithMockUser(value = "spring")
+	@WithMockUser(username="admin1",authorities= {"admin"})
 	@Test
 	void testProcessCreationFormHasErrors() throws Exception {
 		mockMvc.perform(post("/banners/new").with(csrf())
@@ -119,7 +77,7 @@ public class BannerControllerTests {
 				.andExpect(view().name(VIEWS_BANNER_CREATE_FORM));
 	}
 	
-	@WithMockUser(value = "spring")
+	@WithMockUser(username="admin1",authorities= {"admin"})
 	@Test
 	void testProcessCreationFormHasEmptyPicture() throws Exception {
 		mockMvc.perform(post("/banners/new").with(csrf())
@@ -134,7 +92,7 @@ public class BannerControllerTests {
 				.andExpect(view().name(VIEWS_BANNER_CREATE_FORM));
 	}
 	
-	@WithMockUser(value = "spring")
+	@WithMockUser(username="admin1",authorities= {"admin"})
 	@Test
 	void testProcessCreationFormHasEmptyTargetUrl() throws Exception {
 		mockMvc.perform(post("/banners/new").with(csrf())
@@ -149,18 +107,18 @@ public class BannerControllerTests {
 				.andExpect(view().name(VIEWS_BANNER_CREATE_FORM));
 	}
 
-	@WithMockUser(value = "spring")
+	@WithMockUser(username="admin1",authorities= {"admin"})
 	@Test
 	void testProcessDeleteBannerNotExpiredEndDate() throws Exception {
-		mockMvc.perform(get("/banners/{bannerId}/delete", TEST_BANNER_ID1))
+		mockMvc.perform(get("/banners/{bannerId}/delete", TEST_BANNER_ID_1))
 		.andExpect(status().isOk())
 		.andExpect(view().name(VIEWS_BANNERS_LIST));
 	}
 	
-	@WithMockUser(value = "spring")
+	@WithMockUser(username="admin1",authorities= {"admin"})
 	@Test
 	void testProcessDeleteBannerExpiredEndDate() throws Exception {
-		mockMvc.perform(get("/banners/{bannerId}/delete", TEST_BANNER_ID2))
+		mockMvc.perform(get("/banners/{bannerId}/delete", TEST_BANNER_ID_2))
 		.andExpect(status().is3xxRedirection())
 		.andExpect(view().name("redirect:/banners"));
 	}

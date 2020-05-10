@@ -54,9 +54,7 @@ class StayControllerTests {
 	private static final int TEST_STAY_ID_CONFIRMED = 2;
 	
 	private static final int TEST_STAY_ID_EXCEPTIONS = 3;
-	
-	@Autowired
-	private StayController stayController;
+
 
 	@MockBean
 	private PetService petService;

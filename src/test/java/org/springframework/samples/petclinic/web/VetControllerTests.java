@@ -41,6 +41,7 @@ import org.springframework.samples.petclinic.service.BannerService;
 import org.springframework.samples.petclinic.service.PetService;
 import org.springframework.samples.petclinic.service.UserService;
 import org.springframework.samples.petclinic.service.VetService;
+import org.springframework.samples.petclinic.service.VisitService;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -52,19 +53,17 @@ import org.springframework.test.web.servlet.MockMvc;
 class VetControllerTests {
 
 	private static final int TEST_VET_ID_1 = 1;
-	
 	private static final int TEST_VET_ID_2 = 2;
-	
 	private static final int TEST_VET_ID_3 = 3;
-	
 	private static final int TEST_VET_ID_5 = 5;
 	
 	private static final Integer TEST_PET_ID_1 = 1;
-	
 	private static final Integer TEST_PET_ID_2 = 2;
-
 	private static final Integer TEST_PET_ID_3 = 3;
 	
+	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
+	private static final String VIEWS_VET_CREATE_OR_UPDATE_FORM = "vets/createOrUpdateVetForm";
+
 	@MockBean
 	private BannerService bannerService;
 
@@ -76,6 +75,9 @@ class VetControllerTests {
 
 	@MockBean
 	private PetService petService;
+	
+	@MockBean
+	private VisitService visitService;
 
 	@MockBean
 	private AppointmentService appointmentService;
@@ -257,9 +259,9 @@ class VetControllerTests {
         given(this.vetService.findVetByUsername("vet1")).willReturn(vet1);
         given(this.vetService.findVetByUsername("vet2")).willReturn(vet2);
         given(this.vetService.findVetByUsername("vet3")).willReturn(vet3);
-        given(this.petService.countVisitsByDate(TEST_PET_ID_1, LocalDate.now())).willReturn(0);
-        given(this.petService.countVisitsByDate(TEST_PET_ID_2, LocalDate.now())).willReturn(1);
-        given(this.petService.countVisitsByDate(TEST_PET_ID_3, LocalDate.now())).willReturn(1);
+        given(this.visitService.countVisitsByDate(TEST_PET_ID_1, LocalDate.now())).willReturn(0);
+        given(this.visitService.countVisitsByDate(TEST_PET_ID_2, LocalDate.now())).willReturn(1);
+        given(this.visitService.countVisitsByDate(TEST_PET_ID_3, LocalDate.now())).willReturn(1);
         Mockito.doThrow(DataIntegrityViolationException.class)
         	.when(this.vetService).saveVet(vet5);
 
@@ -278,7 +280,7 @@ class VetControllerTests {
 	@WithMockUser(username = "vet1", password = "veter1n4ri0_1", authorities = "veterinarian")
 	@Test
 	void testShowVetListWithoutAccess() throws Exception {
-		mockMvc.perform(get("/vets")).andExpect(status().is3xxRedirection()).andExpect(view().name("redirect:/oups"));
+		mockMvc.perform(get("/vets")).andExpect(status().is3xxRedirection()).andExpect(view().name(REDIRECT_TO_OUPS));
 	}
 
 	
@@ -296,7 +298,7 @@ class VetControllerTests {
 	@Test
 	void testInitCreationForm() throws Exception {
 		mockMvc.perform(get("/vets/new")).andExpect(status().isOk()).andExpect(model().attributeExists("vet"))
-				.andExpect(view().name("vets/createOrUpdateVetForm"));
+				.andExpect(view().name(VIEWS_VET_CREATE_OR_UPDATE_FORM));
 	}
 
 	// TEST para usuario que NO cumple la seguridad
@@ -304,7 +306,7 @@ class VetControllerTests {
 	@Test
 	void testInitCreationFormWithoutAccess() throws Exception {
 		mockMvc.perform(get("/vets/new")).andExpect(status().is3xxRedirection())
-				.andExpect(view().name("redirect:/oups"));
+				.andExpect(view().name(REDIRECT_TO_OUPS));
 	}
 	
 
@@ -323,8 +325,10 @@ class VetControllerTests {
 		
 		mockMvc.perform(post("/vets/new").with(csrf())
 				.flashAttr("vet", vet5))
+				.andExpect(model().errorCount(1))
+				.andExpect(model().hasErrors())
 				.andExpect(status().isOk())
-				.andExpect(view().name("vets/createOrUpdateVetForm"));
+				.andExpect(view().name(VIEWS_VET_CREATE_OR_UPDATE_FORM));
 
 	}
 	
@@ -344,7 +348,7 @@ class VetControllerTests {
 				.andExpect(model().attributeHasFieldErrors("vet", "firstName"))
 				.andExpect(model().attributeHasFieldErrors("vet", "telephone"))
 				.andExpect(model().attributeHasFieldErrors("vet", "user.password"))
-				.andExpect(view().name("vets/createOrUpdateVetForm"));
+				.andExpect(view().name(VIEWS_VET_CREATE_OR_UPDATE_FORM));
 	}
 
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
@@ -365,7 +369,7 @@ class VetControllerTests {
 				.andExpect(model().attributeHasFieldErrors("vet", "address"))
 				.andExpect(model().attributeHasFieldErrors("vet", "telephone"))
 				.andExpect(model().attributeHasFieldErrors("vet", "user.password"))
-				.andExpect(view().name("vets/createOrUpdateVetForm"));
+				.andExpect(view().name(VIEWS_VET_CREATE_OR_UPDATE_FORM));
 	}
 
 	// TEST para usuario que NO cumple la seguridad
@@ -381,7 +385,7 @@ class VetControllerTests {
 				.param("user.username", "vet55")
 				.param("user.password", "v3terinario_55"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(view().name("redirect:/oups"));
+				.andExpect(view().name(REDIRECT_TO_OUPS));
 	}
 	
 	
@@ -398,7 +402,7 @@ class VetControllerTests {
 				.andExpect(model().attribute("vet", hasProperty("address", is("110 W. Liberty St."))))
 				.andExpect(model().attribute("vet", hasProperty("city", is("Madison"))))
 				.andExpect(model().attribute("vet", hasProperty("telephone", is("608555102"))))
-				.andExpect(view().name("vets/createOrUpdateVetForm"));
+				.andExpect(view().name(VIEWS_VET_CREATE_OR_UPDATE_FORM));
 	}
 	
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
@@ -413,9 +417,8 @@ class VetControllerTests {
 				.andExpect(model().attribute("vet", hasProperty("address", is("110 W. Liberty St."))))
 				.andExpect(model().attribute("vet", hasProperty("city", is("Madison"))))
 				.andExpect(model().attribute("vet", hasProperty("telephone", is("608555102"))))
-				.andExpect(view().name("vets/createOrUpdateVetForm"));
+				.andExpect(view().name(VIEWS_VET_CREATE_OR_UPDATE_FORM));
 	}
-	
 	
 	// TEST para usuarios que NO cumplen la seguridad
 	@WithMockUser(username = "vet2", password = "veter1n4ri0_2", authorities = "veterinarian")
@@ -423,7 +426,7 @@ class VetControllerTests {
 	void testInitUpdateVetFormWithoutAccess() throws Exception {
 		mockMvc.perform(get("/vets/{vetId}/edit", TEST_VET_ID_1))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(view().name("redirect:/oups"));
+				.andExpect(view().name(REDIRECT_TO_OUPS));
 	}
 	
 	@WithMockUser(username = "vet2", password = "veter1n4ri0_2", authorities = "owner")
@@ -431,8 +434,10 @@ class VetControllerTests {
 	void testInitUpdateVetFormWithoutAuthorities() throws Exception {
 		mockMvc.perform(get("/vets/{vetId}/edit", TEST_VET_ID_1))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(view().name("redirect:/oups"));
+				.andExpect(view().name(REDIRECT_TO_OUPS));
 	}
+	
+	
 	
 	
 	// TEST para usuarios que SI cumple la seguridad
@@ -470,7 +475,7 @@ class VetControllerTests {
 				.andExpect(model().attributeHasErrors("vet"))
 				.andExpect(model().attributeHasFieldErrors("vet", "address"))
 				.andExpect(model().attributeHasFieldErrors("vet", "city"))
-				.andExpect(view().name("vets/createOrUpdateVetForm"));
+				.andExpect(view().name(VIEWS_VET_CREATE_OR_UPDATE_FORM));
 	}
 	
 	// TEST para usuario que NO cumple la seguridad
@@ -483,14 +488,15 @@ class VetControllerTests {
 				.param("address", "123 Caramel Street")
 				.param("city", "London")
 				.param("telephone", "123456789")
-				.flashAttr("specialties", specialties1)
-				.param("user.password", "str0ng-passw0rd"))
+				.param("user.password", "str0ng_passw0rd"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(view().name("redirect:/oups"));
+				.andExpect(view().name(REDIRECT_TO_OUPS));
 
 	}
 	
 
+	
+	
 	//Comprobar que, las listas de appointments de un vet TIENEN citas 
 	@WithMockUser(username = "vet1", password = "veter1n4ri0_1", authorities = "veterinarian")
 	@Test
@@ -499,6 +505,7 @@ class VetControllerTests {
 				.andExpect(status().isOk())
 				.andExpect(model().attributeExists("appointmentsToday"))
 				.andExpect(model().attribute("appointmentsToday", appointmentsToday1))
+				.andExpect(model().attributeExists("appointmentsWithVisit"))
 				.andExpect(model().attributeExists("nextAppointments"))
 				.andExpect(model().attribute("nextAppointments", nextAppointments1 ))
 				.andExpect(view().name("vets/appointmentsList"));
@@ -510,6 +517,7 @@ class VetControllerTests {
 	void testShowAppoimentsByVetListWithVisits() throws Exception {
 		mockMvc.perform(get("/appointments")).andExpect(status().isOk())
 				.andExpect(model().attributeExists("appointmentsToday"))
+				.andExpect(model().attributeExists("appointmentsWithVisit"))
 				.andExpect(model().attributeExists("nextAppointments"))
 				.andExpect(view().name("vets/appointmentsList"));
 
@@ -520,6 +528,7 @@ class VetControllerTests {
 	void testShowAppoimentsByVetListEmpty() throws Exception {
 		mockMvc.perform(get("/appointments")).andExpect(status().isOk())
 				.andExpect(model().attribute("appointmentsToday", appointments))
+				.andExpect(model().attributeExists("appointmentsWithVisit"))
 				.andExpect(model().attribute("nextAppointments", appointments))
 				.andExpect(view().name("vets/appointmentsList"));
 
@@ -556,7 +565,7 @@ class VetControllerTests {
 	void testShowVetWithoutAccess() throws Exception {
 		mockMvc.perform(get("/vets/{vetId}", TEST_VET_ID_1))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(view().name("redirect:/oups"));
+				.andExpect(view().name(REDIRECT_TO_OUPS));
 	}
 	
 	@WithMockUser(username = "vet2", password = "veter1n4ri0_2", authorities = "owner")
@@ -564,7 +573,7 @@ class VetControllerTests {
 	void testShowVetWithoutAuthorities() throws Exception {
 		mockMvc.perform(get("/vets/{vetId}", TEST_VET_ID_1))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(view().name("redirect:/oups"));
+				.andExpect(view().name(REDIRECT_TO_OUPS));
 	}
 	
 	@WithMockUser(username="vet1", password="veter1n4ri0_1", authorities="veterinarian")

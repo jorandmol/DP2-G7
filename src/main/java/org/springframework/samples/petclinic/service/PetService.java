@@ -15,7 +15,6 @@
  */
 package org.springframework.samples.petclinic.service;
 
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
@@ -24,14 +23,10 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.PetRegistrationStatus;
 import org.springframework.samples.petclinic.model.PetType;
-import org.springframework.samples.petclinic.model.Visit;
-import org.springframework.samples.petclinic.repository.OwnerRepository;
 import org.springframework.samples.petclinic.repository.PetRepository;
-import org.springframework.samples.petclinic.repository.VisitRepository;
 import org.springframework.samples.petclinic.service.exceptions.DuplicatedPetNameException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 /**
  * Mostly used as a facade for all Petclinic controllers Also a placeholder
@@ -44,15 +39,9 @@ public class PetService {
 
 	private PetRepository petRepository;
 	
-	private OwnerRepository ownerRepository;
-
-	private VisitRepository visitRepository;
-
-
 	@Autowired
-	public PetService(PetRepository petRepository, VisitRepository visitRepository) {
+	public PetService(PetRepository petRepository) {
 		this.petRepository = petRepository;
-		this.visitRepository = visitRepository;
 	}
 
 	@Transactional(readOnly = true)
@@ -60,21 +49,6 @@ public class PetService {
 		return petRepository.findPetTypes();
 	}
 	
-	@Transactional(readOnly = true)
-	public Visit findVisitById(int visitId) {
-		return visitRepository.findById(visitId);
-	}
-
-	@Transactional(readOnly = true)
-	public Integer countVisitsByDate(Integer petId, LocalDate date) {
-		return visitRepository.countByDate(petId, date);
-	}
-	
-	@Transactional
-	public void saveVisit(Visit visit) throws DataAccessException {
-		visitRepository.save(visit);
-	}
-
 	@Transactional(readOnly = true)
 	public Pet findPetById(int id) throws DataAccessException {
 		return petRepository.findById(id);
@@ -99,11 +73,6 @@ public class PetService {
 			}
 		}
 		return res;
-	}
-	
-
-	public Collection<Visit> findVisitsByPetId(int petId) {
-		return visitRepository.findByPetId(petId);
 	}
 
 	public List<Pet> findAll() {

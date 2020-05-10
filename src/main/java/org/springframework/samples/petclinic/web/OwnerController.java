@@ -34,7 +34,6 @@ import org.springframework.samples.petclinic.service.PetService;
 import org.springframework.samples.petclinic.service.UserService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
@@ -153,7 +152,7 @@ public class OwnerController {
 	}
 
 	@GetMapping(value = "/owners/{ownerId}/edit")
-	public String initUpdateOwnerForm(@PathVariable("ownerId") final int ownerId, final Model model) {
+	public String initUpdateOwnerForm(@PathVariable("ownerId") final int ownerId, final ModelMap model) {
 		if (securityAccessRequestProfile(ownerId)) {
 			Owner owner = this.ownerService.findOwnerById(ownerId);
 			model.addAttribute("owner", owner);

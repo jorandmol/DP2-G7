@@ -33,6 +33,7 @@ import org.springframework.samples.petclinic.service.AppointmentService;
 import org.springframework.samples.petclinic.service.MedicalTestService;
 import org.springframework.samples.petclinic.service.OwnerService;
 import org.springframework.samples.petclinic.service.PetService;
+import org.springframework.samples.petclinic.service.VisitService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -53,6 +54,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class VisitController {
 
 	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
+	
+	private final VisitService visitService;
 
 	private final PetService petService;
 
@@ -63,8 +66,9 @@ public class VisitController {
 	private final OwnerService ownerService;
 
 	@Autowired
-	public VisitController(final PetService petService, final MedicalTestService medicalTestService,
+	public VisitController(final VisitService visitService, final PetService petService, final MedicalTestService medicalTestService,
 			final AppointmentService appointmentService, final OwnerService ownerService) {
+		this.visitService = visitService;
 		this.petService = petService;
 		this.medicalTestService = medicalTestService;
 		this.appointmentService = appointmentService;
@@ -87,7 +91,7 @@ public class VisitController {
 		String vetUsername = appointment.getVet().getUser().getUsername();
 
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
-		Integer numberOfVisits = this.petService.countVisitsByDate(petId, LocalDate.now());
+		Integer numberOfVisits = this.visitService.countVisitsByDate(petId, LocalDate.now());
 
 		if (numberOfVisits == 0 && vetUsername.equals(username)) {
 			res = true;
@@ -144,7 +148,7 @@ public class VisitController {
 			if (result.hasErrors()) {
 				return "pets/createOrUpdateVisitForm";
 			} else {
-				this.petService.saveVisit(visit);
+				this.visitService.saveVisit(visit);
 				return "redirect:/appointments";
 			}
 		} else {
@@ -155,7 +159,7 @@ public class VisitController {
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/visits/{visitId}")
 	public String showVisit(@PathVariable final int ownerId, @PathVariable final int visitId, final Map<String, Object> model) {
 		if (securityAccessRequestProfile(ownerId)) {
-			Visit visit = this.petService.findVisitById(visitId);
+			Visit visit = this.visitService.findVisitById(visitId);
 			model.put("visit", visit);
 			return "visits/visitDetails";
 		} else {

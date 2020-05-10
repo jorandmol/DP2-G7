@@ -34,9 +34,6 @@ public class MedicalTestControllerTests {
 	
 	private static final int TEST_MT_ID = 1;
 	
-	@Autowired
-	private MedicalTestController medicalTestController;
-	
 	@MockBean
 	private BannerService bannerService;
 
