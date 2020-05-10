@@ -12,10 +12,7 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
-import org.openqa.selenium.NoAlertPresentException;
-import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.ui.Select;
@@ -31,9 +28,7 @@ public class AcceptRejectStayUITest {
 	@LocalServerPort
 	private int port;
 	
-	private String username;
 	private WebDriver driver;
-	private boolean acceptNextAlert = true;
 	private StringBuffer verificationErrors = new StringBuffer();
 	
   @BeforeEach
@@ -99,7 +94,6 @@ public class AcceptRejectStayUITest {
 	}
 	
 	private AcceptRejectStayUITest as(String username) {
-		this.username=username;
 	    driver.get("http://localhost:" + port);
 	    driver.findElement(By.xpath("//a[contains(@href, '/login')]")).click();
 	    driver.findElement(By.id("password")).clear();
@@ -120,39 +114,6 @@ public class AcceptRejectStayUITest {
 	    String verificationErrorString = verificationErrors.toString();
 	    if (!"".equals(verificationErrorString)) {
 	      fail(verificationErrorString);
-	    }
-	  }
-	
-	  private boolean isElementPresent(By by) {
-	    try {
-	      driver.findElement(by);
-	      return true;
-	    } catch (NoSuchElementException e) {
-	      return false;
-	    }
-	  }
-	
-	  private boolean isAlertPresent() {
-	    try {
-	      driver.switchTo().alert();
-	      return true;
-	    } catch (NoAlertPresentException e) {
-	      return false;
-	    }
-	  }
-	
-	  private String closeAlertAndGetItsText() {
-	    try {
-	      Alert alert = driver.switchTo().alert();
-	      String alertText = alert.getText();
-	      if (acceptNextAlert) {
-	        alert.accept();
-	      } else {
-	        alert.dismiss();
-	      }
-	      return alertText;
-	    } finally {
-	      acceptNextAlert = true;
 	    }
 	  }
 }

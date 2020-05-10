@@ -28,11 +28,9 @@ public class TreatmentControllerE2ETests {
 	private static final String VIEWS_TREATMENT_LIST = "treatments/listTreatments";
 	private static final String VIEWS_TREATMENT_FORM = "treatments/createOrUpdateTreatmentForm";
 	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
-	private static final String REDIRECT_TO_VET_TREATMENT_LIST = "redirect:/vets/pets/{petId}/treatments";
 	private static final String REDIRECT_TO_TREATMENT_SHOW = "redirect:/vets/pets/{petId}/treatments/{treatmentId}";
 
 	private static final int TEST_OWNER_ID = 1;
-    private static final int TEST_VET_ID = 1;
 	private static final int TEST_PET_ID = 1;
 	private static final int TEST_WRONG_OWNER_ID = 2;
 	private static final int TEST_TREATMENT_ID_1 = 1;

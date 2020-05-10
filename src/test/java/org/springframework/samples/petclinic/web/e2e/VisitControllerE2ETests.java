@@ -26,8 +26,10 @@ class VisitControllerE2ETests {
 	private static final int TEST_PET_ID_1 = 1;
 	
 	private static final int TEST_PET_ID_2 = 2;
+
+	private static final int TEST_PET_ID_3 = 15;
 	
-	private static final int TEST_PET_ID_3 = 18;
+	private static final int TEST_PET_ID_4 = 18;
 
 	private static final int TEST_OWNER_ID_1 = 1;
 	
@@ -38,10 +40,10 @@ class VisitControllerE2ETests {
 	@Autowired
 	private MockMvc mockMvc;
 
-    @WithMockUser(username="vet2", password="v3terinarian_2", authorities="veterinarian")
+    @WithMockUser(username="vet1", password="v3terinarian_1", authorities="veterinarian")
     @Test
 	void testInitNewVisitFormSuccess() throws Exception {
-		mockMvc.perform(get("/owners/*/pets/{petId}/visits/new", TEST_PET_ID_1))
+		mockMvc.perform(get("/owners/*/pets/{petId}/visits/new", TEST_PET_ID_3))
 				.andExpect(status().isOk())
 				.andExpect(view().name("pets/createOrUpdateVisitForm"));
 	}
@@ -50,7 +52,7 @@ class VisitControllerE2ETests {
     @Test
 	void testInitNewVisitFormDuplicated() throws Exception {
 	
-		mockMvc.perform(get("/owners/*/pets/{petId}/visits/new", TEST_PET_ID_3))
+		mockMvc.perform(get("/owners/*/pets/{petId}/visits/new", TEST_PET_ID_4))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:/oups"));
 	}

@@ -82,7 +82,7 @@ public class PetfinderAPIController {
         return new HttpEntity(headers);
     }
 
-	private String getToken() {
+	public static String getToken() {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
