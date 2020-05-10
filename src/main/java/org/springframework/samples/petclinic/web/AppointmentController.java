@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Appointment;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
+import org.springframework.samples.petclinic.model.PetRegistrationStatus;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.service.AppointmentService;
 import org.springframework.samples.petclinic.service.OwnerService;
@@ -31,7 +32,8 @@ public class AppointmentController {
 
 	private static final String	VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM = "pets/createOrUpdateAppointmentForm";	
 	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
-	private static final String REDIRECT_TO_OWNER_DETAILS = "redirect:/owners/{ownerId}";
+	private static final String REDIRECT_TO_PETS_DETAILS = "redirect:/owner/pets";
+	private static final PetRegistrationStatus accepted= PetRegistrationStatus.ACCEPTED;
 
 	@Autowired
 	private AppointmentService	appointmentService;
@@ -44,6 +46,9 @@ public class AppointmentController {
 
 	@Autowired
 	private VetService			vetService;
+	
+	@Autowired
+	private PetController petController;
 
 
 	@ModelAttribute("appointment")
@@ -72,10 +77,15 @@ public class AppointmentController {
 
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/edit")
 	public String initAppointmentEditForm(@PathVariable("appointmentId") final int appointmentId, @PathVariable("petId") final int petId, @PathVariable("ownerId") final int ownerId, final ModelMap modelMap) {		
-		if (securityAccessRequestAppointment(ownerId, petId)) {
-			Appointment appointment = this.appointmentService.getAppointmentById(appointmentId);
+		Appointment appointment = this.appointmentService.getAppointmentById(appointmentId);
+		boolean isYourAppointment = appointment.getOwner().getId().equals(ownerId);
+		if (securityAccessRequestAppointment(ownerId, petId) && isYourAppointment) {
 			modelMap.put("appointment", appointment);
 			modelMap.put("edit", true);
+			if(appointment.getAppointmentDate().minusDays(2).isEqual(LocalDate.now()) || appointment.getAppointmentDate().minusDays(2).isBefore(LocalDate.now())) {
+				modelMap.addAttribute("errors", "You cannot edit an appointment two or less days in advance");
+				return petController.showMyPetsActive(modelMap);
+			}
 			return VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;			
 		} else {
 			return REDIRECT_TO_OUPS;
@@ -92,10 +102,10 @@ public class AppointmentController {
 				try {
 					this.appointmentService.saveAppointment(appointment, vetId);
 				} catch (VeterinarianNotAvailableException e) {
-					modelMap.put("vetError", "Imposible realizar una cita con esos datos");
+					modelMap.put("vetError", "Impossible to register an appointment with this fields");
 					return VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
 				}
-				return REDIRECT_TO_OWNER_DETAILS;
+				return REDIRECT_TO_PETS_DETAILS;
 			}	
 		} else {
 			return REDIRECT_TO_OUPS;
@@ -104,8 +114,9 @@ public class AppointmentController {
 
 	@PostMapping(value = "/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/edit")
 	public String processAppointmentEditForm(@Valid final Appointment appointment, final BindingResult result, @PathVariable("petId") final int petId, @PathVariable("ownerId") final int ownerId,
-			@PathVariable("appointmentId") final int appointmentId, final ModelMap modelMap) {	
-		if (securityAccessRequestAppointment(ownerId, petId)) {
+			@PathVariable("appointmentId") final int appointmentId, final ModelMap modelMap) {
+		boolean isYourAppointment = appointment.getOwner().getId().equals(ownerId);
+		if (securityAccessRequestAppointment(ownerId, petId) && isYourAppointment) {
 			modelMap.put("edit", true);
 			if (result.hasErrors()) {
 				return VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
@@ -113,11 +124,11 @@ public class AppointmentController {
 				try {
 					this.appointmentService.editAppointment(appointment);
 				} catch (VeterinarianNotAvailableException e) {
-					modelMap.put("vetError", "Imposible realizar una cita con esos datos");
+					modelMap.put("vetError", "Impossible to register an appointment with this fields");
 					return VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
 				}
 			}
-			return REDIRECT_TO_OWNER_DETAILS;			
+			return REDIRECT_TO_PETS_DETAILS;			
 		} else {
 			return REDIRECT_TO_OUPS;
 		}
@@ -130,16 +141,14 @@ public class AppointmentController {
 		
 		if (this.securityAccessRequestAppointment(ownerId, petId) && isYourAppointment) {
 			Pet pet = this.petService.findPetById(petId);
-			Owner owner = this.ownerService.findOwnerById(ownerId);
 			
 			if (appointment.getAppointmentDate().minusDays(2).isEqual(LocalDate.now()) || appointment.getAppointmentDate().minusDays(2).isBefore(LocalDate.now())) {
-				model.addAttribute("errors", "No se puede cancelar una cita con dos o menos días de antelación");
-				model.addAttribute("owner", owner);
-				return "owners/ownerDetails";
+				model.addAttribute("errors", "You cannot cancel an appointment two or less days in advance");
+				return petController.showMyPetsActive(model);
 			} else {
 				pet.deleteAppointment(appointment);
 				this.appointmentService.deleteAppointment(appointment);
-				return REDIRECT_TO_OWNER_DETAILS;
+				return REDIRECT_TO_PETS_DETAILS;
 			}
 			
 		} else {
@@ -151,18 +160,17 @@ public class AppointmentController {
 		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
 				.collect(Collectors.toList()).get(0).toString();
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
-
-		Owner owner = this.ownerService.findOwnerById(ownerId);
-		Pet pet = this.petService.findPetById(petId);
 		
-		boolean isHisPet = false;
+		boolean isHisPetAcceptedAndActive = false;
 		String ownerUsername = null;
-		if (owner != null) {
-			isHisPet = owner.getPets().contains(pet);
+		if (authority.equals("owner")) {
+			Owner owner = this.ownerService.findOwnerById(ownerId);
+			Pet pet = this.petService.findPetById(petId);
+			isHisPetAcceptedAndActive = pet.getOwner().getId().equals(owner.getId()) && pet.isActive() && pet.getStatus().equals(accepted);
 			ownerUsername = owner.getUser().getUsername();
 		}
 
-		return authority.equals("owner") && username.equals(ownerUsername) && isHisPet;
+		return authority.equals("owner") && username.equals(ownerUsername) && isHisPetAcceptedAndActive;
 	}
 	
 }

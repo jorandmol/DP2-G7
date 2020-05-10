@@ -15,30 +15,18 @@
  */
 package org.springframework.samples.petclinic.service;
 
-import java.time.Duration;
-import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.Collection;
-import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Pet;
+import org.springframework.samples.petclinic.model.PetRegistrationStatus;
 import org.springframework.samples.petclinic.model.PetType;
-import org.springframework.samples.petclinic.model.Stay;
-import org.springframework.samples.petclinic.model.Visit;
 import org.springframework.samples.petclinic.repository.PetRepository;
-import org.springframework.samples.petclinic.repository.StayRepository;
-import org.springframework.samples.petclinic.repository.VisitRepository;
-import org.springframework.samples.petclinic.service.exceptions.DuplicatedMedicineCodeException;
 import org.springframework.samples.petclinic.service.exceptions.DuplicatedPetNameException;
-import org.springframework.samples.petclinic.service.exceptions.MaximumStaysReached;
-import org.springframework.samples.petclinic.service.exceptions.PastMedicineDateException;
-import org.springframework.samples.petclinic.service.exceptions.StayAlreadyConfirmed;
-import org.springframework.samples.petclinic.service.exceptions.WrongMedicineCodeException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 /**
  * Mostly used as a facade for all Petclinic controllers Also a placeholder
@@ -50,76 +38,62 @@ import org.springframework.util.StringUtils;
 public class PetService {
 
 	private PetRepository petRepository;
-
-	private VisitRepository visitRepository;
-
-	private StayRepository stayRepository;
-
+	
 	@Autowired
-	public PetService(PetRepository petRepository, VisitRepository visitRepository, StayRepository stayRepository) {
+	public PetService(PetRepository petRepository) {
 		this.petRepository = petRepository;
-		this.visitRepository = visitRepository;
-		this.stayRepository = stayRepository;
 	}
 
 	@Transactional(readOnly = true)
 	public Collection<PetType> findPetTypes() throws DataAccessException {
 		return petRepository.findPetTypes();
 	}
-
-	@Transactional
-	public void saveVisit(Visit visit) throws DataAccessException {
-		visitRepository.save(visit);
-	}
-
+	
 	@Transactional(readOnly = true)
 	public Pet findPetById(int id) throws DataAccessException {
 		return petRepository.findById(id);
 	}
 
 	@Transactional(rollbackFor = DuplicatedPetNameException.class)
-	public void savePet(Pet pet) throws DataAccessException, DuplicatedPetNameException {
-		Pet otherPet = pet.getOwner().getPetwithIdDifferent(pet.getName(), pet.getId());
-		if (StringUtils.hasLength(pet.getName()) && (otherPet != null && otherPet.getId() != pet.getId())) {
+	public void savePet(Pet pet) throws DataAccessException, DuplicatedPetNameException {	
+		if (existOtherPetWithSameName(pet)) {
 			throw new DuplicatedPetNameException();
 		} else
 			petRepository.save(pet);
 	}
-
-	public Collection<Visit> findVisitsByPetId(int petId) {
-		return visitRepository.findByPetId(petId);
-	}
-
-	@Transactional
-	public void saveStay(Stay stay) throws MaximumStaysReached {
-
-		Boolean dayExists = this.stayRepository.numOfStaysThatDates(stay.getRegisterDate(), stay.getReleaseDate(),
-				stay.getPet().getId()) > 0;
-		if (dayExists) {
-			throw new MaximumStaysReached();
-		} else {
-			stayRepository.save(stay);
+	public Boolean existOtherPetWithSameName(Pet newPet) {
+		Boolean res= false;
+		String petName = newPet.getName().toLowerCase();
+		List<Pet> ownerPets= this.petRepository.findAllPetsByOwnerId(newPet.getOwner().getId());
+		for (Pet pet : ownerPets) {
+			String compName = pet.getName();
+			compName = compName.toLowerCase();
+			if (compName.equals(petName) && pet.getId()!=newPet.getId()) {
+				res= true;
+			}
 		}
-
+		return res;
 	}
 
-	@Transactional(readOnly = true)
-	public Stay findStayById(int stayId) {
-		return stayRepository.findById(stayId).orElse(null);
+	public List<Pet> findAll() {
+		return this.petRepository.findAll();
 	}
 
-	@Transactional
-	public void deleteStay(Stay stay) throws StayAlreadyConfirmed {
-		if (stay.getStatus() != null && stay.getStatus().equals(true)) {
-			throw new StayAlreadyConfirmed();
-		} else {
-			Pet pet = stay.getPet();
-			pet.deleteStay(stay);
-			stayRepository.delete(stay);
-		}
+	public List<Pet> findPetsRequests(PetRegistrationStatus pending) {
+		return this.petRepository.findPetsRequests(pending);
 	}
 
-	public Collection<Stay> findStaysByPetId(int petId) {
-		return stayRepository.findByPetId(petId);
+	public List<Pet> findMyPetsRequests(PetRegistrationStatus pending, PetRegistrationStatus rejected, Integer ownerId) {
+		return this.petRepository.findPetsRequests(pending, rejected, ownerId);
 	}
+
+	public List<Pet> findMyPetsAcceptedByActive(PetRegistrationStatus accepted, boolean active, Integer ownerId) {
+		return this.petRepository.findMyPetsAcceptedByActive(accepted, active, ownerId);
+	}
+
+	public Integer countMyPetsAcceptedByActive(PetRegistrationStatus accepted, boolean active, int ownerId) {
+		return this.petRepository.countMyPetsAcceptedByActive(accepted, active, ownerId);
+	}
+
+
 }

@@ -17,9 +17,7 @@ package org.springframework.samples.petclinic.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -62,7 +60,7 @@ public class Owner extends Person {
 	private String telephone;
 
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
-	private Set<Pet> pets;
+	private List<Pet> pets;
 	
 	@OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "username", referencedColumnName = "username")
@@ -101,14 +99,14 @@ public class Owner extends Person {
 		this.telephone = telephone;
 	}
 
-	protected Set<Pet> getPetsInternal() {
+	protected List<Pet> getPetsInternal() {
 		if (this.pets == null) {
-			this.pets = new HashSet<>();
+			this.pets = new ArrayList<Pet>();
 		}
 		return this.pets;
 	}
 
-	protected void setPetsInternal(Set<Pet> pets) {
+	protected void setPetsInternal(List<Pet> pets) {
 		this.pets = pets;
 	}
 
@@ -136,18 +134,6 @@ public class Owner extends Person {
 		return getPet(name, false);
 	}
 	
-	public Pet getPetwithIdDifferent(String name,Integer id) {
-		name = name.toLowerCase();
-		for (Pet pet : getPetsInternal()) {
-			String compName = pet.getName();
-			compName = compName.toLowerCase();
-			if (compName.equals(name) && pet.getId()!=id) {
-				return pet;
-			}
-		}
-		return null;
-	}
-
 	/**
 	 * Return the Pet with the given name, or null if none found for this Owner.
 	 * @param name to test

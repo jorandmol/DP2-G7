@@ -54,7 +54,7 @@ public class VetService {
 	
 	@Transactional(readOnly = true)	
 	public Collection<Specialty> findSpecialties() {
-		return vetRepository.findSpecialty();
+		return vetRepository.findSpecialties();
 	}
 
 	@Transactional

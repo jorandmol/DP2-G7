@@ -14,28 +14,21 @@
         <tr>
         	<th>Code</th>
         	<th>Name</th>
-            <th>Expiration date</th>
-            <th>Description</th>
             <th>Actions</th>
         </tr>
         </thead>
         <tbody>
         <c:forEach items="${medicines}" var="medicine">
-            <tr>
+            <tr id="med">
                 <td>
-                   <c:out value="${medicine.code}"/>
+                   <p><c:out value="${medicine.code}"/></p>
                 </td>
                 <td>
-                   <c:out value="${medicine.name}"/>
+                   <p><c:out value="${medicine.name}"/></p>
                 </td>
                 <td>
-                    <c:out value="${medicine.expirationDate}"/>
-                </td>
-                 <td>
-                    <c:out value="${medicine.description}"/>
-                </td>  
-                <td>
-                	<a href='<spring:url value="medicines/${medicine.id}" htmlEscape="true"/>'>See details</a>
+                	<p><a href='<spring:url value="medicines/${medicine.id}/edit" htmlEscape="true"/>'>Update</a>
+                	 / <a href='<spring:url value="medicines/${medicine.id}" htmlEscape="true"/>'>See details</a></p>
                 </td>              
             </tr>
         </c:forEach>

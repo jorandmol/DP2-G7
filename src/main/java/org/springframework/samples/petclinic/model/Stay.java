@@ -26,7 +26,7 @@ public class Stay extends BaseEntity {
 	private LocalDate releaseDate;
 	
 	@Column(name= "status")
-	private Boolean status;
+	private Status status;
 
 	@ManyToOne
 	@JoinColumn(name = "pet_id")

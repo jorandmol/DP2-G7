@@ -21,6 +21,7 @@ import java.util.Collection;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.samples.petclinic.model.Owner;
@@ -59,7 +60,8 @@ import org.springframework.transaction.annotation.Transactional;
  */
 
 @DataJpaTest(includeFilters = @ComponentScan.Filter(Service.class))
-class OwnerServiceTests {                
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+class OwnerServiceTests {
         @Autowired
 	protected OwnerService ownerService;
 
@@ -76,9 +78,9 @@ class OwnerServiceTests {
 	void shouldFindSingleOwnerWithPet() {
 		Owner owner = this.ownerService.findOwnerById(1);
 		assertThat(owner.getLastName()).startsWith("Franklin");
-		assertThat(owner.getPets().size()).isEqualTo(1);
+		assertThat(owner.getPets().size()).isEqualTo(3);
 		assertThat(owner.getPets().get(0).getType()).isNotNull();
-		assertThat(owner.getPets().get(0).getType().getName()).isEqualTo("cat");
+		assertThat(owner.getPets().get(0).getType().getName()).isEqualTo("hamster");
 	}
 
 	@Test
@@ -97,8 +99,8 @@ class OwnerServiceTests {
                 user.setUsername("Sam");
                 user.setPassword("supersecretpassword_2");
                 user.setEnabled(true);
-                owner.setUser(user);                
-                
+                owner.setUser(user);
+
 		this.ownerService.saveOwner(owner);
 		assertThat(owner.getId().longValue()).isNotEqualTo(0);
 

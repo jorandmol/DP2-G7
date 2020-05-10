@@ -1,7 +1,5 @@
 package org.springframework.samples.petclinic.service;
 
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.PetType;
 import org.springframework.samples.petclinic.repository.PetTypeRepository;
@@ -35,8 +33,8 @@ public class PetTypeService {
 		return res == 0;
 	}
 
-	public Optional<PetType> findById(Integer petTypeId) {
+	public PetType findById(Integer petTypeId) {
 		
-		return this.petTypeRepository.findById(petTypeId);
+		return this.petTypeRepository.findById(petTypeId).get();
 	}
 }

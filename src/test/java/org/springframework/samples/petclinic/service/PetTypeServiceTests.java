@@ -5,11 +5,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.samples.petclinic.model.PetType;
@@ -18,20 +18,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @DataJpaTest(includeFilters = @ComponentScan.Filter(Service.class))
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class PetTypeServiceTests {
-	
+
 	 @Autowired
      protected PetTypeService petTypeService;
-	 
-	 
+
+
 	@Test
 	void shouldFindPetTypeWithCorrectId() {
-			Optional<PetType> petType1 = this.petTypeService.findById(1);
-			assertThat(petType1.get().getName()).isEqualTo("cat");
-			
+			PetType petType1 = this.petTypeService.findById(1);
+			assertThat(petType1.getName()).isEqualTo("cat");
+
 
 		}
-	
+
 	@Test
 	@Transactional
 	public void shouldInsertPetTypeIntoDatabaseAndGenerateId() {
@@ -46,14 +47,14 @@ public class PetTypeServiceTests {
 			e.printStackTrace();
 		}
 		Iterable<PetType> petTypes2 = this.petTypeService.findAll();
-		
+
 		assertThat(((Collection<PetType>) petTypes2).size()).isEqualTo(found + 1);
 
-          
-		
+
+
 		assertThat(petType.getId()).isNotNull();
 	}
-	
+
 	@Test
 	@Transactional
 	public void shouldNotInsertPetTypeIntoDatabaseAndGenerateId() {
@@ -63,20 +64,20 @@ public class PetTypeServiceTests {
 			this.petTypeService.addPetType(petType);
 		});
 	}
-	
+
 	@Test
 	@Transactional
 	public void PetTypeAlreadyExists() {
-		Optional<PetType> petType1 = this.petTypeService.findById(1);
-		assertThat(petType1.get().getName()).isEqualTo("cat");
+		PetType petType1 = this.petTypeService.findById(1);
+		assertThat(petType1.getName()).isEqualTo("cat");
 
 		Boolean exists = this.petTypeService.typeNameDontExists("cat");
-	  
+
 		assertThat(exists.equals(false));
-		
-		
+
+
 	}
-	
+
 	@Test
 	@Transactional
 	public void PetTypeDontExists() {
@@ -85,11 +86,11 @@ public class PetTypeServiceTests {
 		assertThat(!lsPetType.contains("Shark"));
 
 		Boolean exists = this.petTypeService.typeNameDontExists("Shark");
-	  
+
 		assertThat(exists.equals(true));
-		
-		
+
+
 	}
-	
+
 
 }

@@ -23,7 +23,9 @@
             <petclinic:inputField label="Address" name="address"/>
             <petclinic:inputField label="City" name="city"/>
             <petclinic:inputField label="Telephone" name="telephone"/>
-            <petclinic:selectField label="Specialties" name="specialties" names="${specialties}" size="3"/>
+            <div class="control-group">
+            	<petclinic:selectField name="specialties" label="Specialties" names="${specialties}" size="5"/>
+            </div>
             <c:if test="${!edit}">
             	<petclinic:inputField label="Username" name="user.username"/>
             </c:if>

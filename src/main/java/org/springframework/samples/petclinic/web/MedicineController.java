@@ -4,8 +4,6 @@ package org.springframework.samples.petclinic.web;
 
 
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.validation.Valid;
 
@@ -13,8 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Medicine;
 import org.springframework.samples.petclinic.service.MedicineService;
 import org.springframework.samples.petclinic.service.exceptions.DuplicatedMedicineCodeException;
-import org.springframework.samples.petclinic.service.exceptions.PastMedicineDateException;
-import org.springframework.samples.petclinic.service.exceptions.WrongMedicineCodeException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -71,18 +67,9 @@ public class MedicineController {
 		else {
 			try {
 				this.medicineService.saveMedicine(medicine);
-			} catch (DuplicatedMedicineCodeException | PastMedicineDateException | IllegalArgumentException | WrongMedicineCodeException ex) {
-				 Logger.getLogger(MedicineService.class.getName()).log(Level.SEVERE, null, ex);
-				 if(ex.getClass().equals(DuplicatedMedicineCodeException.class)) {
-					 result.rejectValue("name", "duplicate", "already exists");
-				 }
-				 if(ex.getClass().equals(PastMedicineDateException.class)) {
-					 result.rejectValue("name", "past", "past date");
-				 }
-				 if(ex.getClass().equals(WrongMedicineCodeException.class)) {
-					 result.rejectValue("name", "pattern", "Must match pattern");
-				 }
-				 return VIEWS_MEDICINE_CREATE_OR_UPDATE_FORM;
+			} catch (DuplicatedMedicineCodeException ex) {
+				result.rejectValue("code", "duplicate", "Already exists");
+				return VIEWS_MEDICINE_CREATE_OR_UPDATE_FORM;
 			}
 			return "redirect:/medicines";	
 		}
@@ -96,6 +83,29 @@ public class MedicineController {
 		return mav;
 	}
 
-
+	@GetMapping(value = "/{medicineId}/edit")
+	public String initEditForm(@PathVariable("medicineId") int medicineId, Map<String, Object> modelMap) {
+		Medicine medicine = this.medicineService.findMedicineById(medicineId);
+		modelMap.put("medicine", medicine);
+		modelMap.put("edit", true);
+		return VIEWS_MEDICINE_CREATE_OR_UPDATE_FORM;
+	}
+	
+	@PostMapping(value = "/{medicineId}/edit")
+	public String processEditForm(@Valid Medicine medicine, BindingResult result, @PathVariable("medicineId") int medicineId, Map<String, Object> modelMap) {
+		modelMap.put("edit", true);
+		if (result.hasErrors()) {
+			return VIEWS_MEDICINE_CREATE_OR_UPDATE_FORM;
+		} else {
+			try {
+				medicine.setId(medicineId);
+				this.medicineService.editMedicine(medicine);
+			} catch (DuplicatedMedicineCodeException e) {
+				result.rejectValue("code", "duplicate", "Already exists");
+				return VIEWS_MEDICINE_CREATE_OR_UPDATE_FORM;
+			}
+		}
+		return "redirect:/medicines";
+	}
 
 }

@@ -1,11 +1,13 @@
 
 package org.springframework.samples.petclinic.repository;
 
+import java.time.LocalDate;
+import java.util.Collection;
+import java.util.List;
+
 import org.springframework.data.repository.query.Param;
 import org.springframework.samples.petclinic.model.Appointment;
 import org.springframework.stereotype.Repository;
-import java.time.LocalDate;
-import java.util.Collection;
 
 @Repository
 public interface AppointmentRepository {
@@ -21,5 +23,11 @@ public interface AppointmentRepository {
     void delete(Appointment appointment);
     
     Collection<Appointment> findAll();
+
+	List<Appointment> getAppointmentsTodayByVetId(@Param("vetId") Integer vetId, @Param("date") LocalDate date);
+
+	List<Appointment> getNextAppointmentsByVetId(@Param("vetId") Integer vetId, @Param("date") LocalDate date);
+
+	Appointment findByDate(Integer petId, LocalDate date);
 
 }

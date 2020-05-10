@@ -53,13 +53,14 @@
 					name="releaseDate" />
             </div>
             <div class="form-group">
-                <div class="col-sm-offset-2 col-sm-10">
-                    <input type="hidden" name="petId"
-							value="${stay.pet.id}" />
-                    <button class="btn btn-default" type="submit">Add Stay</button>
-                </div>
-            </div>
-          
+                 <div class="col-sm-offset-2 col-sm-10">
+                     <button class="btn btn-default" type="submit">
+                   <c:choose>
+                     <c:when test="${!edit}">Add</c:when>
+                     <c:otherwise>Update</c:otherwise>
+                   </c:choose> Stay</button>
+                 </div>
+           </div>     
         </form:form>
         </sec:authorize>   
 
@@ -70,7 +71,7 @@
                 <th>Register date</th>
                 <th>Exit date</th>
             </tr>
-            <c:forEach var="stay" items="${stay.pet.stays}">
+            <c:forEach var="stay" items="${pet.stays}">
                 <c:if test="${!stay['new']}">
                     <tr>
                         <td><petclinic:localDate

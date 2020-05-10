@@ -29,6 +29,10 @@ import org.springframework.test.web.servlet.MockMvc;
 @WebMvcTest(controllers = BannerController.class, excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = WebSecurityConfigurer.class), excludeAutoConfiguration = SecurityConfiguration.class)
 public class BannerControllerTests {
 
+	private static final String VIEWS_BANNER_CREATE_FORM = "banners/createBannerForm";
+	
+	private static final String VIEWS_BANNERS_LIST = "banners/bannersList";
+	
 	private static final int TEST_BANNER_ID1 = 1;
 	
 	private static final int TEST_BANNER_ID2 = 2;
@@ -76,14 +80,14 @@ public class BannerControllerTests {
 	@Test
 	void testShowBannersList() throws Exception {
 		mockMvc.perform(get("/banners")).andExpect(status().isOk()).andExpect(model().attributeExists("banners"))
-				.andExpect(view().name("banners/bannersList"));
+				.andExpect(view().name(VIEWS_BANNERS_LIST));
 	}
 	
 	@WithMockUser(value = "spring")
 	@Test
 	void testInitCreationForm() throws Exception {
 		mockMvc.perform(get("/banners/new")).andExpect(status().isOk()).andExpect(model().attributeExists("banner"))
-				.andExpect(view().name("banners/createBannerForm"));
+				.andExpect(view().name(VIEWS_BANNER_CREATE_FORM));
 	}
 
 	@WithMockUser(value = "spring")
@@ -112,7 +116,7 @@ public class BannerControllerTests {
 				.andExpect(model().attributeHasErrors("banner"))
 				.andExpect(model().attributeHasFieldErrors("banner", "slogan"))
 				.andExpect(model().attributeHasFieldErrors("banner", "organizationName"))
-				.andExpect(view().name("banners/createBannerForm"));
+				.andExpect(view().name(VIEWS_BANNER_CREATE_FORM));
 	}
 	
 	@WithMockUser(value = "spring")
@@ -127,7 +131,7 @@ public class BannerControllerTests {
 				.param("endColabDate", "2020/11/01"))
 				.andExpect(model().attributeHasErrors("banner"))
 				.andExpect(model().attributeHasFieldErrors("banner", "picture"))
-				.andExpect(view().name("banners/createBannerForm"));
+				.andExpect(view().name(VIEWS_BANNER_CREATE_FORM));
 	}
 	
 	@WithMockUser(value = "spring")
@@ -142,7 +146,7 @@ public class BannerControllerTests {
 				.param("endColabDate", "2020/11/01"))
 				.andExpect(model().attributeHasErrors("banner"))
 				.andExpect(model().attributeHasFieldErrors("banner", "targetUrl"))
-				.andExpect(view().name("banners/createBannerForm"));
+				.andExpect(view().name(VIEWS_BANNER_CREATE_FORM));
 	}
 
 	@WithMockUser(value = "spring")
@@ -150,7 +154,7 @@ public class BannerControllerTests {
 	void testProcessDeleteBannerNotExpiredEndDate() throws Exception {
 		mockMvc.perform(get("/banners/{bannerId}/delete", TEST_BANNER_ID1))
 		.andExpect(status().isOk())
-		.andExpect(view().name("banners/bannersList"));
+		.andExpect(view().name(VIEWS_BANNERS_LIST));
 	}
 	
 	@WithMockUser(value = "spring")

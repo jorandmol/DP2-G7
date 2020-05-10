@@ -17,7 +17,6 @@ package org.springframework.samples.petclinic.repository;
 
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.Date;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.jpa.repository.Query;
@@ -47,8 +46,8 @@ public interface StayRepository extends CrudRepository<Stay, Integer>{
 	@Query("select s from Stay s where s.pet.id=?1")
 	Collection<Stay> findByPetId(int petId) throws DataAccessException;
 	
-	@Query("select count(s) from Stay s where s.pet.id =?3 and ((?1 >= s.registerDate and ?1 <= s.releaseDate) or (?2 >= s.registerDate and ?2 <= s.releaseDate))")
-	int numOfStaysThatDates(LocalDate registerDate, LocalDate releaseDate, int petId) throws DataAccessException;
+	@Query("select count(s) from Stay s where s.pet.id =?3 and s.id !=?4 and ((?1 >= s.registerDate and ?1 <= s.releaseDate) or (?2 >= s.registerDate and ?2 <= s.releaseDate) or (?1 <= s.registerDate and ?2 >= s.releaseDate))")
+	int numOfStaysThatDates(LocalDate registerDate, LocalDate releaseDate, int petId, int stayId) throws DataAccessException;
 
 }
 

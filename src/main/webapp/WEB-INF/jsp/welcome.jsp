@@ -11,18 +11,5 @@
             <spring:url value="/resources/images/pets.png" htmlEscape="true" var="petsImage"/>
             <img class="img-responsive" src="${petsImage}"/>
         </div>
-    
-    <div>
-      <sec:authorize access="hasAuthority('admin')">
-        <h3>Pet types</h3>
-        <a class="btn btn-default" href='<spring:url value="/pet-type" htmlEscape="true"/>'>Go</a>
-        </form>
-     </sec:authorize>
     </div>
-    <div>
-	    <sec:authorize access="hasAuthority('admin')">
-	      <h3>Medicines</h3>
-				<a class="btn btn-default" href='<spring:url value="/medicines" htmlEscape="true"/>'>Go</a>
-			</sec:authorize>
-		</div>
 </petclinic:layout>

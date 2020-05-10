@@ -14,7 +14,7 @@
     </jsp:attribute>
     <jsp:body>
         <h2>
-            <c:if test="${pet['new']}">New </c:if> Pet
+            <c:if test="${!edit}">New </c:if> Pet
         </h2>
         <form:form modelAttribute="pet"
                    class="form-horizontal">
@@ -23,7 +23,7 @@
                 <div class="form-group">
                     <label class="col-sm-2 control-label">Owner</label>
                     <div class="col-sm-10">
-                        <c:out value="${pet.owner.firstName} ${pet.owner.lastName}"/>
+                        <c:out value="${owner.firstName} ${owner.lastName}"/>
                     </div>
                 </div>
                 <petclinic:inputField label="Name" name="name"/>
@@ -35,8 +35,8 @@
             <div class="form-group">
                 <div class="col-sm-offset-2 col-sm-10">
                     <c:choose>
-                        <c:when test="${pet['new']}">
-                            <button class="btn btn-default" type="submit">Add Pet</button>
+                        <c:when test="${!edit}">
+                            <button class="btn btn-default" type="submit">Request pet</button>
                         </c:when>
                         <c:otherwise>
                             <button class="btn btn-default" type="submit">Update Pet</button>
@@ -45,7 +45,5 @@
                 </div>
             </div>
         </form:form>
-        <c:if test="${!pet['new']}">
-        </c:if>
     </jsp:body>
 </petclinic:layout>

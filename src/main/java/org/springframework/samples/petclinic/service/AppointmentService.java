@@ -4,6 +4,7 @@ package org.springframework.samples.petclinic.service;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Appointment;
@@ -75,7 +76,7 @@ public class AppointmentService {
 	    boolean res = false;
     	LocalDate appointmentDate = appointment.getAppointmentDate();
 	    
-    	if (!appointmentDate.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
+    	if (appointmentDate != null && !appointmentDate.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
 	    	int petId = appointment.getPet().getId();
 	    	res = countAppointmentsByPetAndDay(petId, appointmentDate) == 0 && 
 	    			countAppointmentsByVetAndDay(vetId, appointmentDate) < 6;	    	
@@ -91,4 +92,16 @@ public class AppointmentService {
     private int countAppointmentsByVetAndDay(int vetId, LocalDate date) {
 	    return this.appointmentRepository.countAppointmentsByVetAndDay(vetId, date);
     }
+
+	public List<Appointment> getAppointmentsTodayByVetId(Integer vetId, LocalDate date) {
+		return this.appointmentRepository.getAppointmentsTodayByVetId(vetId, date);
+	}
+
+	public List<Appointment> getNextAppointmentsByVetId(Integer vetId, LocalDate date) {
+		return this.appointmentRepository.getNextAppointmentsByVetId(vetId, date);
+	}
+	
+	public Appointment findAppointmentByDate(Integer petId, LocalDate date) {
+		return this.appointmentRepository.findByDate(petId, date);
+	}
 }

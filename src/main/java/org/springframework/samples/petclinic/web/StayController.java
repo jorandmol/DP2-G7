@@ -15,22 +15,28 @@
  */
 package org.springframework.samples.petclinic.web;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
+import org.springframework.samples.petclinic.model.PetRegistrationStatus;
+import org.springframework.samples.petclinic.model.Status;
 import org.springframework.samples.petclinic.model.Stay;
 import org.springframework.samples.petclinic.service.OwnerService;
 import org.springframework.samples.petclinic.service.PetService;
+import org.springframework.samples.petclinic.service.StayService;
+import org.springframework.samples.petclinic.service.exceptions.DateNotAllowed;
 import org.springframework.samples.petclinic.service.exceptions.MaximumStaysReached;
 import org.springframework.samples.petclinic.service.exceptions.StayAlreadyConfirmed;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
@@ -49,14 +55,17 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 public class StayController {
 
-	private final PetService petService;
-	
+	private final StayService stayService;
+
 	private final OwnerService ownerService;
 
+	private final PetService petService;
+
 	@Autowired
-	public StayController(PetService petService, OwnerService ownerService) {
-		this.petService = petService;
+	public StayController(StayService stayService, OwnerService ownerService, PetService petService) {
+		this.stayService = stayService;
 		this.ownerService = ownerService;
+		this.petService = petService;
 	}
 
 	@InitBinder
@@ -79,31 +88,45 @@ public class StayController {
 	 * @return Pet
 	 */
 
-	
 	private Boolean securityAccessRequest(Integer ownerId, Integer petId) {
-		Boolean res = false;
 		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
 				.collect(Collectors.toList()).get(0).toString();
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
-		Owner owner = this.ownerService.findOwnerById(ownerId);
-		Pet pet = this.petService.findPetById(petId);
-		Boolean isHisPet = owner.getPets().contains(pet);
+		boolean isHisPetAcceptedAndActive = false;
+		String ownerUsername = null;
+		if (authority.equals("owner")) {
+			Owner owner = this.ownerService.findOwnerById(ownerId);
+			Pet pet = this.petService.findPetById(petId);
 
-		if ((authority.equals("owner") && username.equals(owner.getUser().getUsername()) && isHisPet)) {
-			res = true;
+			isHisPetAcceptedAndActive = pet.getOwner().getId().equals(owner.getId()) && pet.isActive()
+					&& pet.getStatus().equals(PetRegistrationStatus.ACCEPTED);
+			ownerUsername = owner.getUser().getUsername();
 		}
-		return res;
+		return authority.equals("owner") && username.equals(ownerUsername) && isHisPetAcceptedAndActive;
 	}
-	
+
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/stays")
 	public String initStayList(@PathVariable("ownerId") int ownerId, @PathVariable("petId") int petId, ModelMap model) {
 		// Esta lista también puede ser accedida por el administrador
 		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
 				.collect(Collectors.toList()).get(0).toString();
-		
-		if(this.securityAccessRequest(ownerId, petId) || authority.equals("admin")) {
-			model.put("stays", this.petService.findStaysByPetId(petId));
+		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+		Boolean res = false;
+		if (authority.equals("owner")) {
+			Owner owner = this.ownerService.findOwnerById(ownerId);
+			Pet pet = this.petService.findPetById(petId);
+
+			Boolean isHisPetAcceptedAndActiveOrNot = pet.getOwner().getId().equals(owner.getId())
+					&& (pet.isActive() || pet.isActive() == false)
+					&& pet.getStatus().equals(PetRegistrationStatus.ACCEPTED);
+			String ownerUsername = owner.getUser().getUsername();
+
+			res = isHisPetAcceptedAndActiveOrNot && username.equals(ownerUsername);
+		}
+
+		if (res || authority.equals("admin")) {
+			model.put("stays", this.stayService.findStaysByPetId(petId));
 			model.put("pet", this.petService.findPetById(petId));
 			return "pets/staysList";
 		} else {
@@ -111,13 +134,21 @@ public class StayController {
 		}
 	}
 
+	@GetMapping(value = "/admin/stays")
+	public String initStayListForAdm(ModelMap model) {
+		model.put("stays", this.stayService.findAllStays());
+		return "pets/staysListAdmin";
+	}
+
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/stays/new")
-	public String initNewStayForm(@PathVariable("ownerId") int ownerId, @PathVariable("petId") int petId, Map<String, Object> model) {
-		if(this.securityAccessRequest(ownerId, petId)) {
+	public String initNewStayForm(@PathVariable("ownerId") int ownerId, @PathVariable("petId") int petId,
+			Map<String, Object> model) {
+		if (this.securityAccessRequest(ownerId, petId)) {
 			Stay stay = new Stay();
 			Pet pet = this.petService.findPetById(petId);
 			pet.addStay(stay);
 			model.put("stay", stay);
+			model.put("pet", pet);
 			return "pets/createOrUpdateStayForm";
 		} else {
 			return "redirect:/oups";
@@ -125,20 +156,23 @@ public class StayController {
 	}
 
 	@PostMapping(value = "/owners/{ownerId}/pets/{petId}/stays/new")
-	public String processNewStayForm(@Valid Stay stay, BindingResult result, @PathVariable("ownerId") int ownerId, @PathVariable("petId") int petId) {
-		if(this.securityAccessRequest(ownerId, petId)) {
+	public String processNewStayForm(@Valid Stay stay, BindingResult result, @PathVariable("ownerId") int ownerId,
+			@PathVariable("petId") int petId, Map<String, Object> model) {
+		Pet pet = this.petService.findPetById(petId);
+		if (this.securityAccessRequest(ownerId, petId)) {
 			if (result.hasErrors()) {
+				model.put("pet", pet);
 				return "pets/createOrUpdateStayForm";
 			} else {
 				try {
-					Pet pet = this.petService.findPetById(petId);
 					stay.setPet(pet);
-					this.petService.saveStay(stay);
+					this.stayService.saveStay(stay);
 				} catch (MaximumStaysReached ex) {
 					result.rejectValue("releaseDate", "There exists already a Stay", "There exists already a Stay");
+					model.put("pet", pet);
 					return "pets/createOrUpdateStayForm";
 				}
-	
+
 				return "redirect:/owners/{ownerId}/pets/{petId}/stays";
 			}
 		} else {
@@ -150,22 +184,120 @@ public class StayController {
 	public ModelAndView processDeleteForm(@PathVariable("stayId") int stayId, @PathVariable("ownerId") int ownerId,
 			@PathVariable("petId") int petId, ModelMap model) {
 		Pet pet = petService.findPetById(petId);
-		Stay stay = petService.findStayById(stayId);
+		Stay stay = stayService.findStayById(stayId);
 		ModelAndView mav = new ModelAndView("pets/staysList");
 		mav.addObject("stays", this.petService.findPetById(petId).getStays());
 		mav.addObject("pet", this.petService.findPetById(petId));
-		
+
 		Boolean isYourStay = stay.getPet().getOwner().getId().equals(ownerId);
-		if(this.securityAccessRequest(ownerId, petId) && isYourStay) {
+		if (this.securityAccessRequest(ownerId, petId) && isYourStay) {
 			try {
 				pet.deleteStay(stay);
-				this.petService.deleteStay(stay);
+				this.stayService.deleteStay(stay);
 			} catch (StayAlreadyConfirmed ex) {
 				mav.addObject("errors", "This stay is already confirmed");
 			}
+			mav.addObject("stays", this.petService.findPetById(petId).getStays());
 			return mav;
 		} else {
 			return new ModelAndView("exception");
+		}
+	}
+
+	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/stays/{stayId}/edit")
+	public String initStayEditForm(@PathVariable("stayId") final int stayId, @PathVariable("petId") final int petId,
+			@PathVariable("ownerId") final int ownerId, final ModelMap modelMap) {
+		Pet pet = petService.findPetById(petId);
+		if (securityAccessRequest(ownerId, petId)) {
+			Stay stay = this.stayService.findStayById(stayId);
+			modelMap.put("stay", stay);
+			modelMap.put("edit", true);
+			modelMap.put("pet", pet);
+			return "pets/createOrUpdateStayForm";
+		} else {
+			return "redirect:/oups";
+		}
+	}
+
+	@PostMapping(value = "/owners/{ownerId}/pets/{petId}/stays/{stayId}/edit")
+	public String processStayEditForm(@Valid final Stay stay, final BindingResult result,
+			@PathVariable("petId") final int petId, @PathVariable("ownerId") final int ownerId,
+			@PathVariable("stayId") final int stayId, final ModelMap modelMap) {
+		Pet pet = petService.findPetById(petId);
+		if (securityAccessRequest(ownerId, petId)) {
+			modelMap.put("edit", true);
+			if (result.hasErrors()) {
+				modelMap.put("pet", pet);
+				return "pets/createOrUpdateStayForm";
+			} else {
+				try {
+					Stay stayToUpdate = this.stayService.findStayById(stayId);
+					BeanUtils.copyProperties(stayToUpdate, stay, "registerDate", "releaseDate");
+					this.stayService.editStay(stay);
+				} catch (MaximumStaysReached | DateNotAllowed | StayAlreadyConfirmed e) {
+					if (e.getClass().equals(MaximumStaysReached.class)) {
+						result.rejectValue("releaseDate", "There exists already a Stay", "There exists already a Stay");
+					} else if (e.getClass().equals(DateNotAllowed.class)) {
+						result.rejectValue("releaseDate", "Change the dates", "Change the dates");
+					} else if (e.getClass().equals(StayAlreadyConfirmed.class)) {
+						result.rejectValue("releaseDate", "Stay already confirmed or rejected by admin",
+								"Stay already confirmed or rejected by admin");
+					}
+					modelMap.put("pet", pet);
+					return "pets/createOrUpdateStayForm";
+				}
+			}
+			return "redirect:/owners/{ownerId}/pets/{petId}/stays";
+		} else {
+			return "redirect:/oups";
+		}
+	}
+
+	@GetMapping(value = "/admin/stays/{stayId}")
+	public String initStayEditFormAdmin(@PathVariable("stayId") final int stayId, final ModelMap modelMap) {
+
+		List<Status> ls = new ArrayList<Status>();
+		ls.add(Status.ACCEPTED);
+		ls.add(Status.REJECTED);
+
+		Stay stay = this.stayService.findStayById(stayId);
+		modelMap.put("stay", stay);
+		modelMap.put("status", ls);
+		return "pets/createOrUpdateStayFormAdmin";
+	}
+
+	@PostMapping(value = "/admin/stays/{stayId}")
+	public String processStayEditFormAdmin(@Valid final Stay stay, final BindingResult result,
+			@PathVariable("stayId") final int stayId, final ModelMap modelMap) {
+		Status newStatus;
+		if(stay.getStatus() == null) {
+			newStatus = Status.PENDING;
+		} else {
+			 newStatus = stay.getStatus();
+		}
+		Stay stayToUpdate = this.stayService.findStayById(stayId);
+		BeanUtils.copyProperties(stayToUpdate, stay);
+		List<Status> ls = new ArrayList<Status>();
+		ls.add(Status.ACCEPTED);
+		ls.add(Status.REJECTED);
+		modelMap.put("status", ls);
+		if (result.hasErrors()) {
+			modelMap.put("stay", stay);
+			modelMap.put("status", ls);
+			return "pets/createOrUpdateStayFormAdmin";
+		} else {
+			try {
+				stay.setStatus(newStatus);
+				this.stayService.editStatus(stay);
+			} catch (StayAlreadyConfirmed e) {
+				result.rejectValue("status", "Stay already confirmed or rejected by admin",
+						"Stay already confirmed or rejected by admin");
+				modelMap.put("stay", stay);
+				modelMap.put("status", ls);
+				return "pets/createOrUpdateStayFormAdmin";
+			}
+			return "redirect:/admin/stays";
+
 		}
 	}
 
