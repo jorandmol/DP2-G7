@@ -26,7 +26,7 @@
                 </td>
                 <td>
                     <c:forEach var="specialty" items="${vet.specialties}">
-                        <c:out value="* ${specialty.name} "/>
+                        <c:out value="- ${specialty.name} "/>
                     </c:forEach>
                     <c:if test="${vet.nrOfSpecialties == 0}">none</c:if>
                 </td>
