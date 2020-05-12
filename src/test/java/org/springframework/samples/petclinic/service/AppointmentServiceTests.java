@@ -81,9 +81,9 @@ public class AppointmentServiceTests {
 		try {
 			this.appointmentService.saveAppointment(appointment, vet.getId());
 		} catch (VeterinarianNotAvailableException e) {
-			e.getMessage();
-		}
 
+		}
+		
 		verify(appointmentRepository).save(appointment);
 	}
 
@@ -108,9 +108,11 @@ public class AppointmentServiceTests {
 	@Test
 	@Transactional
 	void shouldEditAppointment() {
+		
 		appointment.setVet(vet);
 		appointment.setDescription("Hello World!");
 
+		when(appointmentRepository.findById(1)).thenReturn(appointment);
 		when(appointmentRepository.countAppointmentsByPetAndDay(pet.getId(), appointmentDateFuture)).thenReturn(0);
 		when(appointmentRepository.countAppointmentsByVetAndDay(vet.getId(), appointmentDateFuture)).thenReturn(0);
 
@@ -119,9 +121,9 @@ public class AppointmentServiceTests {
 		newAppointment.setDescription("Hola Mundo!");
 
 		try {
-			this.appointmentService.saveAppointment(newAppointment, vet.getId());
+			this.appointmentService.editAppointment(newAppointment);
 		} catch (VeterinarianNotAvailableException e) {
-			e.getMessage();
+			
 		}
 
 		verify(appointmentRepository).save(newAppointment);
@@ -134,14 +136,18 @@ public class AppointmentServiceTests {
 		appointment.setVet(vet);
 		appointment.setDescription("Hello World!");
 
+		when(appointmentRepository.findById(1)).thenReturn(appointment);
 		when(appointmentRepository.countAppointmentsByPetAndDay(pet.getId(), appointmentDateFuture)).thenReturn(1);
-
-		Appointment newAppointment = appointment;
+		
+		Appointment newAppointment = new Appointment();
 		newAppointment.setAppointmentDate(appointmentDateFuture);
 		newAppointment.setDescription("Hola Mundo!");
+		newAppointment.setId(1);
+		newAppointment.setVet(vet);
+		newAppointment.setPet(pet);
 
 		assertThrows(VeterinarianNotAvailableException.class,
-				() -> this.appointmentService.saveAppointment(newAppointment, vet.getId()));
+				() -> this.appointmentService.editAppointment(newAppointment));
 	}
 
 	@Test
