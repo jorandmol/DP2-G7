@@ -11,15 +11,15 @@
 <petclinic:layout pageName="stays">
 	<jsp:attribute name="customScript">
         <script>
-									$(function() {
-										$("#registerDate").datepicker({
-											dateFormat : 'yy/mm/dd'
-										});
-										$("#releaseDate").datepicker({
-											dateFormat : 'yy/mm/dd'
-										});
-									});
-								</script>
+			$(function() {
+				$("#registerDate").datepicker({
+					dateFormat : 'yy/mm/dd'
+				});
+				$("#releaseDate").datepicker({
+					dateFormat : 'yy/mm/dd'
+				});
+			});
+		</script>
     </jsp:attribute>
 	<jsp:body>
         <h2>Stay</h2>
@@ -53,7 +53,7 @@
                 <petclinic:inputField label="Release date"
 					name="releaseDate" />          
                <petclinic:selectField  label="Status" name="status"
-						names="${status}" size="2"></petclinic:selectField>
+						names="${status}" size="1"></petclinic:selectField>
             </div>
             <div class="form-group">
                  <div class="col-sm-offset-2 col-sm-10">

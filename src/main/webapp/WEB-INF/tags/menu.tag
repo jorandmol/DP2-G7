@@ -114,7 +114,11 @@
 							<li>
 								<div class="navbar-login">
 									<div class="row">
-									<div class="col-lg-3"></div>
+										<div class="col-lg-3"></div>
+										<p class="text-left">
+        									<strong><a href='<spring:url value="/adoptions" htmlEscape="true"/>'>Adoptions</a></strong>
+										</p>
+										<div class="col-lg-3"></div>
 										<p class="text-left">
         									<strong><a href='<spring:url value="/banners" htmlEscape="true"/>'>Banners</a></strong>
 										</p>		

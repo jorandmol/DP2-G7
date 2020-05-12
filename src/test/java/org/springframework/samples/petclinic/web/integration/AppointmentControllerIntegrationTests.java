@@ -117,7 +117,7 @@ public class AppointmentControllerIntegrationTests {
 	@WithMockUser(username="owner1", password="0wn3333r_1", authorities=OWNER_ROLE)
 	void testProcessNewAppointmentForm() throws Exception{
 		Appointment appointment = new Appointment();
-		appointment.setAppointmentDate(appointmentDate1.plusDays(3));
+		appointment.setAppointmentDate(appointmentDate1);
 		appointment.setDescription("Appointment's description...");
 		appointment.setOwner(this.ownerService.findOwnerById(TEST_OWNER_ID));
 		appointment.setPet(this.petService.findPetById(TEST_PET_ID));
