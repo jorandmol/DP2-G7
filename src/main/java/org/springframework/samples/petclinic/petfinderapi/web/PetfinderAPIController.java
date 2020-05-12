@@ -64,7 +64,7 @@ public class PetfinderAPIController {
 
             modelMap.put("animals", results.getAnimals());
 		} catch (Exception e) {
-			modelMap.put("notFound", "Not Found");
+			modelMap.put("notFound", "Pets not found with these parameters.");
 		}
 
 		return "adoptions/adoptionsListResult";

@@ -30,7 +30,7 @@
                         </ul>
                         <p><c:out value="${animal.description}"></c:out></p>
                         <br>
-                        <p><a href="#" class="btn btn-default" role="button"></a></p>
+                        <p><a href="#" class="btn btn-default" role="button">More info</a></p>
                     </div>
                 </div>
             </div>
