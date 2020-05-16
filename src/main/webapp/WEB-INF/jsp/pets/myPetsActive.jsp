@@ -40,7 +40,7 @@
                                 <a href="${fn:escapeXml(petUrl)}">Edit Pet</a>
                        	</dt>
                        	<br>
-                       	<br>
+                       	<br/>
                         <dt>
                         	<spring:url value="/owners/{ownerId}/pets/{petId}/treatments" var="treatmentsUrl">
        							<spring:param name="ownerId" value="${owner.id}"/>
@@ -55,6 +55,15 @@
                             </spring:url>
                                 <a href="${fn:escapeXml(stayUrl)}">Stays</a>
                         </dt>
+                        <br>
+                       	<br/>
+                        <dt>
+	                        <spring:url value="/owners/{ownerId}/pets/{petId}/disable" var="disablePetUrl">
+					    		<spring:param name="ownerId" value="${owner.id}"/>
+					    		 <spring:param name="petId" value="${pet.id}"/>
+					   		</spring:url>
+				    			<a href="${fn:escapeXml(disablePetUrl)}" class="btn btn-default" >Disable pet</a>
+                     	</dt>
                     </dl>
                 </td>
                 <td valign="top">
@@ -124,6 +133,11 @@
                 	</table>
                    	<span class="error-text"><c:out value="${errors}"></c:out></span>
             	</td>
+            <div>
+          		<c:if test="${petIdWithError==pet.id}">
+         			<p><c:out value="${errorDisabled}"></c:out></p>
+         		</c:if>
+         	</div>
             </tr>
         </c:forEach>
     </table>
