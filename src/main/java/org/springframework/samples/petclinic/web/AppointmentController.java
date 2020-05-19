@@ -170,7 +170,7 @@ public class AppointmentController {
 			ownerUsername = owner.getUser().getUsername();
 		}
 
-		return authority.equals("owner") && username.equals(ownerUsername) && isHisPetAcceptedAndActive;
+		return (authority.equals("owner") && username.equals(ownerUsername) && isHisPetAcceptedAndActive) || authority.equals("admin");
 	}
 	
 }

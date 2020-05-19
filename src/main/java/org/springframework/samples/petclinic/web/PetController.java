@@ -155,10 +155,10 @@ public class PetController {
 	@PostMapping(value = "/owners/{ownerId}/pets/{petId}/edit")
 	public String processUpdateForm(@PathVariable("ownerId") int ownerId, @Valid Pet pet, BindingResult result,
 			@PathVariable("petId") int petId, ModelMap model) {
-		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-				.collect(Collectors.toList()).get(0).toString();
+//		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+//				.collect(Collectors.toList()).get(0).toString();
 
-		Owner owner = this.ownerService.findOwnerById(ownerId);
+		Owner owner = this.ownerService.findOwnerById(ownerId); 
 		Pet petToUpdate = this.petService.findPetById(petId);
 
 		boolean edit = true;
@@ -182,11 +182,11 @@ public class PetController {
 					return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 				}
 
-				if (authority.equals("owner")) {
-					return "redirect:/owner/pets";
-				} else {
-					return "redirect:/owners/" + owner.getId();
-				}
+//				if (authority.equals("owner")) {
+				return "redirect:/owner/pets";
+//				} else {
+//					return "redirect:/owners/" + owner.getId();
+//				}
 			}
 		} else {
 			return REDIRECT_TO_OUPS;

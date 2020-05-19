@@ -103,7 +103,7 @@ public class StayController {
 					&& pet.getStatus().equals(PetRegistrationStatus.ACCEPTED);
 			ownerUsername = owner.getUser().getUsername();
 		}
-		return authority.equals("owner") && username.equals(ownerUsername) && isHisPetAcceptedAndActive;
+		return (authority.equals("owner") && username.equals(ownerUsername) && isHisPetAcceptedAndActive) || authority.equals("admin");
 	}
 
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/stays")
@@ -128,7 +128,7 @@ public class StayController {
 		if (res || authority.equals("admin")) {
 			model.put("stays", this.stayService.findStaysByPetId(petId));
 			model.put("pet", this.petService.findPetById(petId));
-			return "pets/staysList";
+			return "pets/staysList"; 
 		} else {
 			return "redirect:/oups";
 		}

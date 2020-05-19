@@ -96,7 +96,11 @@ public class VisitController {
 		if (numberOfVisits == 0 && vetUsername.equals(username)) {
 			res = true;
 		}
-		return res;
+		
+		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+				.collect(Collectors.toList()).get(0).toString();
+		
+		return res || authority.equals("admin");
 	}
 	
 	private Boolean securityAccessRequestProfile(int ownerId) {

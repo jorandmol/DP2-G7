@@ -176,7 +176,7 @@ public class TreatmentController {
 			ownerUsername = owner.getUser().getUsername();
 		}
 
-		return authority.equals("owner") && username.equals(ownerUsername) && isHisPet;
+		return (authority.equals("owner") && username.equals(ownerUsername) && isHisPet) || authority.equals("admin");
 	}
 	
 	private boolean isEditableTreatment(int petId, int treatmentId) {

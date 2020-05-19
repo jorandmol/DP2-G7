@@ -211,7 +211,7 @@ public class PetControllerE2ETests {
 				.param("type", "cat")
 				.param("birthDate", "2013/09/04"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(view().name("redirect:/owners/"+TEST_OWNER_ID3));
+				.andExpect(view().name("redirect:/owner/pets"));
 	}
 
 	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")

@@ -196,7 +196,7 @@ public class PetControllerIntegrationTests {
 		
 		String view=petController.processUpdateForm(TEST_OWNER_ID3, updateSamantha, result, TEST_PET_ID_7, model);
 		
-		assertEquals(view, "redirect:/owners/"+ TEST_OWNER_ID3);
+		assertEquals(view, "redirect:/owner/pets");
 		assertNotNull(model.get("owner"));
 		assertNotNull(model.get("edit"));
 	}
