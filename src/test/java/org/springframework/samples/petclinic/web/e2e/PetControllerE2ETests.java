@@ -34,6 +34,7 @@ public class PetControllerE2ETests {
 	private static final int TEST_PET_ID_4 = 4;
 	private static final int TEST_PET_ID_5 = 5;
 	private static final int TEST_PET_ID_7 = 7;
+	private static final int TEST_PET_ID_14 = 14;
 	private static final int TEST_PET_ID_17 = 17;
 
 	private static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = "pets/createOrUpdatePetForm";
@@ -440,5 +441,35 @@ public class PetControllerE2ETests {
 					.andExpect(status().is3xxRedirection())
 					.andExpect(view().name(REDIRECT_TO_OUPS));
 		}
-
+		
+	// TEST para dar de baja a una mascota
+	
+	// TEST para usuarios que SI cumplen la seguridad
+	@WithMockUser(username = "owner2", password = "0wn3333r_2", authorities = "owner")
+	@Test
+	void testDisablePetStaysOrAppointmentsInactive() throws Exception{
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/disable", TEST_OWNER_ID2, TEST_PET_ID_17))
+				.andExpect(model().attributeDoesNotExist("errorDisabled"))	
+				.andExpect(status().isOk())
+				.andExpect(view().name("pets/myPetsActive"));
+	}
+	
+	// TEST para usuarios que SI cumplen la seguridad
+	@WithMockUser(username = "owner2", password = "0wn3333r_2", authorities = "owner")
+	@Test
+	void testDisablePetStaysOrAppointmentsActive() throws Exception{
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/disable", TEST_OWNER_ID2, TEST_PET_ID_14))
+				.andExpect(model().attributeExists("errorDisabled"))	
+				.andExpect(status().isOk())
+				.andExpect(view().name("pets/myPetsActive"));
+	}
+	
+	// TEST para usuarios que NO cumplen la seguridad
+	@WithMockUser(username = "owner2", password = "0wn3333r_2", authorities = "owner")
+	@Test
+	void testDisablePetStaysOrAppointmentsWithoutAccess() throws Exception{
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/disable", TEST_OWNER_ID1, TEST_PET_ID_1))	
+				.andExpect(status().is3xxRedirection())
+				.andExpect(view().name(REDIRECT_TO_OUPS));
+	}
 }

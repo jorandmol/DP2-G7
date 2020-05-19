@@ -25,6 +25,8 @@ import java.util.logging.Logger;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -249,4 +251,16 @@ class PetServiceTests {
 		assertThat(myPetsAcceptedAndDisabled).isEqualTo(1);
 	}
     
+	@ParameterizedTest
+	@ValueSource(ints={1,13,14})
+	void testStaysOrAppointmentActive(int petId) {
+		boolean res = this.petService.petHasStaysOrAppointmentsActive(petId);
+		assertThat(res).isTrue();
+	}
+	
+	@Test
+	void testNotStaysOrAppointmentsActive() {
+		boolean res = this.petService.petHasStaysOrAppointmentsActive(7);
+		assertThat(res).isFalse();
+	}
 }

@@ -154,7 +154,7 @@ class StayServiceTests {
 	
 	@Test
 	void shouldFindAllStays() {
-		assertThat(this.stayService.findAllStays().size()).isEqualTo(3);
+		assertThat(this.stayService.findAllStays().size()).isEqualTo(4);
 	}
 	
 	@Test

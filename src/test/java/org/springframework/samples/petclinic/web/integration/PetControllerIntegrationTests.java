@@ -1,19 +1,25 @@
 package org.springframework.samples.petclinic.web.integration;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.time.LocalDate;
 import java.util.Collections;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.PetRegistrationStatus;
 import org.springframework.samples.petclinic.service.PetService;
+import org.springframework.samples.petclinic.service.exceptions.DuplicatedPetNameException;
 import org.springframework.samples.petclinic.web.PetController;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -35,6 +41,7 @@ public class PetControllerIntegrationTests {
 	private static final int TEST_PET_ID_4 = 4;
 	private static final int TEST_PET_ID_5 = 5;
 	private static final int TEST_PET_ID_7 = 7;
+	private static final int TEST_PET_ID_14 = 14;
 	private static final int TEST_PET_ID_17 = 17;
 
 	private static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = "pets/createOrUpdatePetForm";
@@ -395,6 +402,40 @@ public class PetControllerIntegrationTests {
 		String view = this.petController.showMyPetsDisabled(TEST_OWNER_ID1, model);
 		
 		assertEquals(view, REDIRECT_TO_OUPS);	
+	}
+	
+	// TEST para dar de baja a una mascota
+	
+	// TEST para usuarios que SI cumplen la seguridad
+	@WithMockUser(username = "owner2", password = "0wn3333r_2", authorities = "owner")
+	@Test
+	void testDisablePetStaysOrAppointmentsInactive() throws DataAccessException, DuplicatedPetNameException {
+		
+		String view = this.petController.processDisablePet(TEST_OWNER_ID2, TEST_PET_ID_17, model);
+		
+		assertEquals(view,"pets/myPetsActive");
+		assertFalse(this.petService.findPetById(TEST_PET_ID_17).isActive());
+	}
+	
+	// TEST para usuarios que SI cumplen la seguridad
+	@WithMockUser(username = "owner2", password = "0wn3333r_2", authorities = "owner")
+	@Test
+	void testDisablePetStaysOrAppointmentsActive() throws DataAccessException, DuplicatedPetNameException {
+
+		String view = this.petController.processDisablePet(TEST_OWNER_ID2, TEST_PET_ID_14, model);
+		
+		assertEquals(view,"pets/myPetsActive");
+		assertTrue(this.petService.findPetById(TEST_PET_ID_14).isActive());
+	}
+	
+	// TEST para usuarios que NO cumplen la seguridad
+	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
+	@Test
+	void testDisablePetStaysOrAppointmentsWithoutAccess() throws DataAccessException, DuplicatedPetNameException {
+
+		String view = this.petController.processDisablePet(TEST_OWNER_ID2, TEST_PET_ID_14, model);
+		
+		assertEquals(view,REDIRECT_TO_OUPS);
 	}
 }
 

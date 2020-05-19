@@ -229,6 +229,8 @@ class PetControllerTests {
 		given(this.ownerService.findOwnerByUsername("owner2")).willReturn(owner2);
 		given(this.petService.countMyPetsAcceptedByActive(accepted, false, TEST_OWNER_ID1)).willReturn(1);
 		given(this.petService.countMyPetsAcceptedByActive(accepted, false, TEST_OWNER_ID2)).willReturn(0);
+		given(this.petService.petHasStaysOrAppointmentsActive(TEST_PET_ID_4)).willReturn(false);
+		given(this.petService.petHasStaysOrAppointmentsActive(TEST_PET_ID_5)).willReturn(true);
 		
 		Mockito.doThrow(new DuplicatedPetNameException())
 		.when(this.petService).savePet(petWithSameName);
@@ -603,6 +605,37 @@ class PetControllerTests {
 	@Test
 	void showOtherPetsDisabledWithoutAccess() throws Exception{
 		mockMvc.perform(get("/owners/{ownerId}/pets/disabled", TEST_OWNER_ID1))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(view().name(REDIRECT_TO_OUPS));
+	}
+	
+	// TEST para dar de baja a una mascota
+	
+	// TEST para usuarios que SI cumplen la seguridad
+	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
+	@Test
+	void testDisablePetStaysOrAppointmentsInactive() throws Exception{
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/disable", TEST_OWNER_ID1, TEST_PET_ID_4))
+				.andExpect(model().attributeDoesNotExist("errorDisabled"))	
+				.andExpect(status().isOk())
+				.andExpect(view().name("pets/myPetsActive"));
+	}
+	
+	// TEST para usuarios que SI cumplen la seguridad
+	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
+	@Test
+	void testDisablePetStaysOrAppointmentsActive() throws Exception{
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/disable", TEST_OWNER_ID1, TEST_PET_ID_5))
+				.andExpect(model().attributeExists("errorDisabled"))	
+				.andExpect(status().isOk())
+				.andExpect(view().name("pets/myPetsActive"));
+	}
+	
+	// TEST para usuarios que NO cumplen la seguridad
+	@WithMockUser(username = "owner2", password = "0wn3333r_2", authorities = "owner")
+	@Test
+	void testDisablePetStaysOrAppointmentsWithoutAccess() throws Exception{
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/disable", TEST_OWNER_ID1, TEST_PET_ID_1))	
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name(REDIRECT_TO_OUPS));
 	}

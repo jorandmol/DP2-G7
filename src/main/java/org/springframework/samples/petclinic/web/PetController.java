@@ -296,15 +296,14 @@ public class PetController {
 	}
 	
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/disable")
-	public String processDisablePet(@PathVariable("ownerId") int ownerId, @PathVariable("ownerId") int petId, ModelMap model) throws DataAccessException, DuplicatedPetNameException {
+	public String processDisablePet(@PathVariable("ownerId") int ownerId, @PathVariable("petId") int petId, ModelMap model) throws DataAccessException, DuplicatedPetNameException {
 		
 		Boolean petIsActive = this.petService.findPetById(petId).isActive();
 		Pet updatePet = this.petService.findPetById(petId);
 		boolean hasStaysOrAppointments= this.petService.petHasStaysOrAppointmentsActive(petId);
 		if (securityAccessPetRequestAndProfile(ownerId, true) && petIsActive) {
 			if(hasStaysOrAppointments) {
-				model.addAttribute("errorDisabled", "This pet has current confirmed stays or appointments");
-				model.addAttribute("petIdWithError", petId);
+				model.addAttribute("errorDisabled", "You can not disable a pet with appointments or stays active");
 			} else {
 				updatePet.setActive(false);
 				this.petService.savePet(updatePet);

@@ -65,6 +65,10 @@
 				    			<a href="${fn:escapeXml(disablePetUrl)}" class="btn btn-default" >Disable pet</a>
                      	</dt>
                     </dl>
+                    <br>
+                    <div>
+                    	<p><c:out value="${errorDisabled}"></c:out></p>
+                    </div>
                 </td>
                 <td valign="top">
                     <table class="table-condensed">
@@ -133,11 +137,6 @@
                 	</table>
                    	<span class="error-text"><c:out value="${errors}"></c:out></span>
             	</td>
-            <div>
-          		<c:if test="${petIdWithError==pet.id}">
-         			<p><c:out value="${errorDisabled}"></c:out></p>
-         		</c:if>
-         	</div>
             </tr>
         </c:forEach>
     </table>
