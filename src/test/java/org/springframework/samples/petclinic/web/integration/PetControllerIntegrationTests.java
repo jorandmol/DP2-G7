@@ -34,6 +34,7 @@ public class PetControllerIntegrationTests {
 	private static final int TEST_OWNER_ID1 = 1;
 	private static final int TEST_OWNER_ID2 = 2;
 	private static final int TEST_OWNER_ID3 = 3;
+	private static final int TEST_OWNER_ID10 = 10;
 
 	private static final int TEST_PET_ID_1 = 1;
 	private static final int TEST_PET_ID_2 = 2;
@@ -41,6 +42,7 @@ public class PetControllerIntegrationTests {
 	private static final int TEST_PET_ID_4 = 4;
 	private static final int TEST_PET_ID_5 = 5;
 	private static final int TEST_PET_ID_7 = 7;
+	private static final int TEST_PET_ID_13 = 13;
 	private static final int TEST_PET_ID_14 = 14;
 	private static final int TEST_PET_ID_17 = 17;
 
@@ -407,14 +409,14 @@ public class PetControllerIntegrationTests {
 	// TEST para dar de baja a una mascota
 	
 	// TEST para usuarios que SI cumplen la seguridad
-	@WithMockUser(username = "owner2", password = "0wn3333r_2", authorities = "owner")
+	@WithMockUser(username = "owner10", password = "0wn3333r_10", authorities = "owner")
 	@Test
 	void testDisablePetStaysOrAppointmentsInactive() throws DataAccessException, DuplicatedPetNameException {
 		
-		String view = this.petController.processDisablePet(TEST_OWNER_ID2, TEST_PET_ID_17, model);
+		String view = this.petController.processDisablePet(TEST_OWNER_ID10, TEST_PET_ID_13, model);
 		
 		assertEquals(view,"pets/myPetsActive");
-		assertFalse(this.petService.findPetById(TEST_PET_ID_17).isActive());
+		assertFalse(this.petService.findPetById(TEST_PET_ID_13).isActive());
 	}
 	
 	// TEST para usuarios que SI cumplen la seguridad

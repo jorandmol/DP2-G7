@@ -252,7 +252,7 @@ class PetServiceTests {
 	}
     
 	@ParameterizedTest
-	@ValueSource(ints={1,13,14})
+	@ValueSource(ints={1,14,21})
 	void testStaysOrAppointmentActive(int petId) {
 		boolean res = this.petService.petHasStaysOrAppointmentsActive(petId);
 		assertThat(res).isTrue();

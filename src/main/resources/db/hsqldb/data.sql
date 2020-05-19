@@ -166,7 +166,7 @@ INSERT INTO banners(id, picture, slogan, target_url, organization_name, init_col
 INSERT INTO stays(id,pet_id,register_date,release_date,status) VALUES (1,1, '2020-10-01', '2020-10-05',0);
 INSERT INTO stays(id,pet_id,register_date,release_date,status) VALUES (2,7, '2020-10-01', '2020-10-05',2);
 INSERT INTO stays(id,pet_id,register_date,release_date,status) VALUES (3,7, '2020-11-01', '2020-11-05',2);
-INSERT INTO stays(id,pet_id,register_date,release_date,status) VALUES (4,13, '2020-10-01', '2020-10-05',0);
+INSERT INTO stays(id,pet_id,register_date,release_date,status) VALUES (4,21, '2020-10-01', '2020-10-05',0);
 
 INSERT INTO treatments(id,name,description,time_limit,pet_id) VALUES (1,'Treatment 1', 'Description 1','2020-10-01',1);
 
