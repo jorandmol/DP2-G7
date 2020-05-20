@@ -2,6 +2,7 @@ package org.springframework.samples.petclinic.web;
 
 import javax.validation.Valid;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.PetType;
 import org.springframework.samples.petclinic.service.PetTypeService;
@@ -12,6 +13,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -58,4 +60,40 @@ public class PetTypeController {
 			return "redirect:/pet-type";
 		}
 	}
+	
+	@GetMapping(value = "/{petTypeId}/edit")
+	public String initUpdatePetTypeForm(@PathVariable("petTypeId") final int petTypeId, final ModelMap model) {
+		
+			PetType petType = petTypeService.findById(petTypeId);
+			model.addAttribute("petType", petType);
+			model.addAttribute("edit", true);
+			return "pet-type/typeForm";
+		
+	}
+
+	@PostMapping(value = "/{petTypeId}/edit")
+	public String processUpdatePetTypeForm(@Valid PetType petType, BindingResult result, @PathVariable("petTypeId") int petTypeId,
+			ModelMap model) throws DuplicatedPetNameException {
+
+			model.addAttribute("edit", true);
+			PetType petTypeToUpdate = this.petTypeService.findById(petTypeId);
+
+			if (result.hasErrors()) {
+				model.put("petType", petType);
+				return "pet-type/typeForm";
+			} else {
+				BeanUtils.copyProperties(petType, petTypeToUpdate, "id");
+				petTypeToUpdate.setName(petType.getName());
+			
+				try {
+					this.petTypeService.addPetType(petTypeToUpdate);
+					} catch (DuplicatedPetNameException e) {
+						result.rejectValue("name", "Pet type name already exists", "Pet type name already exists");
+						return "pet-type/typeForm";
+			}
+	
+	}
+			return "redirect:/pet-type";
+
+}
 }
