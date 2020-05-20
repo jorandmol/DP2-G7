@@ -24,6 +24,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.PetRegistrationStatus;
@@ -289,6 +290,25 @@ public class PetController {
 			model.put("pets", myPets);
 			return "pets/myPetsDisabled";
 
+		} else {
+			return REDIRECT_TO_OUPS;
+		}
+	}
+	
+	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/disable")
+	public String processDisablePet(@PathVariable("ownerId") int ownerId, @PathVariable("petId") int petId, ModelMap model) throws DataAccessException, DuplicatedPetNameException {
+		
+		Boolean petIsActive = this.petService.findPetById(petId).isActive();
+		Pet updatePet = this.petService.findPetById(petId);
+		boolean hasStaysOrAppointments= this.petService.petHasStaysOrAppointmentsActive(petId);
+		if (securityAccessPetRequestAndProfile(ownerId, true) && petIsActive) {
+			if(hasStaysOrAppointments) {
+				model.addAttribute("errorDisabled", "You can not disable a pet with appointments or stays active");
+			} else {
+				updatePet.setActive(false);
+				this.petService.savePet(updatePet);
+			}
+			return showMyPetsActive(model);
 		} else {
 			return REDIRECT_TO_OUPS;
 		}

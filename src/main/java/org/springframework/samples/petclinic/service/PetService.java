@@ -15,6 +15,7 @@
  */
 package org.springframework.samples.petclinic.service;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
@@ -23,6 +24,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.PetRegistrationStatus;
 import org.springframework.samples.petclinic.model.PetType;
+import org.springframework.samples.petclinic.model.Status;
 import org.springframework.samples.petclinic.repository.PetRepository;
 import org.springframework.samples.petclinic.service.exceptions.DuplicatedPetNameException;
 import org.springframework.stereotype.Service;
@@ -93,6 +95,10 @@ public class PetService {
 
 	public Integer countMyPetsAcceptedByActive(PetRegistrationStatus accepted, boolean active, int ownerId) {
 		return this.petRepository.countMyPetsAcceptedByActive(accepted, active, ownerId);
+	}
+	
+	public Boolean petHasStaysOrAppointmentsActive(int petId) {
+		return this.petRepository.countMyPetActiveStays(petId,LocalDate.now(),Status.ACCEPTED)>0 || this.petRepository.countMyPetActiveAppointments(petId,LocalDate.now())>0; 
 	}
 
 
