@@ -26,6 +26,8 @@ import java.util.logging.Logger;
 import javax.validation.ConstraintViolationException;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -84,17 +86,22 @@ class MedicineServiceTests {
 		assertThat(medicine).isNull();
 	}
 
-	@Test
-	@Transactional
-	public void shouldInsertMedicineIntoDatabaseAndGenerateId() {
+    @ParameterizedTest
+    @CsvSource({
+        "Virbaninte,Desparasitante,MED-123",
+        "Diclofenaco,Calmante para caballos,DIC-666",
+        "Vacuna RB,Vacuna contra la rabia, RAB-000"
+    })
+    @Transactional
+	public void shouldInsertMedicineIntoDatabaseAndGenerateId(String name, String description, String code) {
 		Collection<Medicine> medicines = (Collection<Medicine>) this.medicineService.findAll();
 		int found = medicines.size();
 
 		Medicine med = new Medicine();
-		med.setName("Virbaninte");
+		med.setName(name);
 		med.setExpirationDate(LocalDate.now().plusYears(2));
-		med.setDescription("Desparasitante");
-		med.setCode("MED-123");
+		med.setDescription(description);
+		med.setCode(code);
             try {
 				this.medicineService.saveMedicine(med);
 			} catch (DuplicatedMedicineCodeException ex) {
@@ -106,42 +113,19 @@ class MedicineServiceTests {
 		assertThat(med.getId()).isNotNull();
 	}
 
-	@Test
+	@ParameterizedTest
+    @CsvSource({
+        "'',Desparasitante,MED-123",
+        "Diclofenaco,'',DIC-666",
+        "Vacuna RB,Vacuna contra la rabia,''"
+    })
 	@Transactional
-	public void shouldNotInsertMedicineEmptyName() {
+	public void shouldNotInsertMedicineEmptyName(String name, String description, String code) {
 		Medicine med = new Medicine();
-		med.setName("");
+		med.setName(name);
 		med.setExpirationDate(LocalDate.now().plusYears(2));
-		med.setDescription("Desparasitante");
-		med.setCode("MED-999");
-
-		assertThrows(ConstraintViolationException.class, () -> {
-			this.medicineService.saveMedicine(med);
-		});
-	}
-
-	@Test
-	@Transactional
-	public void shouldNotInsertMedicineEmptyDescription() {
-		Medicine med = new Medicine();
-		med.setName("Virbaninte");
-		med.setExpirationDate(LocalDate.now().plusYears(2));
-		med.setDescription("");
-		med.setCode("VET-123");
-
-		assertThrows(ConstraintViolationException.class, () -> {
-			this.medicineService.saveMedicine(med);
-		});
-	}
-
-	@Test
-	@Transactional
-	public void shouldNotInsertMedicineEmptyCode() {
-		Medicine med = new Medicine();
-		med.setName("Virbaninte");
-		med.setExpirationDate(LocalDate.now().plusYears(2));
-		med.setDescription("Desparasitante");
-		med.setCode("");
+		med.setDescription(description);
+		med.setCode(code);
 
 		assertThrows(ConstraintViolationException.class, () -> {
 			this.medicineService.saveMedicine(med);
@@ -200,7 +184,7 @@ class MedicineServiceTests {
 			this.medicineService.editMedicine(m);
 		} catch (DuplicatedMedicineCodeException e) {
 			e.printStackTrace();
-		
+
 		}
 		assertThat(this.medicineService.findMedicineById(1).getDescription()).isEqualTo("New description");
 	}
