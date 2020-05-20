@@ -92,4 +92,49 @@ public class PetTypeControllerTests {
 		.andExpect(view().name("pet-type/typeForm"));
 
 	}
+	
+	
+	@WithMockUser(value = "spring")
+    @Test
+	void testInitEditPetTypeForm() throws Exception {
+		mockMvc.perform(get("/pet-type/{petTypeId}/edit", 1))
+				.andExpect(status().isOk())
+				.andExpect(model().attributeExists("petType"))
+				.andExpect(view().name("pet-type/typeForm"));
+	}	
+	
+
+	
+	@WithMockUser(value = "spring")
+    @Test
+	void testProcessEditPetTypeFormSuccess() throws Exception {
+		mockMvc.perform(post("/pet-type/{petTypeId}/edit",1)
+							.with(csrf())
+							.param("name", "shark"))  
+	            .andExpect(status().isOk())
+				.andExpect(view().name("pet-type/typeForm"));
+	}
+	
+	
+		
+	@WithMockUser(value = "spring")
+	@Test
+	void testProcessEditPetTypeFormHasErrors() throws Exception {
+		mockMvc.perform(post("/pet-type/{petTypeId}/edit",1)
+							.with(csrf())
+	                        .param("releaseDate", ""))  
+				.andExpect(model().attributeHasErrors("petType")).andExpect(status().isOk())
+				.andExpect(view().name("pet-type/typeForm"));
+	}
+	
+	@WithMockUser(value = "spring")
+	@Test
+	void testProcessEditFormHasRepeatedName() throws Exception {
+		mockMvc.perform(post("/pet-type/{petTypeId}/edit",1)
+				.with(csrf())
+				.flashAttr("petType", pt))
+		.andExpect(status().isOk())
+		.andExpect(view().name("pet-type/typeForm"));
+
+	}
 }

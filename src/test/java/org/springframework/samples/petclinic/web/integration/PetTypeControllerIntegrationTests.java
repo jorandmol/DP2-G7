@@ -1,15 +1,25 @@
 package org.springframework.samples.petclinic.web.integration;
 
 import static org.junit.Assert.assertNotNull;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
+import java.time.LocalDate;
 import java.util.Collections;
 
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.samples.petclinic.model.PetType;
+import org.springframework.samples.petclinic.model.Stay;
+import org.springframework.samples.petclinic.service.PetTypeService;
 import org.springframework.samples.petclinic.web.PetTypeController;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -23,6 +33,9 @@ public class PetTypeControllerIntegrationTests {
 
 	@Autowired
 	private PetTypeController petTypeController;
+	
+	@Autowired
+	private PetTypeService petTypeService;
 
 	private ModelMap modelMap = new ModelMap();
 
@@ -42,7 +55,7 @@ public class PetTypeControllerIntegrationTests {
 	@Test
 	void testInitCreationForm() throws Exception {
 		String view = petTypeController.addType(modelMap);
-		;
+		
 		Assert.assertEquals(view, VIEWS_PET_TYPE_CREATE_OR_UPDATE_FORM);
 		assertNotNull(modelMap.get("petType"));
 	}
@@ -82,5 +95,58 @@ public class PetTypeControllerIntegrationTests {
 
 		Assert.assertEquals(view, VIEWS_PET_TYPE_CREATE_OR_UPDATE_FORM);
 
+	}
+	
+	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
+    @Test
+	void testInitEditPetTypeForm() throws Exception {
+		
+        String view = petTypeController.initUpdatePetTypeForm(1, modelMap);
+		
+		Assert.assertEquals(view, VIEWS_PET_TYPE_CREATE_OR_UPDATE_FORM);
+		assertNotNull(modelMap.get("petType"));
+
+	}	
+	
+
+	
+	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
+    @Test
+	void testProcessEditPetTypeFormSuccess() throws Exception {
+		
+		PetType petType = this.petTypeService.findById(1);
+		PetType petTypeCopy = new PetType();
+		BeanUtils.copyProperties(petType, petTypeCopy);
+		petTypeCopy.setName("Platipous");;
+		String view = this.petTypeController.processUpdatePetTypeForm(petTypeCopy, result, 1, modelMap);
+		Assert.assertEquals(view, "redirect:/pet-type");
+
+	}
+	
+	
+		
+	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
+	@Test
+	void testProcessEditPetTypeFormHasErrors() throws Exception {
+		
+		PetType petType = this.petTypeService.findById(1);
+		PetType petTypeCopy = new PetType();
+		BeanUtils.copyProperties(petType, petTypeCopy);
+		petTypeCopy.setName("");
+		 result.reject("name","Name can not be empty");
+		String view = this.petTypeController.processUpdatePetTypeForm(petTypeCopy, result, 1, modelMap);
+		Assert.assertEquals(view, VIEWS_PET_TYPE_CREATE_OR_UPDATE_FORM);
+	}
+	
+	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
+	@Test
+	void testProcessEditFormHasRepeatedName() throws Exception {
+
+		PetType petType = this.petTypeService.findById(1);
+		PetType petTypeCopy = new PetType();
+		BeanUtils.copyProperties(petType, petTypeCopy);
+		petTypeCopy.setName("cat");
+		String view = this.petTypeController.processUpdatePetTypeForm(petTypeCopy, result, 1, modelMap);
+		Assert.assertEquals(view, "redirect:/pet-type");
 	}
 }
