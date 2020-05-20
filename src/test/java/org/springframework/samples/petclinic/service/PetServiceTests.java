@@ -177,7 +177,7 @@ class PetServiceTests {
 	public void shouldThrowExceptionUpdatingPetsWithTheSameName() {
 		Owner owner6 = this.ownerService.findOwnerById(6);
 		Pet pet = new Pet();
-		pet.setName("wario");
+		pet.setName("donatelo");
 		Collection<PetType> types = this.petService.findPetTypes();
 		pet.setType(EntityUtils.getById(types, PetType.class, 2));
 		pet.setBirthDate(LocalDate.now());
@@ -198,7 +198,7 @@ class PetServiceTests {
 		}
 
 		Assertions.assertThrows(DuplicatedPetNameException.class, () -> {
-			anotherPet.setName("wario");
+			anotherPet.setName("donatelo");
 			petService.savePet(anotherPet);
 		});
 	}

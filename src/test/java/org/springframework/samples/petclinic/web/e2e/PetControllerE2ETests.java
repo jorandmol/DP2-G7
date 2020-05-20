@@ -36,8 +36,8 @@ public class PetControllerE2ETests {
 	private static final int TEST_PET_ID_5 = 5;
 	private static final int TEST_PET_ID_7 = 7;
 	private static final int TEST_PET_ID_14 = 14;
-	private static final int TEST_PET_ID_13 = 13;
 	private static final int TEST_PET_ID_17 = 17;
+	private static final int TEST_PET_ID_22 = 22;
 
 	private static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = "pets/createOrUpdatePetForm";
 	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
@@ -451,7 +451,7 @@ public class PetControllerE2ETests {
 	@WithMockUser(username = "owner10", password = "0wn3333r_10", authorities = "owner")
 	@Test
 	void testDisablePetStaysOrAppointmentsInactive() throws Exception{
-		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/disable", TEST_OWNER_ID10, TEST_PET_ID_13))
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/disable", TEST_OWNER_ID10, TEST_PET_ID_22))
 				.andExpect(model().attributeDoesNotExist("errorDisabled"))	
 				.andExpect(status().isOk())
 				.andExpect(view().name("pets/myPetsActive"));
