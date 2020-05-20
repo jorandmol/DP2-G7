@@ -78,19 +78,11 @@ public class AppointmentService {
 	    
     	if (appointmentDate != null && !appointmentDate.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
 	    	int petId = appointment.getPet().getId();
-	    	res = countAppointmentsByPetAndDay(petId, appointmentDate) == 0 && 
-	    			countAppointmentsByVetAndDay(vetId, appointmentDate) < 6;	    	
+	    	res = appointmentRepository.countAppointmentsByPetAndDay(petId, appointmentDate) == 0 && 
+	    			appointmentRepository.countAppointmentsByVetAndDay(vetId, appointmentDate) < 6;	    	
 	    }
 	    
 	    return res;
-    }
-
-    private int countAppointmentsByPetAndDay(int petId, LocalDate date) {
-        return this.appointmentRepository.countAppointmentsByPetAndDay(petId, date);
-    }
-    
-    private int countAppointmentsByVetAndDay(int vetId, LocalDate date) {
-	    return this.appointmentRepository.countAppointmentsByVetAndDay(vetId, date);
     }
 
 	public List<Appointment> getAppointmentsTodayByVetId(Integer vetId, LocalDate date) {

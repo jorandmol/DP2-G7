@@ -182,6 +182,34 @@
 
     <build>
         <plugins>
+        	<!-- PIT Mutation Testing -->
+        	<plugin>
+			    <groupId>org.pitest</groupId>
+			    <artifactId>pitest-maven</artifactId>
+			    <version>1.5.2</version>
+			    <dependencies>
+          			<dependency>
+			            <groupId>org.pitest</groupId>
+			            <artifactId>pitest-junit5-plugin</artifactId>
+			            <version>0.12</version>
+          			</dependency>
+       			</dependencies>
+			    <configuration>
+			    	<targetClasses>
+			    		<param>org.springframework.samples.petclinic.service.StayService</param>
+			    		<param>org.springframework.samples.petclinic.web.StayController</param>
+			    		<param>org.springframework.samples.petclinic.service.AppointmentService</param>
+			    		<param>org.springframework.samples.petclinic.web.AppointmentController</param>
+			    	</targetClasses>
+			    	<targetTests>
+			    		<param>org.springframework.samples.petclinic.service.StayServiceTests</param>
+			    		<param>org.springframework.samples.petclinic.web.StayControllerTests</param>
+			    		<param>org.springframework.samples.petclinic.service.AppointmentServiceTests</param>
+			    		<param>org.springframework.samples.petclinic.web.AppointmentControllerTests</param>
+			    	</targetTests>
+			    </configuration>
+ 			</plugin>
+ 			<!-- Spring-Boot -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -203,6 +231,7 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- Jacoco -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>

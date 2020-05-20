@@ -100,6 +100,7 @@ INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id
 INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id) VALUES (19, 'Chispa', '2011-09-03', 0, '', true , 7, 8);
 INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id) VALUES (20, 'Luna', '2018-01-30', 0, '', true , 1, 7);
 INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id) VALUES (21, 'Romeo', '2019-02-18', 0, '', true , 5, 9);
+INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id) VALUES (22, 'Karl', '2018-02-18', 0, '', true , 1, 10);
 
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (1,'2019-01-01','2018-12-20','Rabies shot',6,7,1);
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (2,'2019-01-02','2018-12-13','Rabies shot',6,8,1);
