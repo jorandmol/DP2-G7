@@ -10,5 +10,4 @@ public interface PetTypeRepository extends CrudRepository<PetType, Integer>{
 
 	@Query("select count(pt) from PetType pt where pt.name=?1")
 	int countTypeName(String typeName);
-
 }

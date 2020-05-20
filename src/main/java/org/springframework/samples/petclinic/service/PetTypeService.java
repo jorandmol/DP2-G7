@@ -37,4 +37,9 @@ public class PetTypeService {
 		
 		return this.petTypeRepository.findById(petTypeId).get();
 	}
+
+//	public void addPetTypeForAdoption(PetType newType) {
+//		petTypeRepository.save(newType);		
+//	}
+
 }
