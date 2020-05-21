@@ -85,9 +85,8 @@ public class PetfinderAPIController {
 			ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 	        Pet results = mapper.readValue(json, Pet.class);
 	        			
-	        modelMap.put("numberOfPhotos", results.getAnimal().getPhotos().size());
-	        modelMap.put("entero", 0);
-			modelMap.put("pet",results.getAnimal());
+	        modelMap.put("numPhotos", results.getAnimal().getPhotos().size());
+			modelMap.put("pet", results.getAnimal());
 		}catch (Exception e) {
             modelMap.put("error", "No details of this pet have been found. There may be a problem connecting to the Petfinder API.");
 		}

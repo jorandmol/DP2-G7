@@ -26,6 +26,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.PetRegistrationStatus;
@@ -62,11 +63,13 @@ public class PetController {
 
 	private final PetService petService;
 	private final OwnerService ownerService;
+	private final PetTypeService petTypeService;
 
 	@Autowired
-	public PetController(PetService petService, OwnerService ownerService ) {
+	public PetController(PetService petService, OwnerService ownerService, PetTypeService petTypeService) {
 		this.petService = petService;
 		this.ownerService = ownerService;
+		this.petTypeService=petTypeService;
 	}
 
 	@ModelAttribute("types")
@@ -98,56 +101,31 @@ public class PetController {
 	}
 
 	@PostMapping(value = "/adoptions/pet")
-	public String processAdoptForm(@RequestParam String name, @RequestParam String type, @RequestParam String age,ModelMap modelMap) {
-//		List<PetType> types= (List<PetType>) this.petService.findPetTypes();
-//		PetType newType= new PetType();
-//		for (PetType t: types) {
-//			if (t.getName().equals(type)) {
-//				newType= t;
-//			}
-//		}
-		
-//		if (newType.getName().isEmpty()) {
-//			newType.setName(type);
-//			this.petTypeService.addPetTypeForAdoption(newType);
-//		}
-		
-		LocalDate birthdate= LocalDate.now();
-		if (age.equals("Baby")) {
-			birthdate=birthdate.minusMonths(2);
-		}else if (age.equals("Young")) {
-			birthdate=birthdate.minusYears(2);
-		}else if (age.equals("Adult")) {
-			birthdate=birthdate.minusYears(5);
-		}else {
-			birthdate=birthdate.minusYears(8);
-		}
-		
-	
+	public String processAdoptForm(@RequestParam String name, @RequestParam String type, @RequestParam String age,ModelMap modelMap) throws DataAccessException, DuplicatedPetNameException {
+		//busqueda owner
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		Owner owner = this.ownerService.findOwnerByUsername(username);
-		
+		//Inicialización pet
 		Pet petToAdopt = new Pet();
-//		PetType petType = this.petTypeService.findById(newType.getId());
-//		petToAdopt.setType(petType);
-		petToAdopt.setBirthDate(birthdate);
-		petToAdopt.setName((String) name);
-		
+		petToAdopt.setType(this.petType(type));
+		petToAdopt.setBirthDate(this.birtdate(age));
+		petToAdopt.setName(name);
 		petToAdopt.setStatus(pending);
 		petToAdopt.setJustification("");
 		petToAdopt.setActive(true);
 		owner.addPet(petToAdopt);
+		//guardado mascota
 		try {
 			this.petService.savePet(petToAdopt);
 		} catch (Exception e) {
 			ThreadLocalRandom random = ThreadLocalRandom.current();
 			Integer entero= random.nextInt(0,100);
-			petToAdopt.setName(name+"#"+entero);
+			petToAdopt.setName(name+"-"+entero);
+			this.petService.savePet(petToAdopt);
 		}
 		return "redirect:/owner/requests";
 	}
-	
-	
+
 	@PostMapping(value = "/owners/{ownerId}/pets/new")
 	public String processCreationForm(@PathVariable("ownerId") int ownerId, @Valid Pet pet, BindingResult result,
 			ModelMap model) {
@@ -367,6 +345,38 @@ public class PetController {
 
 		return authority.equals("admin") && edit
 				|| authority.equals("owner") && username.equals(owner.getUser().getUsername());
+	}
+	
+	
+	private PetType petType(String type) {
+		PetType petType= new PetType();
+		if (!this.petTypeService.typeNameDontExists(type.toLowerCase())) {
+			PetType p= this.petTypeService.findByName(type.toLowerCase());
+			petType = p;
+		}else{
+			petType.setName(type.toLowerCase());
+			try {
+				this.petTypeService.addPetType(petType);
+			} catch (DuplicatedPetNameException e) {
+				PetType p= this.petTypeService.findByName(type.toLowerCase());
+				petType = p;
+			}
+		}
+		return petType;
+	}
+	
+	private LocalDate birtdate(String age) {
+		LocalDate birthdate= LocalDate.now();
+		if (age.equals("Baby")) {
+			birthdate=birthdate.minusMonths(2);
+		}else if (age.equals("Young")) {
+			birthdate=birthdate.minusYears(2);
+		}else if (age.equals("Adult")) {
+			birthdate=birthdate.minusYears(5);
+		}else {
+			birthdate=birthdate.minusYears(8);
+		}		
+		return birthdate;
 	}
 
 }

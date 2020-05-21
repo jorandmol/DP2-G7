@@ -38,8 +38,9 @@ public class PetTypeService {
 		return this.petTypeRepository.findById(petTypeId).get();
 	}
 
-//	public void addPetTypeForAdoption(PetType newType) {
-//		petTypeRepository.save(newType);		
-//	}
+	public PetType findByName(String petType) {
+		return this.petTypeRepository.findByName(petType);
+	}
+
 
 }

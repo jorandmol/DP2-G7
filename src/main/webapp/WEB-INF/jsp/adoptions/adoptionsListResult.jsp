@@ -24,13 +24,6 @@
                 	</c:if>
                     <div class="caption">
                         <h3><c:out value="${animal.name}"></c:out></h3>
-                        <ul>
-                            <li>Size: <c:out value="${animal.size}"></c:out></li>
-                            <li>Gender: <c:out value="${animal.gender}"></c:out></li>
-                            <li>Age: <c:out value="${animal.age}"></c:out></li>
-                        </ul>
-                        <p><c:out value="${animal.description}"></c:out></p>
-                        <br>
                         <spring:url value="/adoptions/pet/{petId}" var="petAdoptionUrl">
                         	<spring:param name="petId" value="${animal.id}"/>
                    	 	</spring:url>
