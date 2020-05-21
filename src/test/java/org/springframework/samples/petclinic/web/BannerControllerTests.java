@@ -154,7 +154,7 @@ public class BannerControllerTests {
 	void testProcessDeleteBannerNotExpiredEndDate() throws Exception {
 		mockMvc.perform(get("/banners/{bannerId}/delete", TEST_BANNER_ID1))
 		.andExpect(status().isOk())
-		.andExpect(view().name(VIEWS_BANNERS_LIST)); //"banners/bannersList"
+		.andExpect(view().name(VIEWS_BANNERS_LIST));
 	}
 	
 	@WithMockUser(value = "spring")

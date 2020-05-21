@@ -76,15 +76,6 @@ public class TreatmentControllerE2ETests {
 			.andExpect(status().isOk())
 			.andExpect(view().name(VIEWS_TREATMENT_FORM));
 	}
-
-//    @Test
-//    @WithMockUser(username="vet1", password="v3terinarian_1", authorities=VET_ROLE)
-//    void testProcessNewTreatmentForm() throws Exception {
-//	    mockMvc.perform(post("/vets/pets/{petId}/treatments/new", TEST_PET_ID).with(csrf())
-//            .flashAttr("treatment", treatment1))
-//            .andExpect(status().is3xxRedirection())
-//            .andExpect(view().name(REDIRECT_TO_VET_TREATMENT_LIST));
-//    }
     
     @Test
     @WithMockUser(username="vet1", password="v3terinarian_1", authorities=VET_ROLE)
@@ -103,24 +94,6 @@ public class TreatmentControllerE2ETests {
             .andExpect(status().is3xxRedirection())
             .andExpect(view().name(REDIRECT_TO_OUPS));
     }
-    
-//    @Test
-//    @WithMockUser(username="vet1", password="v3terinarian_1", authorities=VET_ROLE)
-//    void testProcessTreatmentEditForm() throws Exception {
-//	    mockMvc.perform(post("/vets/pets/{petId}/treatments/{treatmentId}/edit", TEST_PET_ID, TEST_TREATMENT_ID_1).with(csrf())
-//	    	.flashAttr("treatment", treatment3))
-//		    .andExpect(status().is3xxRedirection())
-//	        .andExpect(view().name(REDIRECT_TO_TREATMENT_SHOW));
-//    }
-    
-//    @Test
-//    @WithMockUser(username="vet1", password="v3terinarian_1", authorities=VET_ROLE)
-//    void testNotProcessTreatmentEditForm() throws Exception {
-//    	mockMvc.perform(post("/vets/pets/{petId}/treatments/{treatmentId}/edit", TEST_PET_ID, TEST_TREATMENT_ID_2).with(csrf())
-//    	    	.flashAttr("treatment", treatment3))
-//    		    .andExpect(status().is3xxRedirection())
-//    	        .andExpect(view().name(REDIRECT_TO_OUPS));
-//    }
     
     @Test
     @WithMockUser(username="vet1", password="v3terinarian_1", authorities=VET_ROLE)

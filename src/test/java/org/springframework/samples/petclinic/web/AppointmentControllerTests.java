@@ -324,7 +324,7 @@ public class AppointmentControllerTests {
 		"1,1,3"
 	})
 	@WithMockUser(username="owner1", password="0wn3333r_1", authorities=OWNER_ROLE)
-	void testProcessDeleteAppointmentErrorsBefore(int ownerId, int petId, int appointmentId) throws Exception {
+	void testProcessDeleteAppointmentErrors(int ownerId, int petId, int appointmentId) throws Exception {
 		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete", ownerId, petId, appointmentId))
 			.andExpect(model().attributeExists("errors"))
 			.andExpect(status().isOk())
