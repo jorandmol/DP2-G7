@@ -9,6 +9,8 @@ import java.util.Collections;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.samples.petclinic.model.Appointment;
@@ -34,8 +36,6 @@ public class AppointmentControllerIntegrationTests {
 	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
 	private static final String REDIRECT_TO_PETS_DETAILS = "redirect:/owner/pets";
 
-	private static final int TEST_APPOINTMENT_ID_1 = 1;
-	private static final int TEST_APPOINTMENT_ID_4 = 4;
 	private static final int TEST_OWNER_ID = 1;
 	private static final int TEST_PET_ID = 1;
 	private static final int TEST_VET_ID = 1;
@@ -81,35 +81,27 @@ public class AppointmentControllerIntegrationTests {
 		assertEquals(view, VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM);
 	}
 
-	@Test
+	@ParameterizedTest
+	@CsvSource({
+		"10,1,1",
+		"11,1,1"
+	})
 	@WithMockUser(username="owner1", password="0wn3333r_1", authorities=OWNER_ROLE)
-	void testInitAppointmentEditFormErrorsBefore() throws Exception{
+	void testInitAppointmentEditFormErrors(int appointmentId, int petId, int ownerId) throws Exception{
 		ModelMap modelMap = new ModelMap();
-		String view = appointmentController.initAppointmentEditForm(10, TEST_PET_ID, TEST_OWNER_ID, modelMap);
+		String view = appointmentController.initAppointmentEditForm(appointmentId, petId, ownerId, modelMap);
 		assertEquals(view, VIEW_TO_PETS_ACCEPTED_AND_ACTIVE);
 	}
 	
-	@Test
-	@WithMockUser(username="owner1", password="0wn3333r_1", authorities=OWNER_ROLE)
-	void testInitAppointmentEditFormErrorsNow() throws Exception{
-		ModelMap modelMap = new ModelMap();
-		String view = appointmentController.initAppointmentEditForm(11, TEST_PET_ID, TEST_OWNER_ID, modelMap);
-		assertEquals(view, VIEW_TO_PETS_ACCEPTED_AND_ACTIVE);
-	}
-	
-	@Test
+	@ParameterizedTest
+	@CsvSource({
+		"4,1,1",
+		"1,1,2"
+	})
 	@WithMockUser(username="owner1", password="0wn3333_1", authorities=OWNER_ROLE)
-	void testNotInitAppointmentEditFormAppointmentNotYours() throws Exception{
+	void testNotInitAppointmentEditFormAppointment(int appointmentId, int petId, int ownerId) throws Exception{
 		ModelMap modelMap = new ModelMap();
-		String view = appointmentController.initAppointmentEditForm(TEST_APPOINTMENT_ID_4, TEST_PET_ID, TEST_OWNER_ID, modelMap);
-		assertEquals(view, REDIRECT_TO_OUPS);
-	}
-
-	@Test
-	@WithMockUser(username="owner1", password="0wn3333r_1", authorities=OWNER_ROLE)
-	void testNotInitAppointmentEditForm() throws Exception{
-		ModelMap modelMap = new ModelMap();
-		String view = appointmentController.initAppointmentEditForm(TEST_APPOINTMENT_ID_1, TEST_PET_ID, TEST_WRONG_OWNER_ID, modelMap);
+		String view = appointmentController.initAppointmentEditForm(appointmentId, petId, ownerId, modelMap);
 		assertEquals(view, REDIRECT_TO_OUPS);
 	}
 
@@ -183,19 +175,15 @@ public class AppointmentControllerIntegrationTests {
 		assertEquals(view, REDIRECT_TO_PETS_DETAILS);
 	}
 
-	@Test
+	@ParameterizedTest
+	@CsvSource({
+		"1,10,1",
+		"1,11,1"
+	})
 	@WithMockUser(username="owner1", password="0wn3333r_1", authorities=OWNER_ROLE)
-	void testProcessDeleteAppointmentErrorsBefore() throws Exception {
+	void testProcessDeleteAppointmentErrors(int ownerId, int appointmentId, int petId) throws Exception {
 		ModelMap modelMap = new ModelMap();
-		String view =appointmentController.deleteAppointment(TEST_OWNER_ID, 10, TEST_PET_ID, modelMap);
-		assertEquals(view, VIEW_TO_PETS_ACCEPTED_AND_ACTIVE);
-	}
-
-	@Test
-	@WithMockUser(username="owner1", password="0wn3333r_1", authorities=OWNER_ROLE)
-	void testProcessDeleteAppointmentErrorsNow() throws Exception {
-		ModelMap modelMap = new ModelMap();
-		String view =appointmentController.deleteAppointment(TEST_OWNER_ID, 11, TEST_PET_ID, modelMap);
+		String view =appointmentController.deleteAppointment(ownerId, appointmentId, petId, modelMap);
 		assertEquals(view, VIEW_TO_PETS_ACCEPTED_AND_ACTIVE);
 	}
 

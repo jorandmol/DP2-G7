@@ -8,6 +8,8 @@ import java.util.Collections;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.samples.petclinic.model.Banner;
@@ -25,10 +27,6 @@ public class BannerControllerIntegrationTests {
 	private static final String VIEWS_BANNER_CREATE_FORM = "banners/createBannerForm";
 	
 	private static final String VIEWS_BANNERS_LIST = "banners/bannersList";
-	
-	private static final int TEST_BANNER_ID_1 = 1;
-	
-	private static final int TEST_BANNER_ID_2 = 3;
 
 	@Autowired
 	private BannerController bannerController;
@@ -117,16 +115,13 @@ public class BannerControllerIntegrationTests {
 	}
 
 	@WithMockUser(username="admin1",authorities= {"admin"})
-	@Test
-	void testProcessDeleteBannerNotExpiredEndDate() throws Exception {
-		String view = bannerController.processDeleteBanner(TEST_BANNER_ID_1, modelMap);
-		Assert.assertEquals(view, VIEWS_BANNERS_LIST);
-	}
-	
-	@WithMockUser(username="admin1",authorities= {"admin"})
-	@Test
-	void testProcessDeleteBannerExpiredEndDate() throws Exception {
-		String view = bannerController.processDeleteBanner(TEST_BANNER_ID_2, modelMap);
-		Assert.assertEquals(view, "redirect:/banners");
+	@ParameterizedTest
+	@CsvSource({
+		"1,'banners/bannersList'",
+		"3,'redirect:/banners'"
+	})
+	void testProcessDeleteBanner(int bannerId, String viewName) throws Exception {
+		String view = bannerController.processDeleteBanner(bannerId, modelMap);
+		Assert.assertEquals(view, viewName);
 	}
 }

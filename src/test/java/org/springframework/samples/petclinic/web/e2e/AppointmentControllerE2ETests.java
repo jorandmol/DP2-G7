@@ -13,6 +13,8 @@ import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -38,8 +40,6 @@ public class AppointmentControllerE2ETests {
 	private static final int TEST_APPOINTMENT_ID_5 = 5;
 	private static final int TEST_APPOINTMENT_ID_6 = 6;
 	private static final int TEST_APPOINTMENT_ID_7 = 7;
-	private static final int TEST_APPOINTMENT_ID_10 = 10;
-	private static final int TEST_APPOINTMENT_ID_11 = 11;
 	private static final int TEST_OWNER_ID = 1;
 	private static final int TEST_PET_ID = 1;
 	private static final int TEST_WRONG_OWNER_ID = 2;
@@ -140,19 +140,14 @@ public class AppointmentControllerE2ETests {
 			.andExpect(view().name(REDIRECT_TO_PETS_DETAILS));
 	}
 
-	@Test
+	@ParameterizedTest
+	@CsvSource({
+		"1,1,10",
+		"1,1,11"
+	})
 	@WithMockUser(username="owner1", password="0wn3333r_1", authorities=OWNER_ROLE)
-	void testProcessDeleteAppointmentErrorsBefore() throws Exception {
-		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete", TEST_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID_10))
-			.andExpect(model().attributeExists("errors"))
-			.andExpect(status().isOk())
-			.andExpect(view().name(VIEWS_PETS_DETAILS));
-	}
-
-	@Test
-	@WithMockUser(username="owner1", password="0wn3333r_1", authorities=OWNER_ROLE)
-	void testProcessDeleteAppointmentErrorsNow() throws Exception {
-		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete", TEST_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID_11))
+	void testProcessDeleteAppointmentErrors(int ownerId, int petId, int appointmentId) throws Exception {
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete", ownerId, petId, appointmentId))
 			.andExpect(model().attributeExists("errors"))
 			.andExpect(status().isOk())
 			.andExpect(view().name(VIEWS_PETS_DETAILS));
