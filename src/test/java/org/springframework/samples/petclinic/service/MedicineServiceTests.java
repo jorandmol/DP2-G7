@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -71,7 +72,8 @@ import org.springframework.transaction.annotation.Transactional;
 @DataJpaTest(includeFilters = @ComponentScan.Filter(Service.class))
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class MedicineServiceTests {
-        @Autowired
+    
+	@Autowired
 	protected MedicineService medicineService;
 
 	@Test
@@ -89,8 +91,8 @@ class MedicineServiceTests {
     @ParameterizedTest
     @CsvSource({
         "Virbaninte,Desparasitante,MED-123",
-        "Diclofenaco,Calmante para caballos,DIC-666",
-        "Vacuna RB,Vacuna contra la rabia, RAB-000"
+        "Diclofenaco,Calmante para caballos,DIC-6156",
+        "Vacuna RB,Vacuna contra la rabia, RAB-000-E1"
     })
     @Transactional
 	public void shouldInsertMedicineIntoDatabaseAndGenerateId(String name, String description, String code) {
@@ -115,32 +117,22 @@ class MedicineServiceTests {
 
 	@ParameterizedTest
     @CsvSource({
-        "'',Desparasitante,MED-123",
-        "Diclofenaco,'',DIC-666",
-        "Vacuna RB,Vacuna contra la rabia,''"
+        "'',Desparasitante,MED-123,2021/01/13",
+        "Diclofenaco,'',DIC-666,2020/05/11",
+        "Vacuna RB,Vacuna contra la rabia,'',2020/06/15",
+        "Virbaninte,Desparasitante,BAY-123,"
     })
 	@Transactional
-	public void shouldNotInsertMedicineEmptyName(String name, String description, String code) {
+	public void shouldNotInsertMedicine(String name, String description, String code, String expirationDate) {
 		Medicine med = new Medicine();
 		med.setName(name);
-		med.setExpirationDate(LocalDate.now().plusYears(2));
 		med.setDescription(description);
 		med.setCode(code);
-
-		assertThrows(ConstraintViolationException.class, () -> {
-			this.medicineService.saveMedicine(med);
-		});
-	}
-
-	@Test
-	@Transactional
-	public void shouldNotInsertMedicineNullDate() {
-		Medicine med = new Medicine();
-		med.setName("Virbaninte");
-		med.setExpirationDate(null);
-		med.setDescription("Desparasitante");
-		med.setCode("BAY-123");
-
+		if (expirationDate != null ) {
+			med.setExpirationDate(LocalDate.parse(expirationDate, DateTimeFormatter.ofPattern("yyyy/MM/dd")));			
+		} else {
+			med.setExpirationDate(null);
+		}
 		assertThrows(ConstraintViolationException.class, () -> {
 			this.medicineService.saveMedicine(med);
 		});
