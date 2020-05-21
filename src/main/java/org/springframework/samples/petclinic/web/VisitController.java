@@ -99,6 +99,12 @@ public class VisitController {
 		return res;
 	}
 	
+	private boolean isAdmin() {
+		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+				.collect(Collectors.toList()).get(0).toString();
+		return authority.equals("admin");
+	}
+	
 	private Boolean securityAccessRequestProfile(int ownerId) {
 		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
 				.collect(Collectors.toList()).get(0).toString();
@@ -126,7 +132,7 @@ public class VisitController {
 	// called
 	@GetMapping(value = "/owners/*/pets/{petId}/visits/new")
 	public String initNewVisitForm(@PathVariable("petId") final int petId, final Map<String, Object> model) {
-		if (securityAccessRequestVisit(petId)) {
+		if (securityAccessRequestVisit(petId) || isAdmin()) {
 			Pet pet = this.petService.findPetById(petId);
 			Visit visit = new Visit();
 			model.put("visit", visit);
@@ -142,14 +148,19 @@ public class VisitController {
 	@PostMapping(value = "/owners/{ownerId}/pets/{petId}/visits/new")
 	public String processNewVisitForm(@PathVariable("petId") final int petId, @Valid final Visit visit,
 			final BindingResult result) {
-		if (securityAccessRequestVisit(petId)) {
+		int vetId = 0;
+		if (isAdmin()) {
+			Appointment ap = this.appointmentService.findAppointmentByDate(petId, visit.getDate());
+			vetId = ap.getVet().getId();
+		}
+		if (securityAccessRequestVisit(petId) || isAdmin()) {
 			Pet pet = this.petService.findPetById(petId);
 			pet.addVisit(visit);
 			if (result.hasErrors()) {
 				return "pets/createOrUpdateVisitForm";
 			} else {
 				this.visitService.saveVisit(visit);
-				return "redirect:/appointments";
+				return isAdmin()?"redirect:/appointments/"+vetId:"redirect:/appointments";
 			}
 		} else {
 			return REDIRECT_TO_OUPS;

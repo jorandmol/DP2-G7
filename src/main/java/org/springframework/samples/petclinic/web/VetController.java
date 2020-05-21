@@ -206,6 +206,24 @@ public class VetController {
 		
 		return "vets/appointmentsList";
 	}
+	
+	@GetMapping(value = { "/appointments/{vetId}" })
+	public String showAppoimentsByVetListSuperUser(@PathVariable("vetId") int vetId, ModelMap model) {
+		Vet veterinarian= this.vetService.findVetById(vetId);
+		LocalDate today= LocalDate.now();
+		
+		List<Appointment> appointmentsToday = this.appointmentService.getAppointmentsTodayByVetId(veterinarian.getId(), today);
+		model.addAttribute("appointmentsToday", appointmentsToday);
+		
+		List<Appointment> appointmentsWithVisit = appointmentsToday.stream()
+				.filter(a -> this.visitService.countVisitsByDate(a.getPet().getId(), today) > 0).collect(Collectors.toList());
+		model.addAttribute("appointmentsWithVisit", appointmentsWithVisit);
+		
+		List<Appointment>  nextAppointments = this.appointmentService.getNextAppointmentsByVetId(veterinarian.getId(), today);
+		model.addAttribute("nextAppointments", nextAppointments);
+		
+		return "vets/appointmentsList";
+	}
 
 	@GetMapping("/vets/{vetId}")
 	public ModelAndView showVet(@PathVariable("vetId") int vetId) {

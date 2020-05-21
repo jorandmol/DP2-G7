@@ -262,8 +262,8 @@ class PetControllerTests {
 	@Test
 	void testInitCreationFormWithoutAccessAdmin() throws Exception {
 		mockMvc.perform(get("/owners/{ownerId}/pets/new", TEST_OWNER_ID1))
-				.andExpect(status().is3xxRedirection())
-				.andExpect(view().name(REDIRECT_TO_OUPS));
+				.andExpect(status().isOk())
+				.andExpect(view().name("pets/createOrUpdatePetForm"));
 	}
 	
 	
@@ -327,7 +327,7 @@ class PetControllerTests {
 				.param("type", "hamster")
 				.param("birthDate", "2015/02/12"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(view().name(REDIRECT_TO_OUPS));
+				.andExpect(view().name("redirect:/owner/{ownerId}/requests"));
 	}
 	
 	

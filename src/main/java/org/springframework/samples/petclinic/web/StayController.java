@@ -105,6 +105,12 @@ public class StayController {
 		}
 		return authority.equals("owner") && username.equals(ownerUsername) && isHisPetAcceptedAndActive;
 	}
+	
+	private boolean isAdmin() {
+		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+				.collect(Collectors.toList()).get(0).toString();
+		return authority.equals("admin");
+	}
 
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/stays")
 	public String initStayList(@PathVariable("ownerId") int ownerId, @PathVariable("petId") int petId, ModelMap model) {
@@ -143,7 +149,7 @@ public class StayController {
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/stays/new")
 	public String initNewStayForm(@PathVariable("ownerId") int ownerId, @PathVariable("petId") int petId,
 			Map<String, Object> model) {
-		if (this.securityAccessRequest(ownerId, petId)) {
+		if (this.securityAccessRequest(ownerId, petId) || isAdmin()) {
 			Stay stay = new Stay();
 			Pet pet = this.petService.findPetById(petId);
 			pet.addStay(stay);
@@ -159,7 +165,7 @@ public class StayController {
 	public String processNewStayForm(@Valid Stay stay, BindingResult result, @PathVariable("ownerId") int ownerId,
 			@PathVariable("petId") int petId, Map<String, Object> model) {
 		Pet pet = this.petService.findPetById(petId);
-		if (this.securityAccessRequest(ownerId, petId)) {
+		if (this.securityAccessRequest(ownerId, petId) || isAdmin()) {
 			if (result.hasErrors()) {
 				model.put("pet", pet);
 				return "pets/createOrUpdateStayForm";
@@ -190,7 +196,7 @@ public class StayController {
 		mav.addObject("pet", this.petService.findPetById(petId));
 
 		Boolean isYourStay = stay.getPet().getOwner().getId().equals(ownerId);
-		if (this.securityAccessRequest(ownerId, petId) && isYourStay) {
+		if ((this.securityAccessRequest(ownerId, petId) && isYourStay) || isAdmin()) {
 			try {
 				pet.deleteStay(stay);
 				this.stayService.deleteStay(stay);
@@ -208,7 +214,7 @@ public class StayController {
 	public String initStayEditForm(@PathVariable("stayId") final int stayId, @PathVariable("petId") final int petId,
 			@PathVariable("ownerId") final int ownerId, final ModelMap modelMap) {
 		Pet pet = petService.findPetById(petId);
-		if (securityAccessRequest(ownerId, petId)) {
+		if (securityAccessRequest(ownerId, petId) || isAdmin()) {
 			Stay stay = this.stayService.findStayById(stayId);
 			modelMap.put("stay", stay);
 			modelMap.put("edit", true);
@@ -224,7 +230,7 @@ public class StayController {
 			@PathVariable("petId") final int petId, @PathVariable("ownerId") final int ownerId,
 			@PathVariable("stayId") final int stayId, final ModelMap modelMap) {
 		Pet pet = petService.findPetById(petId);
-		if (securityAccessRequest(ownerId, petId)) {
+		if (securityAccessRequest(ownerId, petId) || isAdmin()) {
 			modelMap.put("edit", true);
 			if (result.hasErrors()) {
 				modelMap.put("pet", pet);

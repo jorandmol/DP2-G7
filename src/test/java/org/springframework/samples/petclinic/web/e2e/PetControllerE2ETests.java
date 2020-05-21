@@ -70,8 +70,8 @@ public class PetControllerE2ETests {
 	@Test
 	void testInitCreationFormWithoutAccessAdmin() throws Exception {
 		mockMvc.perform(get("/owners/{ownerId}/pets/new", TEST_OWNER_ID1))
-				.andExpect(status().is3xxRedirection())
-				.andExpect(view().name(REDIRECT_TO_OUPS));
+				.andExpect(status().isOk())
+				.andExpect(view().name("pets/createOrUpdatePetForm"));
 	}
 
 
@@ -129,9 +129,14 @@ public class PetControllerE2ETests {
 	@Test
 	void testProcessCreationFormSuccessWithoutAccessAdmin() throws Exception {
 		mockMvc.perform(post("/owners/{ownerId}/pets/new", TEST_OWNER_ID1)
-				.with(csrf()))
-				.andExpect(status().is3xxRedirection())
-				.andExpect(view().name(REDIRECT_TO_OUPS));
+				.with(csrf())
+				.param("name", "Anuela")
+				.param("birthDate", "2015/02/12"))
+				.andExpect(model().attributeHasNoErrors("owner"))
+				.andExpect(model().attributeHasErrors("pet"))
+				.andExpect(model().attributeHasFieldErrors("pet", "type"))
+				.andExpect(status().isOk())
+				.andExpect(view().name(VIEWS_PETS_CREATE_OR_UPDATE_FORM));
 	}
 
 
@@ -369,8 +374,9 @@ public class PetControllerE2ETests {
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
 	@Test
 	void testShowMyPetRequestsWithoutAccess() throws Exception{
-		mockMvc.perform(get("/owner/requests"))
-				.andExpect(status().is4xxClientError());
+		mockMvc.perform(get("/owner/{ownerId}/requests", TEST_OWNER_ID1))
+				.andExpect(status().isOk())
+				.andExpect(view().name("pets/myRequests"));
 	}
 
 
@@ -401,8 +407,12 @@ public class PetControllerE2ETests {
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
 	@Test
 	void testshowPetsActiveWithoutAccess() throws Exception{
-		mockMvc.perform(get("/owner/pets"))
-				.andExpect(status().is4xxClientError());
+		mockMvc.perform(get("/owner/{ownerId}/pets", TEST_OWNER_ID3))
+				.andExpect(model().attributeExists("disabled"))
+				.andExpect(model().attributeExists("owner"))
+				.andExpect(model().attributeExists("pets"))
+				.andExpect(status().isOk())
+				.andExpect(view().name("pets/myPetsActive"));
 	}
 
 
