@@ -203,7 +203,17 @@
 		    <artifactId>cucumber-junit-platform-engine</artifactId>
 		    <version>${cucumber.version}</version>
 		</dependency>
-    </dependencies>
+    	<dependency>
+			<groupId>net.masterthought</groupId>
+			<artifactId>cucumber-reporting</artifactId>
+			<version>4.2.3</version>
+		</dependency>
+		<dependency>
+			<groupId>de.monochromata.cucumber</groupId>
+			<artifactId>reporting-plugin</artifactId>
+			<version>4.0.36</version>
+		</dependency>
+	</dependencies>
 
     <build>
         <plugins>
