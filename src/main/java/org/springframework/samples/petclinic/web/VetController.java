@@ -32,6 +32,7 @@ import org.springframework.samples.petclinic.model.Specialty;
 import org.springframework.samples.petclinic.model.User;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.model.Vets;
+import org.springframework.samples.petclinic.model.Visit;
 import org.springframework.samples.petclinic.service.AppointmentService;
 import org.springframework.samples.petclinic.service.PetService;
 import org.springframework.samples.petclinic.service.VetService;
@@ -226,24 +227,57 @@ public class VetController {
 		return "pets/petsList";
 	}
 
+	@GetMapping(value = "/vets/pets/{petId}/visits")
+	public String showVisitsList(@PathVariable final int petId, final Map<String, Object> model) {
+			if (isVet()) {
+				Pet pet = this.petService.findPetById(petId);
+				model.put("pet", pet);	
+				
+				List<Integer> editableVisitsIds = pet.getVisits().stream().filter(v -> isEditable(petId, v.getId()))
+						.map(v -> v.getId()).collect(Collectors.toList());
+				model.put("editableVisitsIds", editableVisitsIds);
+				
+				return "visits/visitsList";
+			}else {
+				return REDIRECT_TO_OUPS;
+			}
+	}
+	
+	private Boolean isEditable(Integer petId, Integer visitId) {
+		Boolean res = false;		
+		Visit visit = this.visitService.findVisitById(visitId);
+		Appointment appointment = this.appointmentService.findAppointmentByDate(petId, visit.getDate());
+		String vetUsername = appointment.getVet().getUser().getUsername();
+
+		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+		if (isVet() && vetUsername.equals(username)) {
+			res = true;
+		}
+		return res;
+	}
+	
 	private boolean isAdmin() {
 		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
 				.collect(Collectors.toList()).get(0).toString();
 		return authority.equals("admin");
 	}
-
-	private boolean securityAccessRequestProfile(int vetId) {
+	
+	private Boolean isVet() {
 		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
 				.collect(Collectors.toList()).get(0).toString();
+		return authority.equals("veterinarian");
+	}
+
+	private boolean securityAccessRequestProfile(int vetId) {
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
 		Vet vet = new Vet();
-		if (authority.equals("veterinarian")) {
+		if (isVet()) {
 			vet = this.vetService.findVetById(vetId);
 		}
 
-		return authority.equals("admin")
-				|| authority.equals("veterinarian") && username.equals(vet.getUser().getUsername());
+		return isAdmin() || isVet() && username.equals(vet.getUser().getUsername());
 	}
 
 }

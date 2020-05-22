@@ -6,17 +6,10 @@
 
 
 <petclinic:layout pageName="owners">
-    <jsp:attribute name="customScript">
-        <script>
-            $(function () {
-                $("#date").datepicker({dateFormat: 'yy/mm/dd'});
-            });
-        </script>
-    </jsp:attribute>
     <jsp:body>
         <h2><c:if test="${visit['new']}">New </c:if>Visit</h2>
 
-        <b>Pet</b>
+        <h3>Pet information</h3>
         <table class="table table-striped">
             <thead>
             <tr>
@@ -27,7 +20,7 @@
             </tr>
             </thead>
             <tr>
-                <td><c:out value="${visit.pet.name}"/></td>
+                <td><strong><c:out value="${visit.pet.name}"/></strong></td>
                 <td><petclinic:localDate date="${visit.pet.birthDate}" pattern="yyyy/MM/dd"/></td>
                 <td><c:out value="${visit.pet.type.name}"/></td>
                 <td><c:out value="${visit.pet.owner.firstName} ${visit.pet.owner.lastName}"/></td>
@@ -36,22 +29,28 @@
 
         <form:form modelAttribute="visit" class="form-horizontal">
             <div class="form-group has-feedback">
-                <petclinic:inputField label="Date" name="date"/>
+                <petclinic:inputField readonly="true" label="Date" name="date"/>
                 <petclinic:inputField label="Description" name="description"/>
-                <div class="control-group">
-                    <petclinic:selectField label="Medical tests" name="medicalTests" names="${tests}" size="5"/>
+                <div class="form-group">
+                	<label class="col-sm-2 control-label"><strong>Medical tests</strong></label>
+                	<div class="col-sm-offset-2 col-sm-10">
+                		<form:checkboxes  element="div" cssStyle="width:50px" items="${tests}" path="medicalTests"/>
+                	</div>
                 </div>
             </div>
 
-            <div class="form-group">
+            <div class="form-group has-feedback">
                 <div class="col-sm-offset-2 col-sm-10">
                     <input type="hidden" name="petId" value="${visit.pet.id}"/>
-                    <button class="btn btn-default" type="submit">Add Visit</button>
+                    <button class="btn btn-default" type="submit">
+                    <c:choose><c:when test="${visit['new']}">Add Visit</c:when><c:otherwise>Update Visit</c:otherwise></c:choose>
+                    </button>
                 </div>
             </div>
         </form:form>
-
+	
         <br/>
+        <c:if test="${visit['new']}">
         <b>Previous Visits</b>
         <table class="table table-striped">
             <tr>
@@ -67,6 +66,7 @@
                 </c:if>
             </c:forEach>
         </table>
+        </c:if>
     </jsp:body>
 
 </petclinic:layout>

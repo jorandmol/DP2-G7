@@ -103,10 +103,10 @@ INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id
 INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id) VALUES (22, 'Karl', '2018-02-18', 0, '', true , 1, 10);
 
 
-INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (1,'2019-01-01','2018-12-20','Rabies shot',6,7,1);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (1,'2019-01-01','2018-12-20','Rabies shot',3,7,1);
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (2,'2019-01-02','2018-12-13','Rabies shot',6,8,1);
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (3,'2019-01-15','2019-01-02','Neutering',6,8,1);
-INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (4,'2019-01-24','2019-01-11','Sterilization',6,7,1);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (4,'2019-01-24','2019-01-11','Sterilization',3,7,1);
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (5,'2020-04-20','2020-03-27','Medical appointment',1,1,1);
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (6,'2020-06-30','2020-03-27','Radiographic study',1,1,1);
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (7,'2020-08-30','2020-03-27','Fracture treatment',1,1,1);

@@ -84,8 +84,14 @@ public class VisitController {
 	public Collection<MedicalTest> populateMedicalTests() {
 		return this.medicalTestService.findMedicalTests();
 	}
+	
+	private Boolean isVet() {
+		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+				.collect(Collectors.toList()).get(0).toString();
+		return authority.equals("veterinarian");
+	}
 
-	private Boolean securityAccessRequestVisit(Integer petId) {
+	private Boolean securityAccessRequestCreateVisit(Integer petId) {
 		Boolean res = false;
 		Appointment appointment = this.appointmentService.findAppointmentByDate(petId, LocalDate.now());
 		String vetUsername = appointment.getVet().getUser().getUsername();
@@ -93,7 +99,21 @@ public class VisitController {
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		Integer numberOfVisits = this.visitService.countVisitsByDate(petId, LocalDate.now());
 
-		if (numberOfVisits == 0 && vetUsername.equals(username)) {
+		if (numberOfVisits == 0 && isVet() && vetUsername.equals(username)) {
+			res = true;
+		}
+		return res;
+	}
+	
+	private Boolean securityAccessRequestUpdateVisit(Integer petId, Integer visitId) {
+		Boolean res = false;		
+		Visit visit = this.visitService.findVisitById(visitId);
+		Appointment appointment = this.appointmentService.findAppointmentByDate(petId, visit.getDate());
+		String vetUsername = appointment.getVet().getUser().getUsername();
+
+		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+		if (isVet() && vetUsername.equals(username)) {
 			res = true;
 		}
 		return res;
@@ -126,7 +146,7 @@ public class VisitController {
 	// called
 	@GetMapping(value = "/owners/*/pets/{petId}/visits/new")
 	public String initNewVisitForm(@PathVariable("petId") final int petId, final Map<String, Object> model) {
-		if (securityAccessRequestVisit(petId)) {
+		if (securityAccessRequestCreateVisit(petId)) {
 			Pet pet = this.petService.findPetById(petId);
 			Visit visit = new Visit();
 			model.put("visit", visit);
@@ -142,7 +162,7 @@ public class VisitController {
 	@PostMapping(value = "/owners/{ownerId}/pets/{petId}/visits/new")
 	public String processNewVisitForm(@PathVariable("petId") final int petId, @Valid final Visit visit,
 			final BindingResult result) {
-		if (securityAccessRequestVisit(petId)) {
+		if (securityAccessRequestCreateVisit(petId)) {
 			Pet pet = this.petService.findPetById(petId);
 			pet.addVisit(visit);
 			if (result.hasErrors()) {
@@ -150,6 +170,35 @@ public class VisitController {
 			} else {
 				this.visitService.saveVisit(visit);
 				return "redirect:/appointments";
+			}
+		} else {
+			return REDIRECT_TO_OUPS;
+		}
+	}
+	
+	@GetMapping(value = "/vets/pets/{petId}/visits/{visitId}")
+	public String initUpdateVisitForm(@PathVariable("petId") final int petId, @PathVariable("visitId") final int visitId, final Map<String, Object> model) {
+		if (securityAccessRequestUpdateVisit(petId, visitId)) {
+			Visit visit = this.visitService.findVisitById(visitId);
+			model.put("visit", visit);
+			return "pets/createOrUpdateVisitForm";
+		} else {
+			return REDIRECT_TO_OUPS;
+		}
+	}
+	
+	@PostMapping(value = "/vets/pets/{petId}/visits/{visitId}")
+	public String processUpdateVisitForm(@PathVariable("petId") final int petId, @PathVariable("visitId") final int visitId, @Valid final Visit visit,
+			final BindingResult result) {
+		if (securityAccessRequestUpdateVisit(petId, visitId)) {
+			Visit visitToUpdate = this.visitService.findVisitById(visitId);
+			if (result.hasErrors()) {
+				return "pets/createOrUpdateVisitForm";
+			} else {
+				visitToUpdate.setDescription(visit.getDescription());
+				visitToUpdate.setMedicalTests(visit.getMedicalTests());
+				this.visitService.saveVisit(visitToUpdate);
+				return "redirect:/vets/pets/"+ petId +"/visits";
 			}
 		} else {
 			return REDIRECT_TO_OUPS;
@@ -166,5 +215,4 @@ public class VisitController {
 			return REDIRECT_TO_OUPS;
 		}
 	}
-
 }
