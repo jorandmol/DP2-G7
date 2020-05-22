@@ -12,6 +12,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.runner.RunWith;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -19,9 +20,17 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
+import io.cucumber.junit.Cucumber;
+import io.cucumber.junit.CucumberOptions;
+
+
+
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class UpdateOwnerUITest {
+public class UpdateOwnerUITest extends AbstractStep {
 	
 	@LocalServerPort
 	private int port;
@@ -38,22 +47,16 @@ public class UpdateOwnerUITest {
 	  @Test
 	  public void testUpdateOwnerProfile() throws Exception {
 		  logIn();
-		  driver.findElement(By.linkText("OWNER1")).click();
-		  driver.findElement(By.linkText("My Profile")).click();
-		  driver.findElement(By.linkText("Edit Owner")).click();
-		  driver.findElement(By.id("telephone")).click();
-		  driver.findElement(By.id("telephone")).clear();
-		  driver.findElement(By.id("telephone")).sendKeys("608555103");
-		  driver.findElement(By.id("city")).click();
-		  driver.findElement(By.id("city")).clear();
-		  driver.findElement(By.id("city")).sendKeys("New York");
-		  driver.findElement(By.xpath("//button[@type='submit']")).click();
+		  changeProfilePositive();
 		  
-		  assertEquals("New York", driver.findElement(By.xpath("//tr[3]/td")).getText());
+		  profileChanges();
+		 
 		  logOut();
 	  }
 	  
-	  @Test
+
+
+	@Test
 	  public void testUpdateOwnerProfileInvalidPassword() throws Exception {
 		  logIn();
 		  driver.findElement(By.linkText("OWNER1")).click();
@@ -75,7 +78,7 @@ public class UpdateOwnerUITest {
 			
 		  logOut();
 	  }
-
+@Given("Im logged in the system as {string}")
   	private void logIn() {
 		driver.get("http://localhost:" + port + "/");
 		driver.findElement(By.xpath("//a[contains(@href, '/login')]")).click();
@@ -92,6 +95,26 @@ public class UpdateOwnerUITest {
 		 driver.findElement(By.linkText("OWNER1")).click();
 		 driver.findElement(By.linkText("Logout")).click();
 		 driver.findElement(By.xpath("//button[@type='submit']")).click();
+		
+	}
+	@When("I update my profile")
+	private void changeProfilePositive() {
+		  driver.findElement(By.linkText("OWNER1")).click();
+		  driver.findElement(By.linkText("My Profile")).click();
+		  driver.findElement(By.linkText("Edit Owner")).click();
+		  driver.findElement(By.id("telephone")).click();
+		  driver.findElement(By.id("telephone")).clear();
+		  driver.findElement(By.id("telephone")).sendKeys("608555103");
+		  driver.findElement(By.id("city")).click();
+		  driver.findElement(By.id("city")).clear();
+		  driver.findElement(By.id("city")).sendKeys("New York");
+		  driver.findElement(By.xpath("//button[@type='submit']")).click();
+	}
+	
+	  @Then("My profile changes")
+	  private void profileChanges() {
+		  assertEquals("New York", driver.findElement(By.xpath("//tr[3]/td")).getText());
+		
 	}
 	
 	  @AfterEach
