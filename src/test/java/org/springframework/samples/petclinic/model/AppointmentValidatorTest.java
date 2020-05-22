@@ -31,8 +31,8 @@ public class AppointmentValidatorTest {
 
 	@ParameterizedTest
 	@CsvSource({
-		"2020/08/12,''",
-		"2019/08/12,Revision pet",
+		"2020/08/05,''",
+		"2019/08/05,Revision pet",
 		",Anual Revision pet"
 	})
 	@Transactional

@@ -160,7 +160,7 @@ public class Pet extends NamedEntity {
 	public List<Appointment> getAppointments() {
 		List<Appointment> sortedAppointments = new ArrayList<>(getAppointmentsInternal());
 		sortedAppointments = sortedAppointments.stream().filter(x->!x.getAppointmentDate().isBefore(LocalDate.now())).collect(Collectors.toList());
-		PropertyComparator.sort(sortedAppointments, new MutableSortDefinition("appointmentDate", false, false));
+		PropertyComparator.sort(sortedAppointments, new MutableSortDefinition("appointmentDate", false, false)); //appointmentDate 
 		return Collections.unmodifiableList(sortedAppointments);
 	}
 	

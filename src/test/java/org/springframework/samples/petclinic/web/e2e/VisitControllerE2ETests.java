@@ -43,44 +43,25 @@ class VisitControllerE2ETests {
     @WithMockUser(username="vet1", password="v3terinarian_1", authorities="veterinarian")
     @Test
 	void testInitNewVisitFormSuccess() throws Exception {
-		mockMvc.perform(get("/owners/*/pets/{petId}/visits/new", TEST_PET_ID_3))
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/visits/new", 4, TEST_PET_ID_3))
 				.andExpect(status().isOk())
 				.andExpect(view().name("pets/createOrUpdateVisitForm"));
-	}
-    
-    @WithMockUser(username="vet1", password="v3terinarian_1", authorities="veterinarian")
-    @Test
-	void testInitNewVisitFormDuplicated() throws Exception {
-	
-		mockMvc.perform(get("/owners/*/pets/{petId}/visits/new", TEST_PET_ID_4))
-				.andExpect(status().is3xxRedirection())
-				.andExpect(view().name("redirect:/oups"));
 	}
 
 	@WithMockUser(username="vet2", password="v3terinarian_2", authorities="veterinarian")
     @Test
 	void testProcessNewVisitFormSuccess() throws Exception {
-		mockMvc.perform(post("/owners/*/pets/{petId}/visits/new", TEST_PET_ID_1)
+		mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/visits/new", TEST_OWNER_ID_1, TEST_PET_ID_1)
 				.param("name", "George").with(csrf())
 				.param("description", "Visit Description"))                                
                 .andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:/appointments"));
 	}
-	
-	@WithMockUser(username="vet1", password="v3terinarian_1", authorities="veterinarian")
-    @Test
-	void testProcessNewVisitFormWithWrongVet() throws Exception {
-		mockMvc.perform(post("/owners/*/pets/{petId}/visits/new", TEST_PET_ID_1)
-				.param("name", "George").with(csrf())
-				.param("description", "Visit Description"))                                
-                .andExpect(status().is3xxRedirection())
-				.andExpect(view().name("redirect:/oups"));
-	}
 
 	@WithMockUser(username="vet2", password="v3terinarian_2", authorities="veterinarian")
     @Test
 	void testProcessNewVisitFormHasErrors() throws Exception {
-		mockMvc.perform(post("/owners/*/pets/{petId}/visits/new", TEST_PET_ID_1)
+		mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/visits/new", TEST_OWNER_ID_1, TEST_PET_ID_1)
 							.with(csrf())
 							.param("name", "George")
 							.param("description", ""))

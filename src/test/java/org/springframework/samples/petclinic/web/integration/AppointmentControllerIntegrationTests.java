@@ -37,13 +37,14 @@ public class AppointmentControllerIntegrationTests {
 	private static final String REDIRECT_TO_PETS_DETAILS = "redirect:/owner/pets";
 
 	private static final int TEST_OWNER_ID = 1;
+	private static final int TEST_OWNER_ID3 = 3;
 	private static final int TEST_PET_ID = 1;
+	private static final int TEST_PET_ID7 = 7;
 	private static final int TEST_VET_ID = 1;
 	private static final int TEST_WRONG_OWNER_ID = 2;
 	
-	private LocalDate date = LocalDate.now().plusDays(100);
-	private LocalDate appointmentDate1 = date.getDayOfWeek().equals(DayOfWeek.SUNDAY) ? date.plusDays(1) : date;
-	private LocalDate appointmentDate2 = date.plusDays(1).getDayOfWeek().equals(DayOfWeek.SUNDAY) ? date.plusDays(2) : date.plusDays(1);
+	private LocalDate date = LocalDate.now().plusDays(50);
+	private LocalDate appointmentDate = date.getDayOfWeek().equals(DayOfWeek.SUNDAY) ? date.plusDays(1) : date;
 	
 	@Autowired
 	private AppointmentController appointmentController;
@@ -106,16 +107,16 @@ public class AppointmentControllerIntegrationTests {
 	}
 
 	@Test
-	@WithMockUser(username="owner1", password="0wn3333r_1", authorities=OWNER_ROLE)
+	@WithMockUser(username="owner3", password="0wn3333r_3", authorities=OWNER_ROLE)
 	void testProcessNewAppointmentForm() throws Exception{
 		Appointment appointment = new Appointment();
-		appointment.setAppointmentDate(appointmentDate1);
-		appointment.setDescription("Appointment's description...");
-		appointment.setOwner(this.ownerService.findOwnerById(TEST_OWNER_ID));
-		appointment.setPet(this.petService.findPetById(TEST_PET_ID));
+		appointment.setAppointmentDate(appointmentDate);
+		appointment.setDescription("Appointment description...");
+		appointment.setOwner(this.ownerService.findOwnerById(TEST_OWNER_ID3));
+		appointment.setPet(this.petService.findPetById(TEST_PET_ID7));
 		BindingResult result = new MapBindingResult(Collections.emptyMap(), "");
 		ModelMap modelMap = new ModelMap();
-		String view = appointmentController.processNewAppointmentForm(appointment, result, TEST_PET_ID, TEST_OWNER_ID, TEST_VET_ID, modelMap);
+		String view = appointmentController.processNewAppointmentForm(appointment, result, TEST_PET_ID7, TEST_OWNER_ID3, 5, modelMap);
 		assertEquals(view, REDIRECT_TO_PETS_DETAILS);
 	}
 
@@ -138,8 +139,8 @@ public class AppointmentControllerIntegrationTests {
 	void testProcessAppointmentEditForm() throws Exception{
 		Appointment appointment = new Appointment();
 		appointment.setId(7);
-		appointment.setAppointmentDate(appointmentDate2);
-		appointment.setDescription("Appointment's description...");
+		appointment.setAppointmentDate(appointmentDate);
+		appointment.setDescription("Appointment description");
 		appointment.setOwner(this.ownerService.findOwnerById(TEST_OWNER_ID));
 		appointment.setPet(this.petService.findPetById(TEST_PET_ID));
 		appointment.setVet(this.vetService.findVetById(TEST_VET_ID));
@@ -154,8 +155,8 @@ public class AppointmentControllerIntegrationTests {
 	void testProcessAppointmentEditFormHasErrors() throws Exception{
 		Appointment appointment = new Appointment();
 		appointment.setId(7);
-		appointment.setAppointmentDate(appointmentDate2);
-		appointment.setDescription(null);
+		appointment.setAppointmentDate(appointmentDate);
+		appointment.setDescription("");
 		appointment.setOwner(this.ownerService.findOwnerById(TEST_OWNER_ID));
 		appointment.setPet(this.petService.findPetById(TEST_PET_ID));
 		appointment.setVet(this.vetService.findVetById(TEST_VET_ID));
