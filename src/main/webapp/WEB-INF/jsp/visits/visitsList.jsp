@@ -52,7 +52,7 @@
         </tr>
         </thead>
         <tbody>
-        <c:forEach items="${pet.visits}" var="visit">
+        <c:forEach items="${visits}" var="visit">
             <tr>
                 <td style="width: 150px">
                     <c:out value="${visit.date}"/>

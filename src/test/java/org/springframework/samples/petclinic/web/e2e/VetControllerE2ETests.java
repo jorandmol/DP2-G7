@@ -37,6 +37,8 @@ public class VetControllerE2ETests {
 	private static final int TEST_VET_ID_4 = 4;
 	private static final int TEST_VET_ID_5 = 5;
 	
+	private static final int TEST_PET_ID_1 = 1;
+
 	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
 	private static final String VIEWS_VET_CREATE_OR_UPDATE_FORM = "vets/createOrUpdateVetForm";
 
@@ -359,6 +361,16 @@ public class VetControllerE2ETests {
 		mockMvc.perform(get("/vets/pets")).andExpect(status().isOk())
 				.andExpect(model().attributeExists("pets"))
 				.andExpect(view().name("pets/petsList"));
+	}
+	
+	@WithMockUser(username="vet1", password="veter1n4ri0_1", authorities="veterinarian")
+	@Test
+	void testShowVisitsList() throws Exception {
+		mockMvc.perform(get("/vets/pets/{petId}/visits", TEST_PET_ID_1))
+		.andExpect(model().attributeExists("pet"))
+		.andExpect(model().attributeExists("visits"))
+		.andExpect(status().isOk())
+		.andExpect(view().name("visits/visitsList"));
 	}
 
 }
