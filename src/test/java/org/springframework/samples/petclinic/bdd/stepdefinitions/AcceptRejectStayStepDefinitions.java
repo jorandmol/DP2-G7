@@ -57,6 +57,8 @@ public class AcceptRejectStayStepDefinitions extends AbstractStep {
 		String result="4dm1n";
 		if("owner1".equals(username))
 			result="0wn3333r_1";
+		if("vet1".equals(username))
+			result="v3terinarian_1";
 		return result;
 	}
     
