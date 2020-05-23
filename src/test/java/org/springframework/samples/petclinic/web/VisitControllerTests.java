@@ -254,15 +254,6 @@ class VisitControllerTests {
 				.andExpect(view().name("redirect:/appointments"));
 	}
 	
-	@WithMockUser(username="vet2", password="veter1n4ri0_2", authorities="veterinarian")
-    @Test
-	void testProcessNewVisitFormWithWrongVet() throws Exception {
-		mockMvc.perform(post("/owners/*/pets/{petId}/visits/new", TEST_PET_ID_1).with(csrf())
-				.param("description", "Visit Description"))                                
-                .andExpect(status().is3xxRedirection())
-				.andExpect(view().name("redirect:/oups"));
-	}
-	
 	@WithMockUser(username="vet1", password="veter1n4ri0_1", authorities="veterinarian")
     @Test
 	void testProcessNewVisitFormHasErrors() throws Exception {
@@ -281,14 +272,6 @@ class VisitControllerTests {
 				.andExpect(view().name("pets/createOrUpdateVisitForm"));
 	}
 	
-	@WithMockUser(username="vet2", password="veter1n4ri0_2", authorities="veterinarian")
-    @Test
-	void testInitUpdateVisitFormWithWrongVet() throws Exception {
-		mockMvc.perform(get("/vets/pets/{petId}/visits/{visitId}", TEST_PET_ID_1, TEST_VISIT_ID_2))
-				.andExpect(status().is3xxRedirection())
-				.andExpect(view().name("redirect:/oups"));
-	}
-	
 	@WithMockUser(username="vet1", password="veter1n4ri0_1", authorities="veterinarian")
     @Test
 	void testProcessUpdateVisitFormSuccess() throws Exception {
@@ -296,15 +279,6 @@ class VisitControllerTests {
 				.param("description", "Visit Description updated"))                                
                 .andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:/vets/pets/"+TEST_PET_ID_1+"/visits"));
-	}
-	
-	@WithMockUser(username="vet2", password="veter1n4ri0_2", authorities="veterinarian")
-    @Test
-	void testProcessUpdateVisitFormWithWrongVet() throws Exception {
-		mockMvc.perform(post("/vets/pets/{petId}/visits/{visitId}", TEST_PET_ID_1, TEST_VISIT_ID_2).with(csrf())
-				.param("description", "Visit Description"))                                
-                .andExpect(status().is3xxRedirection())
-				.andExpect(view().name("redirect:/oups"));
 	}
 
 	@WithMockUser(username="vet1", password="veter1n4ri0_1", authorities="veterinarian")

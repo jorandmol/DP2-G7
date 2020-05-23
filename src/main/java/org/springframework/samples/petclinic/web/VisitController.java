@@ -90,26 +90,6 @@ public class VisitController {
 		return this.medicalTestService.findMedicalTests();
 	}
 
-	private Boolean isVet() {
-		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-				.collect(Collectors.toList()).get(0).toString();
-		return authority.equals("veterinarian");
-	}
-
-	private Boolean securityAccessRequestCreateVisit(Integer petId) {
-		Boolean res = false;
-		Appointment appointment = this.appointmentService.findAppointmentByDate(petId, LocalDate.now());
-		String vetUsername = appointment.getVet().getUser().getUsername();
-
-		String username = SecurityContextHolder.getContext().getAuthentication().getName();
-		Integer numberOfVisits = this.visitService.countVisitsByDate(petId, LocalDate.now());
-
-		if (numberOfVisits == 0 && isVet() && vetUsername.equals(username)) {
-			res = true;
-		}
-		return res;
-	}
-
 	private Boolean securityAccessRequestProfile(int ownerId) {
 		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
 				.collect(Collectors.toList()).get(0).toString();
@@ -150,7 +130,7 @@ public class VisitController {
 	// called
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/visits/new")
 	public String initNewVisitForm(@PathVariable("petId") final int petId, @PathVariable("ownerId") final int ownerId,
-			final Map<String, Object> model) {
+			final ModelMap model) {
 		if (securityAccessRequestVisit(ownerId, petId)) {
 			Pet pet = this.petService.findPetById(petId);
 			Visit visit = new Visit();
