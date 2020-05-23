@@ -13,7 +13,7 @@ public class AbstractStep {
 	
 	@LocalServerPort
 	private int port;
-	
+
 	private static WebDriver driver;
 	private static StringBuffer verificationErrors = new StringBuffer();
 
