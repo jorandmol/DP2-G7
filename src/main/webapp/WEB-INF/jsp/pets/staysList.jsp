@@ -36,7 +36,7 @@
 	</div>
 	<table id="medicinesTable" class="table table-striped">
 		<thead>
-			<tr>
+			<tr id="stay">
 				<th>Register date</th>
 				<th>Release date</th>
 				<th>Status</th>
