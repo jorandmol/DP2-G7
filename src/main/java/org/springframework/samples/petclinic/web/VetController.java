@@ -229,34 +229,17 @@ public class VetController {
 
 	@GetMapping(value = "/vets/pets/{petId}/visits")
 	public String showVisitsList(@PathVariable final int petId, final Map<String, Object> model) {
-			if (isVet()) {
-				Pet pet = this.petService.findPetById(petId);
-				model.put("pet", pet);	
+			
+			Pet pet = this.petService.findPetById(petId);
+			model.put("pet", pet);	
 				
-				List<Integer> editableVisitsIds = pet.getVisits().stream().filter(v -> isEditable(petId, v.getId()))
-						.map(v -> v.getId()).collect(Collectors.toList());
-				model.put("editableVisitsIds", editableVisitsIds);
+			List<Visit> visits = this.visitService.findVisitsByPetId(petId);
+			model.put("visits", visits);
 				
-				return "visits/visitsList";
-			}else {
-				return REDIRECT_TO_OUPS;
-			}
+			return "visits/visitsList";
+			
 	}
-	
-	private Boolean isEditable(Integer petId, Integer visitId) {
-		Boolean res = false;		
-		Visit visit = this.visitService.findVisitById(visitId);
-		Appointment appointment = this.appointmentService.findAppointmentByDate(petId, visit.getDate());
-		String vetUsername = appointment.getVet().getUser().getUsername();
 
-		String username = SecurityContextHolder.getContext().getAuthentication().getName();
-
-		if (isVet() && vetUsername.equals(username)) {
-			res = true;
-		}
-		return res;
-	}
-	
 	private boolean isAdmin() {
 		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
 				.collect(Collectors.toList()).get(0).toString();

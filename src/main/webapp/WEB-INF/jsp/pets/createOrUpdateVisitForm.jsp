@@ -7,7 +7,7 @@
 
 <petclinic:layout pageName="owners">
     <jsp:body>
-        <h2><c:if test="${visit['new']}">New </c:if>Visit</h2>
+        <h2><c:if test="${!edit}">New </c:if>Visit</h2>
 
         <h3>Pet information</h3>
         <table class="table table-striped">
@@ -43,30 +43,11 @@
                 <div class="col-sm-offset-2 col-sm-10">
                     <input type="hidden" name="petId" value="${visit.pet.id}"/>
                     <button class="btn btn-default" type="submit">
-                    <c:choose><c:when test="${visit['new']}">Add Visit</c:when><c:otherwise>Update Visit</c:otherwise></c:choose>
+                    <c:choose><c:when test="${!edit}">Add Visit</c:when><c:otherwise>Update Visit</c:otherwise></c:choose>
                     </button>
                 </div>
             </div>
         </form:form>
-	
-        <br/>
-        <c:if test="${visit['new']}">
-        <b>Previous Visits</b>
-        <table class="table table-striped">
-            <tr>
-                <th>Date</th>
-                <th>Description</th>
-            </tr>
-            <c:forEach var="visit" items="${visit.pet.visits}">
-                <c:if test="${!visit['new']}">
-                    <tr>
-                        <td><petclinic:localDate date="${visit.date}" pattern="yyyy/MM/dd"/></td>
-                        <td><c:out value="${visit.description}"/></td>
-                    </tr>
-                </c:if>
-            </c:forEach>
-        </table>
-        </c:if>
     </jsp:body>
 
 </petclinic:layout>

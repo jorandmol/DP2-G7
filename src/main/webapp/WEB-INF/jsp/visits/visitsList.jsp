@@ -73,13 +73,11 @@
 	            	</c:choose>
 	            </td>
                 <td>
-                	<c:if test="${editableVisitsIds.contains(visit.id)}">
-                		<spring:url value="/vets/pets/{petId}/visits/{visitId}" var="editVisitUrl">
-                       		<spring:param name="petId" value="${pet.id}"></spring:param>
-                        	<spring:param name="visitId" value="${visit.id}"></spring:param>
-                    	</spring:url>
-                    	<a href="${fn:escapeXml(editVisitUrl)}"><c:out value="Edit"></c:out></a>
-                    </c:if>
+                	<spring:url value="/vets/pets/{petId}/visits/{visitId}" var="editVisitUrl">
+                       	<spring:param name="petId" value="${pet.id}"></spring:param>
+                        <spring:param name="visitId" value="${visit.id}"></spring:param>
+                    </spring:url>
+                    <a href="${fn:escapeXml(editVisitUrl)}"><c:out value="Edit"></c:out></a>
                 </td>  
             </tr>
         </c:forEach>
