@@ -9,6 +9,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -62,48 +64,23 @@ public class BannerControllerE2ETests {
 	}
 	
 	@WithMockUser(username="admin1",authorities= {"admin"})
-	@Test
-	void testProcessCreationFormHasErrors() throws Exception {
+	@ParameterizedTest
+	@CsvSource({
+		"'',This is a simple slogan,https://www.cocacola.es/es/home/,Org-Cocacola,2020/01/01,2020/11/01",
+		"https://www.cocacola.es/,'',https://www.cocacola.es/es/home/,Org-Cocacola,2020/01/01,2020/11/01",
+		"https://www.cocacola.es/,This is a simple slogan,'',Org-Cocacola,2020/01/01,2020/11/01",
+		"https://www.cocacola.es/,This is a simple slogan,https://www.cocacola.es/es/home/,'',2020/01/01,2020/11/01",
+	})
+	void testProcessCreationFormHasErrors(String picture, String slogan, String targetUrl, String organizationName, 
+			String initColabDate, String endColabDate) throws Exception {
 		mockMvc.perform(post("/banners/new").with(csrf())
-				.param("picture", "https://www.cocacola.es/content/dam/GO/one-brand/RO/updates/67786/coca%20cola%20logo%20260x260-01.png")
-				.param("slogan", "").with(csrf())
-				.param("targetUrl", "https://www.cocacola.es/es/home/")
-				.param("organizationName", "")
-				.param("initColabDate", "2020/01/01")
-				.param("endColabDate", "2020/11/01"))
-				.andExpect(model().attributeHasErrors("banner"))
-				.andExpect(model().attributeHasFieldErrors("banner", "slogan"))
-				.andExpect(model().attributeHasFieldErrors("banner", "organizationName"))
-				.andExpect(view().name(VIEWS_BANNER_CREATE_FORM));
-	}
-	
-	@WithMockUser(username="admin1",authorities= {"admin"})
-	@Test
-	void testProcessCreationFormHasEmptyPicture() throws Exception {
-		mockMvc.perform(post("/banners/new").with(csrf())
-				.param("picture", "")
-				.param("slogan", "SIENTE EL SABOR").with(csrf())
-				.param("targetUrl", "https://www.cocacola.es/es/home/")
-				.param("organizationName", "CocaCola ES")
-				.param("initColabDate", "2020/01/01")
-				.param("endColabDate", "2020/11/01"))
-				.andExpect(model().attributeHasErrors("banner"))
-				.andExpect(model().attributeHasFieldErrors("banner", "picture"))
-				.andExpect(view().name(VIEWS_BANNER_CREATE_FORM));
-	}
-	
-	@WithMockUser(username="admin1",authorities= {"admin"})
-	@Test
-	void testProcessCreationFormHasEmptyTargetUrl() throws Exception {
-		mockMvc.perform(post("/banners/new").with(csrf())
-				.param("picture", "https://www.cocacola.es/content/dam/GO/one-brand/RO/updates/67786/coca%20cola%20logo%20260x260-01.png")
-				.param("slogan", "SIENTE EL SABOR").with(csrf())
-				.param("targetUrl", "")
-				.param("organizationName", "CocaCola ES")
-				.param("initColabDate", "2020/01/01")
-				.param("endColabDate", "2020/11/01"))
-				.andExpect(model().attributeHasErrors("banner"))
-				.andExpect(model().attributeHasFieldErrors("banner", "targetUrl"))
+				.param("picture", picture)
+				.param("slogan", slogan).with(csrf())
+				.param("targetUrl", targetUrl)
+				.param("organizationName", organizationName)
+				.param("initColabDate", initColabDate)
+				.param("endColabDate", endColabDate))
+				.andExpect(model().hasErrors())
 				.andExpect(view().name(VIEWS_BANNER_CREATE_FORM));
 	}
 

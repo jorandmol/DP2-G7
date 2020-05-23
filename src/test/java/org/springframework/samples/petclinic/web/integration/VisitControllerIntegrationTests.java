@@ -54,29 +54,22 @@ public class VisitControllerIntegrationTests {
 	
 	@Autowired
 	private MedicalTestService medicalTestService;
-	
-	private ModelMap modelMap = new ModelMap();
 
-	private BindingResult result = new MapBindingResult(Collections.emptyMap(), "");
+	private ModelMap modelMap = new ModelMap();
 	
     @WithMockUser(username="vet1", password="v3terinarian_1", authorities="veterinarian")
     @Test
 	void testInitNewVisitFormSuccess() throws Exception {
-    	String view = visitController.initNewVisitForm(TEST_PET_ID_2, modelMap);
+    	ModelMap modelMap = new ModelMap();
+    	String view = visitController.initNewVisitForm(TEST_PET_ID_2, 4, modelMap);
 		Assert.assertEquals(view, VIEWS_CREATE_OR_UPDATE_VISIT_FORM);
     	assertNotNull(modelMap.get("visit"));
-	}
-    
-    @WithMockUser(username="vet1", password="v3terinarian_1", authorities="veterinarian")
-    @Test
-	void testInitNewVisitFormDuplicated() throws Exception {
-		String view = visitController.initNewVisitForm(TEST_PET_ID_3, modelMap);
-		Assert.assertEquals(view, REDIRECT_TO_OUPS);
 	}
 
 	@WithMockUser(username="vet2", password="v3terinarian_2", authorities="veterinarian")
     @Test
 	void testProcessNewVisitFormSuccess() throws Exception {
+		BindingResult result = new MapBindingResult(Collections.emptyMap(), "");
 		Pet pet = this.petService.findPetById(TEST_PET_ID_1);
 		Visit visit = new Visit();
 		visit.setDate(LocalDate.now());
@@ -85,26 +78,14 @@ public class VisitControllerIntegrationTests {
 		tests.add(medicalTestService.findMedicalTestById(1));
 		visit.setMedicalTests(tests);
 		visit.setPet(pet);
-		String view = visitController.processNewVisitForm(TEST_PET_ID_1, visit, result);
+		String view = visitController.processNewVisitForm(TEST_PET_ID_1, 1, visit, result);
 		Assert.assertEquals(view, "redirect:/appointments");
-	}
-	
-	@WithMockUser(username="vet1", password="v3terinarian_1", authorities="veterinarian")
-    @Test
-	void testProcessNewVisitFormWithWrongVet() throws Exception {
-		Pet pet = this.petService.findPetById(TEST_PET_ID_1);
-		Visit visit = new Visit();
-		visit.setDate(LocalDate.now());
-		visit.setDescription("Emergency surgery");
-		visit.setMedicalTests(new ArrayList<>());
-		visit.setPet(pet);
-		String view = visitController.processNewVisitForm(TEST_PET_ID_1, visit, result);
-		Assert.assertEquals(view, REDIRECT_TO_OUPS);
 	}
 
 	@WithMockUser(username="vet2", password="v3terinarian_2", authorities="veterinarian")
     @Test
 	void testProcessNewVisitFormHasErrors() throws Exception {
+		BindingResult result = new MapBindingResult(Collections.emptyMap(), "");
 		Pet pet = this.petService.findPetById(TEST_PET_ID_1);
 		Visit visit = new Visit();
 		visit.setDate(LocalDate.now());
@@ -112,7 +93,7 @@ public class VisitControllerIntegrationTests {
 		visit.setMedicalTests(new ArrayList<>());
 		visit.setPet(pet);
 		result.reject("description", "no puede estar vacío");
-		String view = visitController.processNewVisitForm(TEST_PET_ID_1, visit, result);
+		String view = visitController.processNewVisitForm(TEST_PET_ID_1, 1, visit, result);
 		Assert.assertEquals(view, VIEWS_CREATE_OR_UPDATE_VISIT_FORM);
 	}
 

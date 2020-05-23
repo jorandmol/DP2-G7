@@ -23,6 +23,7 @@ import org.springframework.samples.petclinic.configuration.SecurityConfiguration
 import org.springframework.samples.petclinic.model.Appointment;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
+import org.springframework.samples.petclinic.model.PetRegistrationStatus;
 import org.springframework.samples.petclinic.model.PetType;
 import org.springframework.samples.petclinic.model.User;
 import org.springframework.samples.petclinic.model.Vet;
@@ -139,7 +140,9 @@ class VisitControllerTests {
 		pet1.setBirthDate(date.minusYears(5));
 		pet1.setName("Rosy");
 		pet1.setType(dog);
+		pet1.setStatus(PetRegistrationStatus.ACCEPTED);
 		pet1.setId(TEST_PET_ID_1);
+		pet1.setActive(true);
 		appointment1.setPet(pet1);
 		
 		Pet pet2 = new Pet();
@@ -177,6 +180,7 @@ class VisitControllerTests {
 		owner1.setId(TEST_OWNER_ID_1);
 		owner1.setUser(user3);
 		owner1.addPet(pet2);
+		owner1.addPet(pet1);
 		
 		User user4 = new User();
 		user4.setUsername("owner2");
@@ -227,7 +231,7 @@ class VisitControllerTests {
     @WithMockUser(username="vet1", password="veter1n4ri0_1", authorities="veterinarian")
     @Test
 	void testInitNewVisitFormSuccess() throws Exception {
-		mockMvc.perform(get("/owners/*/pets/{petId}/visits/new", TEST_PET_ID_1))
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/visits/new", TEST_OWNER_ID_1, TEST_PET_ID_1))
 				.andExpect(status().isOk())
 				.andExpect(view().name("pets/createOrUpdateVisitForm"));
 	}
@@ -235,7 +239,7 @@ class VisitControllerTests {
     @WithMockUser(username="vet2", password="veter1n4ri0_2", authorities="veterinarian")
     @Test
 	void testInitNewVisitFormDuplicated() throws Exception {
-		mockMvc.perform(get("/owners/*/pets/{petId}/visits/new", TEST_PET_ID_2))
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/visits/new", TEST_OWNER_ID_1, TEST_PET_ID_2))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:/oups"));
 	}
@@ -243,7 +247,8 @@ class VisitControllerTests {
 	@WithMockUser(username="vet1", password="veter1n4ri0_1", authorities="veterinarian")
     @Test
 	void testProcessNewVisitFormSuccess() throws Exception {
-		mockMvc.perform(post("/owners/*/pets/{petId}/visits/new", TEST_PET_ID_1).with(csrf())
+		mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/visits/new", TEST_OWNER_ID_1, TEST_PET_ID_1)
+				.param("name", "George").with(csrf())
 				.param("description", "Visit Description"))                                
                 .andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:/appointments"));
@@ -257,11 +262,11 @@ class VisitControllerTests {
                 .andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:/oups"));
 	}
-
+	
 	@WithMockUser(username="vet1", password="veter1n4ri0_1", authorities="veterinarian")
     @Test
 	void testProcessNewVisitFormHasErrors() throws Exception {
-		mockMvc.perform(post("/owners/*/pets/{petId}/visits/new", TEST_PET_ID_1)
+		mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/visits/new", TEST_OWNER_ID_1, TEST_PET_ID_1)
 							.with(csrf())
 							.param("description", ""))
 				.andExpect(model().attributeHasErrors("visit")).andExpect(status().isOk())

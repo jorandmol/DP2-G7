@@ -33,7 +33,7 @@ public class AppointmentController {
 	private static final String	VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM = "pets/createOrUpdateAppointmentForm";	
 	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
 	private static final String REDIRECT_TO_PETS_DETAILS = "redirect:/owner/pets";
-	private static final PetRegistrationStatus accepted= PetRegistrationStatus.ACCEPTED;
+	private static final PetRegistrationStatus ACCEPTED= PetRegistrationStatus.ACCEPTED;
 
 	@Autowired
 	private AppointmentService	appointmentService;
@@ -166,7 +166,7 @@ public class AppointmentController {
 		if (authority.equals("owner")) {
 			Owner owner = this.ownerService.findOwnerById(ownerId);
 			Pet pet = this.petService.findPetById(petId);
-			isHisPetAcceptedAndActive = pet.getOwner().getId().equals(owner.getId()) && pet.isActive() && pet.getStatus().equals(accepted);
+			isHisPetAcceptedAndActive = pet.getOwner().getId().equals(owner.getId()) && pet.isActive() && pet.getStatus().equals(ACCEPTED);
 			ownerUsername = owner.getUser().getUsername();
 		}
 
