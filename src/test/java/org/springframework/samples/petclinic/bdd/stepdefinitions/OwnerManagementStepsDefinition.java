@@ -1,4 +1,4 @@
-package org.springframework.samples.petclinic.ui;
+package org.springframework.samples.petclinic.bdd.stepdefinitions;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -12,7 +12,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -23,14 +22,12 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import io.cucumber.junit.Cucumber;
-import io.cucumber.junit.CucumberOptions;
 
 
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class UpdateOwnerUITest extends AbstractStep {
+public class OwnerManagementStepsDefinition extends AbstractStep {
 	
 	@LocalServerPort
 	private int port;
@@ -47,6 +44,7 @@ public class UpdateOwnerUITest extends AbstractStep {
 	  @Test
 	  public void testUpdateOwnerProfile() throws Exception {
 		  logIn();
+		  
 		  changeProfilePositive();
 		  
 		  profileChanges();
