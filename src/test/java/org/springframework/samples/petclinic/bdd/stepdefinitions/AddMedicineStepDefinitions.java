@@ -23,13 +23,9 @@ public class AddMedicineStepDefinitions extends AbstractStep {
 	@LocalServerPort
 	private int port;
 	
+	private int medicines = 0;
 	private String name = "Parodentix Dogs";
 	private String date = LocalDate.now().plusYears(3).format(DateTimeFormatter.ofPattern("yyyy/MM/dd")).toString();
-
-    @When("Im logged in the system as admin1")
-  	public void logIn() {
-    	 AcceptRejectStayStepDefinitions.loginAs("admin1", port, getDriver());
-	}
     
     @Then("There are the same number of medicines")
     public void medicineGotErrors() {
