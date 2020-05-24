@@ -15,9 +15,11 @@
  */
 package org.springframework.samples.petclinic.web;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -31,6 +33,7 @@ import org.springframework.samples.petclinic.model.PetRegistrationStatus;
 import org.springframework.samples.petclinic.model.PetType;
 import org.springframework.samples.petclinic.service.OwnerService;
 import org.springframework.samples.petclinic.service.PetService;
+import org.springframework.samples.petclinic.service.PetTypeService;
 import org.springframework.samples.petclinic.service.exceptions.DuplicatedPetNameException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -42,6 +45,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * @author Juergen Hoeller
@@ -59,11 +63,13 @@ public class PetController {
 
 	private final PetService petService;
 	private final OwnerService ownerService;
+	private final PetTypeService petTypeService;
 
 	@Autowired
-	public PetController(PetService petService, OwnerService ownerService) {
+	public PetController(PetService petService, OwnerService ownerService, PetTypeService petTypeService) {
 		this.petService = petService;
 		this.ownerService = ownerService;
+		this.petTypeService=petTypeService;
 	}
 
 	@ModelAttribute("types")
@@ -92,6 +98,32 @@ public class PetController {
 		} else {
 			return REDIRECT_TO_OUPS;
 		}
+	}
+
+	@PostMapping(value = "/adoptions/pet")
+	public String processAdoptForm(@RequestParam String name, @RequestParam String type, @RequestParam String age,ModelMap modelMap) throws DataAccessException, DuplicatedPetNameException {
+		//busqueda owner
+		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+		Owner owner = this.ownerService.findOwnerByUsername(username);
+		//Inicialización pet
+		Pet petToAdopt = new Pet();
+		petToAdopt.setType(this.petType(type));
+		petToAdopt.setBirthDate(this.birtdate(age));
+		petToAdopt.setName(name);
+		petToAdopt.setStatus(pending);
+		petToAdopt.setJustification("");
+		petToAdopt.setActive(true);
+		owner.addPet(petToAdopt);
+		//guardado mascota
+		try {
+			this.petService.savePet(petToAdopt);
+		} catch (Exception e) {
+			ThreadLocalRandom random = ThreadLocalRandom.current();
+			Integer entero= random.nextInt(0,100);
+			petToAdopt.setName(name+"-"+entero);
+			this.petService.savePet(petToAdopt);
+		}
+		return "redirect:/owner/requests";
 	}
 
 	@PostMapping(value = "/owners/{ownerId}/pets/new")
@@ -332,6 +364,38 @@ public class PetController {
 
 		return authority.equals("admin") && edit
 				|| authority.equals("owner") && username.equals(owner.getUser().getUsername());
+	}
+	
+	
+	private PetType petType(String type) {
+		PetType petType= new PetType();
+		if (!this.petTypeService.typeNameDontExists(type.toLowerCase())) {
+			PetType p= this.petTypeService.findByName(type.toLowerCase());
+			petType = p;
+		}else{
+			petType.setName(type.toLowerCase());
+			try {
+				this.petTypeService.addPetType(petType);
+			} catch (DuplicatedPetNameException e) {
+				PetType p= this.petTypeService.findByName(type.toLowerCase());
+				petType = p;
+			}
+		}
+		return petType;
+	}
+	
+	private LocalDate birtdate(String age) {
+		LocalDate birthdate= LocalDate.now();
+		if (age.equals("Baby")) {
+			birthdate=birthdate.minusMonths(2);
+		}else if (age.equals("Young")) {
+			birthdate=birthdate.minusYears(2);
+		}else if (age.equals("Adult")) {
+			birthdate=birthdate.minusYears(5);
+		}else {
+			birthdate=birthdate.minusYears(8);
+		}		
+		return birthdate;
 	}
 
 }
