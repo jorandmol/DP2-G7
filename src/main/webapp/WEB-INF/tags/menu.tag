@@ -116,7 +116,7 @@
 									<div class="row">
 										<div class="col-lg-3"></div>
 										<p class="text-left">
-        									<strong><a href='<spring:url value="/adoptions" htmlEscape="true"/>'>Adoptions</a></strong>
+        									<strong><a href='<spring:url value="/owners" htmlEscape="true"/>'>Owners</a></strong>
 										</p>
 										<div class="col-lg-3"></div>
 										<p class="text-left">

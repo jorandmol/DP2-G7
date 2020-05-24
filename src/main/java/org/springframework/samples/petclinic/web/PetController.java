@@ -100,9 +100,8 @@ public class PetController {
 		}
 	}
 
-	@PostMapping(value = "/adoptions/pet")
+	@PostMapping(value ="/adoptions/pet")
 	public String processAdoptForm(@RequestParam String name, @RequestParam String type, @RequestParam String age,ModelMap modelMap) throws DataAccessException, DuplicatedPetNameException {
-		//busqueda owner
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		Owner owner = this.ownerService.findOwnerByUsername(username);
 		//Inicialización pet
@@ -124,6 +123,30 @@ public class PetController {
 			this.petService.savePet(petToAdopt);
 		}
 		return "redirect:/owner/requests";
+	}
+	
+	@PostMapping(value ="/adoptions/owner/{ownerId}/pet")
+	public String processAdoptAdminForm(@PathVariable("ownerId") int ownerId, @RequestParam String name, @RequestParam String type, @RequestParam String age,ModelMap modelMap) throws DataAccessException, DuplicatedPetNameException {
+		Owner owner = this.ownerService.findOwnerById(ownerId);
+		//Inicialización pet
+		Pet petToAdopt = new Pet();
+		petToAdopt.setType(this.petType(type));
+		petToAdopt.setBirthDate(this.birtdate(age));
+		petToAdopt.setName(name);
+		petToAdopt.setStatus(PENDING);
+		petToAdopt.setJustification("");
+		petToAdopt.setActive(true);
+		owner.addPet(petToAdopt);
+		//guardado mascota
+		try {
+			this.petService.savePet(petToAdopt);
+		} catch (Exception e) {
+			ThreadLocalRandom random = ThreadLocalRandom.current();
+			Integer entero= random.nextInt(0,100);
+			petToAdopt.setName(name+"-"+entero);
+			this.petService.savePet(petToAdopt);
+		}
+		return "redirect:/owner/"+ownerId+"/requests";
 	}
 
 	@PostMapping(value = "/owners/{ownerId}/pets/new")
@@ -303,7 +326,7 @@ public class PetController {
 	public String showMyPetRequestsSuperUser(@PathVariable("ownerId") int ownerId, ModelMap model) {
 		if(isAdmin()) {	
 			Owner owner = this.ownerService.findOwnerById(ownerId);
-			List<Pet> myPetsRequests = this.petService.findMyPetsRequests(pending, rejected, owner.getId());
+			List<Pet> myPetsRequests = this.petService.findMyPetsRequests(PENDING, REJECTED, owner.getId());
 			model.addAttribute("pets", myPetsRequests);
 			return "pets/myRequests";
 		} else {
@@ -316,8 +339,8 @@ public class PetController {
 		public String showMyPetsActiveSuperUser(@PathVariable("ownerId") int ownerId, ModelMap model) {
 			if(isAdmin()) {	
 				Owner owner = this.ownerService.findOwnerById(ownerId);
-				List<Pet> myPets = this.petService.findMyPetsAcceptedByActive(accepted, true, owner.getId());
-				model.addAttribute("disabled", this.petService.countMyPetsAcceptedByActive(accepted, false, owner.getId()) != 0);
+				List<Pet> myPets = this.petService.findMyPetsAcceptedByActive(ACCEPTED, true, owner.getId());
+				model.addAttribute("disabled", this.petService.countMyPetsAcceptedByActive(ACCEPTED, false, owner.getId()) != 0);
 				model.addAttribute("owner", owner);
 				model.addAttribute("pets", myPets);
 				return "pets/myPetsActive";

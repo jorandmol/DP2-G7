@@ -4,6 +4,8 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="petclinic" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="sec"
+	uri="http://www.springframework.org/security/tags"%>
 
 <petclinic:layout pageName="adoptions">
 	<jsp:body>
@@ -74,14 +76,15 @@
 					<h3>Friend is the one who in prosperity goes to be called and in adversity without being.</h3>
 				</div>
 				<div class="col-md-2">
-	            	<form:form action="/adoptions/pet" method="post" class="form-horizontal">
+	            	<form:form action="/adoptions/owner/${ownerId}/pet" method="post" class="form-horizontal">
 						<div class="form-group has-feedback">
 							<div class="form-group">
 	                			<input type="hidden" name="name" value="${pet.name}">
 								<input type="hidden" name="type" value="${pet.type}">
 								<input type="hidden" name="age" value="${pet.age}">
-	             				
+	             				<sec:authorize access="hasAuthority('admin')">
 	    							<button class="btn btn-default" style="float:right;" type="submit">Adopt</button>
+								</sec:authorize>
 							</div>
 						</div>
 					</form:form>

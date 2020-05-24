@@ -3,6 +3,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="petclinic" tagdir="/WEB-INF/tags" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 
 <petclinic:layout pageName="adoptions">
 	<jsp:body>
@@ -13,7 +14,13 @@
 				<br>			
 			</div>
 		</div>
-		<form:form action="/adoptions/find" method="get" class="form-horizontal">
+		<sec:authorize access="hasAuthority('admin')">
+			<c:set var="uri" value="${ownerId}/find"></c:set>
+		</sec:authorize>
+		<sec:authorize access="hasAuthority('owner')">
+			<c:set var="uri" value="adoptions/find"></c:set>
+		</sec:authorize>
+		<form:form action="${uri}" method="get" class="form-horizontal">
 			<div class="form-group has-feedback">
 				<div class="form-group">
 					<label class="col-sm-2 control-label">Type</label>

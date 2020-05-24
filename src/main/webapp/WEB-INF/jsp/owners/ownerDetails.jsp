@@ -42,6 +42,12 @@
       		<spring:param name="ownerId" value="${owner.id}"/>
    	</spring:url>
    	<a href="${fn:escapeXml(addUrl)}" class="btn btn-default">Request pet</a>
+   	<sec:authorize access="hasAuthority('admin')">
+   	<spring:url value="/adoptions/owner/{ownerId}" var="adoptUrl">
+   		<spring:param name="ownerId" value="${owner.id}"/>
+    </spring:url>
+    <a href="${fn:escapeXml(adoptUrl)}" class="btn btn-default">Adopt a pet</a>
+   	</sec:authorize>
 	
 	<sec:authorize access="hasAuthority('admin')">
     <br/>
