@@ -17,7 +17,6 @@ package org.springframework.samples.petclinic.model;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -133,7 +132,7 @@ public class Visit extends BaseEntity {
 		}
 		return this.medicalTests;
 	}
-	
+		
 	protected void setMedicalTestsInternal(List<MedicalTest> medicalTests) {
 		this.medicalTests = medicalTests;
 	}
@@ -142,7 +141,7 @@ public class Visit extends BaseEntity {
 		Set<MedicalTest> sortedMedicalTests = new HashSet<>(getMedicalTestsInternal());
 		List<MedicalTest> medicalTests = new ArrayList<MedicalTest>(sortedMedicalTests);
 		PropertyComparator.sort(medicalTests, new MutableSortDefinition("name", true, true));
-		return Collections.unmodifiableList(medicalTests);
+		return medicalTests;
 	}
 	
 	public void setMedicalTests(List<MedicalTest> medicalTests) {

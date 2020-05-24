@@ -28,6 +28,7 @@ import org.springframework.samples.petclinic.model.Appointment;
 import org.springframework.samples.petclinic.model.MedicalTest;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
+import org.springframework.samples.petclinic.model.PetRegistrationStatus;
 import org.springframework.samples.petclinic.model.Visit;
 import org.springframework.samples.petclinic.service.AppointmentService;
 import org.springframework.samples.petclinic.service.MedicalTestService;
@@ -36,6 +37,7 @@ import org.springframework.samples.petclinic.service.PetService;
 import org.springframework.samples.petclinic.service.VisitService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,7 +56,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class VisitController {
 
 	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
-	
+
+	private static final PetRegistrationStatus ACCEPTED = PetRegistrationStatus.ACCEPTED;
+
 	private final VisitService visitService;
 
 	private final PetService petService;
@@ -62,12 +66,13 @@ public class VisitController {
 	private final MedicalTestService medicalTestService;
 
 	private final AppointmentService appointmentService;
-	
+
 	private final OwnerService ownerService;
 
 	@Autowired
-	public VisitController(final VisitService visitService, final PetService petService, final MedicalTestService medicalTestService,
-			final AppointmentService appointmentService, final OwnerService ownerService) {
+	public VisitController(final VisitService visitService, final PetService petService,
+			final MedicalTestService medicalTestService, final AppointmentService appointmentService,
+			final OwnerService ownerService) {
 		this.visitService = visitService;
 		this.petService = petService;
 		this.medicalTestService = medicalTestService;
@@ -84,37 +89,37 @@ public class VisitController {
 	public Collection<MedicalTest> populateMedicalTests() {
 		return this.medicalTestService.findMedicalTests();
 	}
-
-	private Boolean securityAccessRequestVisit(Integer petId) {
-		Boolean res = false;
-		Appointment appointment = this.appointmentService.findAppointmentByDate(petId, LocalDate.now());
-		String vetUsername = appointment.getVet().getUser().getUsername();
-
-		String username = SecurityContextHolder.getContext().getAuthentication().getName();
-		Integer numberOfVisits = this.visitService.countVisitsByDate(petId, LocalDate.now());
-
-		if (numberOfVisits == 0 && vetUsername.equals(username)) {
-			res = true;
-		}
-		return res;
-	}
 	
 	private boolean isAdmin() {
 		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
 				.collect(Collectors.toList()).get(0).toString();
 		return authority.equals("admin");
 	}
-	
+
 	private Boolean securityAccessRequestProfile(int ownerId) {
 		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
 				.collect(Collectors.toList()).get(0).toString();
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		Owner owner = new Owner();
-		
+
 		if (authority.equals("owner"))
 			owner = this.ownerService.findOwnerById(ownerId);
 
 		return authority.equals("admin") || authority.equals("owner") && username.equals(owner.getUser().getUsername());
+	}
+
+	private boolean securityAccessRequestVisit(int ownerId, int petId) {
+		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+				.collect(Collectors.toList()).get(0).toString();
+
+		boolean isHisPetAcceptedAndActive = false;
+		if (authority.equals("veterinarian") || authority.equals("admin")) {
+			Pet pet = this.petService.findPetById(petId);
+			isHisPetAcceptedAndActive = pet.getOwner().getId().equals(ownerId) && pet.isActive()
+					&& pet.getStatus().equals(ACCEPTED);
+		}
+
+		return isHisPetAcceptedAndActive && (authority.equals("admin") || authority.equals("veterinarian"));
 	}
 
 	/**
@@ -126,13 +131,13 @@ public class VisitController {
 	 * @param petId
 	 * @return Pet
 	 */
-	
 
 	// Spring MVC calls method loadPetWithVisit(...) before initNewVisitForm is
 	// called
-	@GetMapping(value = "/owners/*/pets/{petId}/visits/new")
-	public String initNewVisitForm(@PathVariable("petId") final int petId, final Map<String, Object> model) {
-		if (securityAccessRequestVisit(petId) || isAdmin()) {
+	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/visits/new")
+	public String initNewVisitForm(@PathVariable("petId") final int petId, @PathVariable("ownerId") final int ownerId,
+			final ModelMap model) {
+		if (securityAccessRequestVisit(ownerId, petId)) {
 			Pet pet = this.petService.findPetById(petId);
 			Visit visit = new Visit();
 			model.put("visit", visit);
@@ -146,14 +151,9 @@ public class VisitController {
 	// Spring MVC calls method loadPetWithVisit(...) before processNewVisitForm is
 	// called
 	@PostMapping(value = "/owners/{ownerId}/pets/{petId}/visits/new")
-	public String processNewVisitForm(@PathVariable("petId") final int petId, @Valid final Visit visit,
-			final BindingResult result) {
-		int vetId = 0;
-		if (isAdmin()) {
-			Appointment ap = this.appointmentService.findAppointmentByDate(petId, visit.getDate());
-			vetId = ap.getVet().getId();
-		}
-		if (securityAccessRequestVisit(petId) || isAdmin()) {
+	public String processNewVisitForm(@PathVariable("petId") final int petId,
+			@PathVariable("ownerId") final int ownerId, @Valid final Visit visit, final BindingResult result) {
+		if (securityAccessRequestVisit(ownerId, petId)) {
 			Pet pet = this.petService.findPetById(petId);
 			pet.addVisit(visit);
 			if (result.hasErrors()) {
@@ -167,8 +167,35 @@ public class VisitController {
 		}
 	}
 
+	@GetMapping(value = "/vets/pets/{petId}/visits/{visitId}")
+	public String initUpdateVisitForm(@PathVariable("petId") final int petId,
+				@PathVariable("visitId") final int visitId, final ModelMap model) {
+		model.put("edit", true);
+		Visit visit = this.visitService.findVisitById(visitId);
+		model.put("visit", visit);
+		return "pets/createOrUpdateVisitForm";
+
+	}
+
+	@PostMapping(value = "/vets/pets/{petId}/visits/{visitId}")
+	public String processUpdateVisitForm(@PathVariable("petId") final int petId,
+			@PathVariable("visitId") final int visitId, @Valid final Visit visit, final BindingResult result, final ModelMap model) {
+		Visit visitToUpdate = this.visitService.findVisitById(visitId);
+		model.put("edit", true);
+		if (result.hasErrors()) {
+			model.put("edit", true);
+			return "pets/createOrUpdateVisitForm";
+		} else {
+			visitToUpdate.setDescription(visit.getDescription());
+			visitToUpdate.setMedicalTests(visit.getMedicalTests());
+			this.visitService.saveVisit(visitToUpdate);
+			return "redirect:/vets/pets/" + petId + "/visits";
+		}
+	}
+
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/visits/{visitId}")
-	public String showVisit(@PathVariable final int ownerId, @PathVariable final int visitId, final Map<String, Object> model) {
+	public String showVisit(@PathVariable final int ownerId, @PathVariable final int visitId,
+			final Map<String, Object> model) {
 		if (securityAccessRequestProfile(ownerId)) {
 			Visit visit = this.visitService.findVisitById(visitId);
 			model.put("visit", visit);
@@ -177,5 +204,4 @@ public class VisitController {
 			return REDIRECT_TO_OUPS;
 		}
 	}
-
 }

@@ -34,7 +34,7 @@
             		<c:out value="${appointment.owner.lastName}"/>
            		</td>
     			<td>
-            		<c:out value="${appointment.pet.name}"/>
+            		<strong><c:out value="${appointment.pet.name}"/></strong>
            		</td>
            		<td>
             		<c:out value="${appointment.description}"/>
@@ -82,7 +82,7 @@
             		<c:out value="${appointment.owner.lastName}"/>
            		</td>
     			<td>
-            		<c:out value="${appointment.pet.name}"/>
+            		<strong><c:out value="${appointment.pet.name}"/></strong>
            		</td>
            		<td>
             		<c:out value="${appointment.description}"/>

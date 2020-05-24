@@ -9,6 +9,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -74,43 +76,36 @@ public class PetControllerE2ETests {
 				.andExpect(view().name("pets/createOrUpdatePetForm"));
 	}
 
-
-
 	// TEST para usuario que SI cumple la seguridad
-	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
-	@Test
-	void testProcessCreationFormSuccess() throws Exception {
-		mockMvc.perform(post("/owners/{ownerId}/pets/new", TEST_OWNER_ID1)
-				.with(csrf())
-				.param("name", "Betty")
-				.param("type", "hamster")
-				.param("birthDate", "2015/02/12"))
-				.andExpect(status().is3xxRedirection())
-				.andExpect(view().name("redirect:/owner/requests"));
-	}
-
 	@WithMockUser(username = "owner10", password = "0wn3333r_10", authorities = "owner")
-	@Test
-	void testProcessCreationFormCatchException() throws Exception {
+	@ParameterizedTest
+	@CsvSource({
+		"'Betty','hamster','2015/02/12','redirect:/owner/requests'",
+		"'Sly','cat','2012/06/08','pets/createOrUpdatePetForm'"
+	})
+	void testProcessCreationFormSuccessAndCatchException(String name, String type, String birthdate, String view) throws Exception {
 		mockMvc.perform(post("/owners/{ownerId}/pets/new", 10)
 				.with(csrf())
-				.param("name", "Sly")
-				.param("type", "cat")
-				.param("birthDate", "2012/06/08"))
-				.andExpect(status().isOk())
-				.andExpect(view().name(VIEWS_PETS_CREATE_OR_UPDATE_FORM));
+				.param("name", name)
+				.param("type", type)
+				.param("birthDate", birthdate))
+				.andExpect(view().name(view));
 	}
 
-
 	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
-	@Test
-	void testProcessCreationFormHasErrors() throws Exception {
-		mockMvc.perform(post("/owners/{ownerId}/pets/new", TEST_OWNER_ID1, TEST_PET_ID_1).with(csrf())
-				.param("name", "Betty")
-				.param("birthDate", "2015/02/12"))
+	@ParameterizedTest
+	@CsvSource({
+		"'','hamster','2015/02/12'",
+		"'Dobby','','2016/03/06'",
+		"'Uli','dog',''"
+	})
+	void testProcessCreationFormHasErrors(String name, String type, String birthdate) throws Exception {
+		mockMvc.perform(post("/owners/{ownerId}/pets/new", TEST_OWNER_ID1).with(csrf())
+				.param("name", name)
+				.param("type", type)
+				.param("birthDate", birthdate))
 				.andExpect(model().attributeHasNoErrors("owner"))
 				.andExpect(model().attributeHasErrors("pet"))
-				.andExpect(model().attributeHasFieldErrors("pet", "type"))
 				.andExpect(status().isOk())
 				.andExpect(view().name(VIEWS_PETS_CREATE_OR_UPDATE_FORM));
 	}
@@ -152,18 +147,15 @@ public class PetControllerE2ETests {
 				.andExpect(view().name(VIEWS_PETS_CREATE_OR_UPDATE_FORM));
 	}
 
-	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
-	@Test
-	void testInitUpdateMyPetActiveAndRejectedForm() throws Exception {
-		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/edit", TEST_OWNER_ID1, TEST_PET_ID_2))
-				.andExpect(status().is3xxRedirection())
-				.andExpect(view().name(REDIRECT_TO_OUPS));
-	}
-
 	@WithMockUser(username = "owner3", password = "0wn3333r_3", authorities = "owner")
-	@Test
-	void testInitUpdateMyPetDisabledForm() throws Exception {
-		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/edit", TEST_OWNER_ID3, TEST_PET_ID_5))
+	@ParameterizedTest
+	@CsvSource({
+		"4",
+		"5",
+		"6"
+	})
+	void testInitUpdateMyPetsNotAcceptedOrNotActiveForm(Integer TEST_PET_ID) throws Exception{
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/edit", TEST_OWNER_ID1, TEST_PET_ID))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name(REDIRECT_TO_OUPS));
 	}
@@ -190,26 +182,18 @@ public class PetControllerE2ETests {
 
 
 	// TEST para usuarios que SI cumplen la seguridad
-	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
-	@Test
-	void testProcessUpdateMyPetFormSuccess() throws Exception {
-		mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/edit", TEST_OWNER_ID1, TEST_PET_ID_1).with(csrf())
-				.param("name", "León")
-				.param("type", "cat")
-				.param("birthDate", "2010/09/07"))
-				.andExpect(status().is3xxRedirection())
-				.andExpect(view().name("redirect:/owner/pets"));
-	}
-
 	@WithMockUser(username = "owner2", password = "0wn3333r_2", authorities = "owner")
-	@Test
-	void testProcessUpdateMyPetFormCatchException() throws Exception {
-		mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/edit", TEST_OWNER_ID2, TEST_PET_ID_17).with(csrf())
-				.param("name", "Nina")
-				.param("type", "snake")
-				.param("birthDate", "2015/03/24"))
-				.andExpect(status().isOk())
-				.andExpect(view().name(VIEWS_PETS_CREATE_OR_UPDATE_FORM));
+	@ParameterizedTest
+	@CsvSource({
+		"'Dobi','dog','2015/02/12',22,'redirect:/owner/pets'",
+		"'Nina','dog','2012/06/08',17,'pets/createOrUpdatePetForm'"
+	})
+	void testProcessUpdateMyPetFormSuccessAndCatchException(String name, String type, String birthdate, Integer TEST_PET_ID, String view) throws Exception {
+		mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/edit", TEST_OWNER_ID2, TEST_PET_ID).with(csrf())
+				.param("name", name)
+				.param("type", type)
+				.param("birthDate", birthdate))
+				.andExpect(view().name(view));
 	}
 
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
@@ -224,11 +208,17 @@ public class PetControllerE2ETests {
 	}
 
 	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
-	@Test
-	void testProcessUpdateFormHasErrors() throws Exception {
+	@ParameterizedTest
+	@CsvSource({
+		"'','hamster','2015/02/12'",
+		"'Dobby','','2016/03/06'",
+		"'Uli','dog',''"
+	})
+	void testProcessUpdateFormHasErrors(String name, String type, String birthdate) throws Exception {
 		mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/edit", TEST_OWNER_ID1, TEST_PET_ID_1).with(csrf())
-				.param("type", "cat")
-				.param("birthDate", "2015/02/12"))
+				.param("name", name)
+				.param("type", type)
+				.param("birthDate", birthdate))
 				.andExpect(model().attributeHasNoErrors("owner"))
 				.andExpect(model().attributeHasErrors("pet"))
 				.andExpect(status().isOk())

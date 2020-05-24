@@ -12,6 +12,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,6 +37,8 @@ public class VetControllerE2ETests {
 	private static final int TEST_VET_ID_4 = 4;
 	private static final int TEST_VET_ID_5 = 5;
 	
+	private static final int TEST_PET_ID_1 = 1;
+
 	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
 	private static final String VIEWS_VET_CREATE_OR_UPDATE_FORM = "vets/createOrUpdateVetForm";
 
@@ -145,23 +149,31 @@ public class VetControllerE2ETests {
 	}
 	
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
-	@Test
-	void testProcessCreationFormHasErrors() throws Exception {
+	@ParameterizedTest
+	@CsvSource({
+		"'','Llano','Avenida de la Paz,30','Madrid','636566789','juanito1','veterinarian_juan1'",
+		"'Marta','','Avenida de la Constitucion,30','Badajoz','636988789','marta1','veterinarian_marta1'",
+		"'Lucia','Belaire','','Madrid','636514437','lucia1','veterinarian_lucia1'",
+		"'Marco','Ortiz','c/San Antonio,3','','636598701','marco1','veterinarian_marco1'",
+		"'Rocio','Virues','c/America,10','Cordoba','','ro1','veterinarian_rocio1'",
+		"'Maria','Ponce','c/Los naranjos,15','Madrid','63656','maria1','veterinarian_maria1'",
+		"'Julia','Salgero','c/Real,20','Sevilla','636598789','julia1',''",
+		"'Antonio','Alberto','Avenida Reina Mercedes,1','Sevilla','621566789','antonio1','veterinarian_'"
+	})
+	void testProcessCreationFormHasErrors(String firstname, String lastname, String address, String city, String telephone, String username, String password) throws Exception {
 		mockMvc.perform(post("/vets/new").with(csrf())
-				.param("firstName", "")
-				.param("lastName", "Martín")
-				.param("city", "Cáceres")
-				.param("address", "C/Almendralejo, 44")
-				.param("telephone", "636211")
-				.param("user.username", "yorch06")
-				.param("user.password", "noNumbersPass_"))
+				.param("firstName", firstname)
+				.param("lastName", lastname)
+				.param("address", address)
+				.param("city", city)
+				.param("telephone", telephone)
+				.param("user.username", username)
+				.param("user.password", password))
 				.andExpect(status().isOk())
 				.andExpect(model().attributeHasErrors("vet"))
-				.andExpect(model().attributeHasFieldErrors("vet", "firstName"))
-				.andExpect(model().attributeHasFieldErrors("vet", "telephone"))
-				.andExpect(model().attributeHasFieldErrors("vet", "user.password"))
 				.andExpect(view().name(VIEWS_VET_CREATE_OR_UPDATE_FORM));
 	}
+	
 	// TEST para usuario que NO cumple la seguridad
 	@WithMockUser(username = "vet1", password = "v3terinarian_1", authorities = "veterinarian")
 	@Test
@@ -251,19 +263,28 @@ public class VetControllerE2ETests {
 	}
 
 	@WithMockUser(username = "vet1", password = "veter1n4ri0_1", authorities = "veterinarian")
-	@Test
-	void testProcessUpdateVetFormHasErrors() throws Exception {
+	@ParameterizedTest
+	@CsvSource({
+		"'','Llano','Avenida de la Paz,30','Madrid','636566789','juanito1','veterinarian_juan1'",
+		"'Marta','','Avenida de la Constitucion,30','Badajoz','636988789','marta1','veterinarian_marta1'",
+		"'Lucia','Belaire','','Madrid','636514437','lucia1','veterinarian_lucia1'",
+		"'Marco','Ortiz','c/San Antonio,3','','636598701','marco1','veterinarian_marco1'",
+		"'Rocio','Virues','c/America,10','Cordoba','','ro1','veterinarian_rocio1'",
+		"'Maria','Ponce','c/Los naranjos,15','Madrid','63656','maria1','veterinarian_maria1'",
+		"'Julia','Salgero','c/Real,20','Sevilla','636598789','julia1',''",
+		"'Antonio','Alberto','Avenida Reina Mercedes,1','Sevilla','621566789','antonio1','veterinarian_'"
+	})
+	void testProcessUpdateFormHasErrors(String firstname, String lastname, String address, String city, String telephone, String username, String password) throws Exception {
 		mockMvc.perform(post("/vets/{vetId}/edit", TEST_VET_ID_1).with(csrf())
-				.param("firstName", "Joe")
-				.param("lastName", "Bloggs")
-				.param("telephone", "123456789")
-				.param("user.password", "v3terin4ri0_1")
-				.param("address", "")
-				.param("city", ""))
+				.param("firstName", firstname)
+				.param("lastName", lastname)
+				.param("address", address)
+				.param("city", city)
+				.param("telephone", telephone)
+				.param("user.username", username)
+				.param("user.password", password))
 				.andExpect(status().isOk())
 				.andExpect(model().attributeHasErrors("vet"))
-				.andExpect(model().attributeHasFieldErrors("vet", "address"))
-				.andExpect(model().attributeHasFieldErrors("vet", "city"))
 				.andExpect(view().name(VIEWS_VET_CREATE_OR_UPDATE_FORM));
 	}
 	
@@ -340,6 +361,16 @@ public class VetControllerE2ETests {
 		mockMvc.perform(get("/vets/pets")).andExpect(status().isOk())
 				.andExpect(model().attributeExists("pets"))
 				.andExpect(view().name("pets/petsList"));
+	}
+	
+	@WithMockUser(username="vet1", password="veter1n4ri0_1", authorities="veterinarian")
+	@Test
+	void testShowVisitsList() throws Exception {
+		mockMvc.perform(get("/vets/pets/{petId}/visits", TEST_PET_ID_1))
+		.andExpect(model().attributeExists("pet"))
+		.andExpect(model().attributeExists("visits"))
+		.andExpect(status().isOk())
+		.andExpect(view().name("visits/visitsList"));
 	}
 
 }

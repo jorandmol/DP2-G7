@@ -14,7 +14,6 @@ import java.util.ArrayList;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -24,6 +23,7 @@ import org.springframework.samples.petclinic.configuration.SecurityConfiguration
 import org.springframework.samples.petclinic.model.Appointment;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
+import org.springframework.samples.petclinic.model.PetRegistrationStatus;
 import org.springframework.samples.petclinic.model.PetType;
 import org.springframework.samples.petclinic.model.User;
 import org.springframework.samples.petclinic.model.Vet;
@@ -61,12 +61,18 @@ class VisitControllerTests {
 	private static final int TEST_APPOINTMENT_ID_1 = 1;
 	
 	private static final int TEST_APPOINTMENT_ID_2 = 2;
+
+	private static final int TEST_APPOINTMENT_ID_3 = 3;
 	
-	private static final int TEST_VISIT_ID = 1;
+	private static final int TEST_VISIT_ID_1 = 1;
+	
+	private static final int TEST_VISIT_ID_2 = 2;
 
 	private static final int TEST_OWNER_ID_1 = 1;
 
 	private static final int TEST_OWNER_ID_2 = 2;
+
+
 
 	@MockBean
 	private VisitService visitService;
@@ -95,11 +101,11 @@ class VisitControllerTests {
 	@Autowired
 	private MockMvc mockMvc;
 	
-	@Mock
-	private Appointment appointment1;
-
-	@Mock
-	private Appointment appointment2;
+//	@Mock
+//	private Appointment appointment1;
+//
+//	@Mock
+//	private Appointment appointment2;
 	
 	@BeforeEach
 	void setup() {
@@ -108,17 +114,23 @@ class VisitControllerTests {
 		if(date.getDayOfWeek().equals(DayOfWeek.SUNDAY))
 			date.plusDays(1);
 		
-		appointment1 = new Appointment();
+		Appointment appointment1 = new Appointment();
 		appointment1.setId(TEST_APPOINTMENT_ID_1);
 		appointment1.setAppointmentDate(date);
 		appointment1.setAppointmentRequestDate(date.minusMonths(1));
 		appointment1.setDescription("Revision");
 		
-		appointment2 = new Appointment();
+		Appointment appointment2 = new Appointment();
 		appointment2.setId(TEST_APPOINTMENT_ID_2);
 		appointment2.setAppointmentDate(date);
 		appointment2.setAppointmentRequestDate(date.minusMonths(1));
 		appointment2.setDescription("Revision");
+		
+		Appointment appointment3 = new Appointment();
+		appointment3.setId(TEST_APPOINTMENT_ID_3);
+		appointment3.setAppointmentDate(date.minusDays(7));
+		appointment3.setAppointmentRequestDate(date.minusMonths(1));
+		appointment3.setDescription("Revision");
 		
 		PetType dog = new PetType();
 		dog.setId(1);
@@ -128,7 +140,9 @@ class VisitControllerTests {
 		pet1.setBirthDate(date.minusYears(5));
 		pet1.setName("Rosy");
 		pet1.setType(dog);
-		pet1.setId(TEST_PET_ID_2);
+		pet1.setStatus(PetRegistrationStatus.ACCEPTED);
+		pet1.setId(TEST_PET_ID_1);
+		pet1.setActive(true);
 		appointment1.setPet(pet1);
 		
 		Pet pet2 = new Pet();
@@ -166,6 +180,7 @@ class VisitControllerTests {
 		owner1.setId(TEST_OWNER_ID_1);
 		owner1.setUser(user3);
 		owner1.addPet(pet2);
+		owner1.addPet(pet1);
 		
 		User user4 = new User();
 		user4.setUsername("owner2");
@@ -179,11 +194,20 @@ class VisitControllerTests {
 		Visit visit1 = new Visit();
 		visit1.setDate(date);
 		visit1.setDescription("Revision");
-		visit1.setId(TEST_VISIT_ID);
+		visit1.setId(TEST_VISIT_ID_1);
 		visit1.setMedicalTests(new ArrayList<>());
 		visit1.setPet(pet2);
 		
-		
+		owner1.addPet(pet1);
+		appointment3.setOwner(owner1);
+		appointment3.setPet(pet1);
+		appointment3.setVet(vet1);
+		Visit visit2 = new Visit();
+		visit2.setDate(date.minusDays(7));
+		visit2.setDescription("Revision");
+		visit2.setId(TEST_VISIT_ID_2);
+		visit2.setMedicalTests(new ArrayList<>());
+		visit2.setPet(pet1);		
 		
 		given(this.vetService.findVetByUsername("vet1")).willReturn(vet1);
 		given(this.petService.findPetById(TEST_PET_ID_1)).willReturn(pet1);
@@ -195,15 +219,19 @@ class VisitControllerTests {
 		given(this.appointmentService.findAppointmentByDate(TEST_PET_ID_2, date)).willReturn(appointment2);
 		given(this.visitService.countVisitsByDate(TEST_PET_ID_2, date)).willReturn(1);
 		
-		given(this.visitService.findVisitById(TEST_VISIT_ID)).willReturn(visit1);		
+		given(this.visitService.findVisitById(TEST_VISIT_ID_1)).willReturn(visit1);		
 		given(this.ownerService.findOwnerById(TEST_OWNER_ID_1)).willReturn(owner1);
 		given(this.ownerService.findOwnerById(TEST_OWNER_ID_2)).willReturn(owner2);
+		
+		given(this.visitService.findVisitById(TEST_VISIT_ID_2)).willReturn(visit2);
+		given(this.appointmentService.findAppointmentByDate(TEST_PET_ID_1, date.minusDays(7))).willReturn(appointment3);
+		
 	}
 
     @WithMockUser(username="vet1", password="veter1n4ri0_1", authorities="veterinarian")
     @Test
 	void testInitNewVisitFormSuccess() throws Exception {
-		mockMvc.perform(get("/owners/*/pets/{petId}/visits/new", TEST_PET_ID_1))
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/visits/new", TEST_OWNER_ID_1, TEST_PET_ID_1))
 				.andExpect(status().isOk())
 				.andExpect(view().name("pets/createOrUpdateVisitForm"));
 	}
@@ -211,7 +239,7 @@ class VisitControllerTests {
     @WithMockUser(username="vet2", password="veter1n4ri0_2", authorities="veterinarian")
     @Test
 	void testInitNewVisitFormDuplicated() throws Exception {
-		mockMvc.perform(get("/owners/*/pets/{petId}/visits/new", TEST_PET_ID_2))
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/visits/new", TEST_OWNER_ID_1, TEST_PET_ID_2))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:/oups"));
 	}
@@ -219,29 +247,46 @@ class VisitControllerTests {
 	@WithMockUser(username="vet1", password="veter1n4ri0_1", authorities="veterinarian")
     @Test
 	void testProcessNewVisitFormSuccess() throws Exception {
-		mockMvc.perform(post("/owners/*/pets/{petId}/visits/new", TEST_PET_ID_1)
+		mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/visits/new", TEST_OWNER_ID_1, TEST_PET_ID_1)
 				.param("name", "George").with(csrf())
 				.param("description", "Visit Description"))                                
                 .andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:/appointments"));
 	}
 	
-	@WithMockUser(username="vet2", password="veter1n4ri0_2", authorities="veterinarian")
+	@WithMockUser(username="vet1", password="veter1n4ri0_1", authorities="veterinarian")
     @Test
-	void testProcessNewVisitFormWithWrongVet() throws Exception {
-		mockMvc.perform(post("/owners/*/pets/{petId}/visits/new", TEST_PET_ID_1)
-				.param("name", "George").with(csrf())
-				.param("description", "Visit Description"))                                
+	void testProcessNewVisitFormHasErrors() throws Exception {
+		mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/visits/new", TEST_OWNER_ID_1, TEST_PET_ID_1)
+							.with(csrf())
+							.param("description", ""))
+				.andExpect(model().attributeHasErrors("visit")).andExpect(status().isOk())
+				.andExpect(view().name("pets/createOrUpdateVisitForm"));
+	}
+	
+	@WithMockUser(username="vet1", password="veter1n4ri0_1", authorities="veterinarian")
+    @Test
+	void testInitUpdateVisitFormSuccess() throws Exception {
+		mockMvc.perform(get("/vets/pets/{petId}/visits/{visitId}", TEST_PET_ID_1, TEST_VISIT_ID_2))
+				.andExpect(status().isOk())
+				.andExpect(view().name("pets/createOrUpdateVisitForm"));
+	}
+	
+	@WithMockUser(username="vet1", password="veter1n4ri0_1", authorities="veterinarian")
+    @Test
+	void testProcessUpdateVisitFormSuccess() throws Exception {
+		mockMvc.perform(post("/vets/pets/{petId}/visits/{visitId}", TEST_PET_ID_1, TEST_VISIT_ID_2).with(csrf())
+				.param("description", "Visit Description updated"))                                
                 .andExpect(status().is3xxRedirection())
-				.andExpect(view().name("redirect:/oups"));
+				.andExpect(view().name("redirect:/vets/pets/"+TEST_PET_ID_1+"/visits"));
 	}
 
 	@WithMockUser(username="vet1", password="veter1n4ri0_1", authorities="veterinarian")
     @Test
-	void testProcessNewVisitFormHasErrors() throws Exception {
-		mockMvc.perform(post("/owners/*/pets/{petId}/visits/new", TEST_PET_ID_1)
+	void testProcessUpdateVisitFormHasErrors() throws Exception {
+		mockMvc.perform(post("/vets/pets/{petId}/visits/{visitId}", TEST_PET_ID_1, TEST_VISIT_ID_2)
 							.with(csrf())
-							.param("name", "George"))
+							.param("description", ""))
 				.andExpect(model().attributeHasErrors("visit")).andExpect(status().isOk())
 				.andExpect(view().name("pets/createOrUpdateVisitForm"));
 	}
@@ -249,7 +294,7 @@ class VisitControllerTests {
 	@WithMockUser(username="owner1", password="0wn3333r_1", authorities="owner")
     @Test
 	void testShowVisitSuccessWithOwnerUser() throws Exception {
-		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/visits/{visitId}", TEST_OWNER_ID_1, TEST_PET_ID_2, TEST_VISIT_ID))
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/visits/{visitId}", TEST_OWNER_ID_1, TEST_PET_ID_2, TEST_VISIT_ID_1))
 				.andExpect(status().isOk())
 				.andExpect(view().name("visits/visitDetails"));
 	}
@@ -257,7 +302,7 @@ class VisitControllerTests {
 	@WithMockUser(username="admin1", password="4dm1n", authorities="admin")
     @Test
 	void testShowVisitSuccessWithAdminUser() throws Exception {
-		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/visits/{visitId}", TEST_OWNER_ID_1, TEST_PET_ID_2, TEST_VISIT_ID))
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/visits/{visitId}", TEST_OWNER_ID_1, TEST_PET_ID_2, TEST_VISIT_ID_1))
 				.andExpect(status().isOk())
 				.andExpect(view().name("visits/visitDetails"));
 	}
@@ -265,7 +310,7 @@ class VisitControllerTests {
 	@WithMockUser(username="owner1", password="0wn3333r_1", authorities="veterinarian")
     @Test
 	void testShowVisitWithoutAuthorities() throws Exception {
-		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/visits/{visitId}", TEST_OWNER_ID_1, TEST_PET_ID_2, TEST_VISIT_ID))
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/visits/{visitId}", TEST_OWNER_ID_1, TEST_PET_ID_2, TEST_VISIT_ID_1))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:/oups"));
 	}
@@ -273,7 +318,7 @@ class VisitControllerTests {
 	@WithMockUser(username="vet1", password="veter1n4ri0_1", authorities="veterinarian")
     @Test
 	void testShowVisitWithoutAuthoritiesOrUsername() throws Exception {
-		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/visits/{visitId}", TEST_OWNER_ID_1, TEST_PET_ID_2, TEST_VISIT_ID))
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/visits/{visitId}", TEST_OWNER_ID_1, TEST_PET_ID_2, TEST_VISIT_ID_1))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:/oups"));
 	}
@@ -281,7 +326,7 @@ class VisitControllerTests {
 	@WithMockUser(username="owner2", password="0wn3333r_2", authorities="owner")
 	@Test
 	void testShowVisitWithWrongOwner() throws Exception {
-		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/visits/{visitId}", TEST_OWNER_ID_1, TEST_PET_ID_2, TEST_VISIT_ID))
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/visits/{visitId}", TEST_OWNER_ID_1, TEST_PET_ID_2, TEST_VISIT_ID_1))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:/oups"));
 	}

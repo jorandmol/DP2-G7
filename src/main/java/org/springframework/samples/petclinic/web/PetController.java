@@ -15,9 +15,11 @@
  */
 package org.springframework.samples.petclinic.web;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -31,6 +33,7 @@ import org.springframework.samples.petclinic.model.PetRegistrationStatus;
 import org.springframework.samples.petclinic.model.PetType;
 import org.springframework.samples.petclinic.service.OwnerService;
 import org.springframework.samples.petclinic.service.PetService;
+import org.springframework.samples.petclinic.service.PetTypeService;
 import org.springframework.samples.petclinic.service.exceptions.DuplicatedPetNameException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -42,6 +45,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * @author Juergen Hoeller
@@ -53,17 +57,19 @@ public class PetController {
 
 	private static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = "pets/createOrUpdatePetForm";
 	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
-	private static final PetRegistrationStatus accepted = PetRegistrationStatus.ACCEPTED;
-	private static final PetRegistrationStatus pending = PetRegistrationStatus.PENDING;
-	private static final PetRegistrationStatus rejected = PetRegistrationStatus.REJECTED;
+	private static final PetRegistrationStatus ACCEPTED = PetRegistrationStatus.ACCEPTED;
+	private static final PetRegistrationStatus PENDING = PetRegistrationStatus.PENDING;
+	private static final PetRegistrationStatus REJECTED = PetRegistrationStatus.REJECTED;
 
 	private final PetService petService;
 	private final OwnerService ownerService;
+	private final PetTypeService petTypeService;
 
 	@Autowired
-	public PetController(PetService petService, OwnerService ownerService) {
+	public PetController(PetService petService, OwnerService ownerService, PetTypeService petTypeService) {
 		this.petService = petService;
 		this.ownerService = ownerService;
+		this.petTypeService=petTypeService;
 	}
 
 	@ModelAttribute("types")
@@ -94,6 +100,32 @@ public class PetController {
 		}
 	}
 
+	@PostMapping(value = "/adoptions/pet")
+	public String processAdoptForm(@RequestParam String name, @RequestParam String type, @RequestParam String age,ModelMap modelMap) throws DataAccessException, DuplicatedPetNameException {
+		//busqueda owner
+		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+		Owner owner = this.ownerService.findOwnerByUsername(username);
+		//Inicialización pet
+		Pet petToAdopt = new Pet();
+		petToAdopt.setType(this.petType(type));
+		petToAdopt.setBirthDate(this.birtdate(age));
+		petToAdopt.setName(name);
+		petToAdopt.setStatus(PENDING);
+		petToAdopt.setJustification("");
+		petToAdopt.setActive(true);
+		owner.addPet(petToAdopt);
+		//guardado mascota
+		try {
+			this.petService.savePet(petToAdopt);
+		} catch (Exception e) {
+			ThreadLocalRandom random = ThreadLocalRandom.current();
+			Integer entero= random.nextInt(0,100);
+			petToAdopt.setName(name+"-"+entero);
+			this.petService.savePet(petToAdopt);
+		}
+		return "redirect:/owner/requests";
+	}
+
 	@PostMapping(value = "/owners/{ownerId}/pets/new")
 	public String processCreationForm(@PathVariable("ownerId") int ownerId, @Valid Pet pet, BindingResult result,
 			ModelMap model) {
@@ -106,7 +138,7 @@ public class PetController {
 				return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 			} else {
 				try {
-					pet.setStatus(pending);
+					pet.setStatus(PENDING);
 					pet.setJustification("");
 					pet.setActive(true);
 					owner.addPet(pet);
@@ -130,7 +162,7 @@ public class PetController {
 		Owner owner = this.ownerService.findOwnerById(ownerId);
 		Pet petToUpdate = this.petService.findPetById(petId);
 		Boolean isHisPetAcceptedAndAcctive = petToUpdate.getOwner().getId().equals(owner.getId()) && petToUpdate.isActive()
-				&& petToUpdate.getStatus().equals(accepted);
+				&& petToUpdate.getStatus().equals(ACCEPTED);
 		if (securityAccessPetRequestAndProfile(ownerId, edit) && isHisPetAcceptedAndAcctive) {
 			Pet pet = this.petService.findPetById(petId);
 			model.addAttribute("pet", pet);
@@ -164,7 +196,7 @@ public class PetController {
 
 		boolean edit = true;
 		Boolean isHisPetAcceptedAndAcctive = petToUpdate.getOwner().getId().equals(owner.getId()) && petToUpdate.isActive()
-				&& petToUpdate.getStatus().equals(accepted);
+				&& petToUpdate.getStatus().equals(ACCEPTED);
 		if (securityAccessPetRequestAndProfile(ownerId, edit) && isHisPetAcceptedAndAcctive) {
 
 			model.addAttribute("owner", owner);
@@ -199,13 +231,13 @@ public class PetController {
 			ModelMap model) {
 		
 		Pet pet = this.petService.findPetById(petId);
-		if (securityAccessPetRequestAndProfile(ownerId, false) || isAdmin() && pet.getStatus().equals(pending)) {
-			if (pet.getStatus().equals(rejected)) {
+		if (securityAccessPetRequestAndProfile(ownerId, false) || isAdmin() && pet.getStatus().equals(PENDING)) {
+			if (pet.getStatus().equals(REJECTED)) {
 				model.addAttribute("rejected", true);
 			}
 			List<PetRegistrationStatus> status = new ArrayList<>();
-			status.add(rejected);
-			status.add(accepted);
+			status.add(REJECTED);
+			status.add(ACCEPTED);
 			model.addAttribute("status", status);
 			model.addAttribute("pet", pet);
 			model.addAttribute("petRequest", pet);
@@ -221,11 +253,11 @@ public class PetController {
 
 		Pet petToUpdate = this.petService.findPetById(petId);
 		Owner owner = this.ownerService.findOwnerById(ownerId);
-		if (isAdmin() && petToUpdate.getStatus().equals(pending) && petToUpdate.getOwner().getId().equals(owner.getId())) {
+		if (isAdmin() && petToUpdate.getStatus().equals(PENDING) && petToUpdate.getOwner().getId().equals(owner.getId())) {
 
 			List<PetRegistrationStatus> status = new ArrayList<>();
-			status.add(rejected);
-			status.add(accepted);
+			status.add(REJECTED);
+			status.add(ACCEPTED);
 			model.addAttribute("status", status);
 
 			model.addAttribute("petRequest", petToUpdate);
@@ -252,7 +284,7 @@ public class PetController {
 	@GetMapping(value = { "/requests" })
 	public String showPetRequests(ModelMap model) {
 
-		List<Pet> petsRequests = this.petService.findPetsRequests(pending);
+		List<Pet> petsRequests = this.petService.findPetsRequests(PENDING);
 		model.addAttribute("pets", petsRequests);
 		return "pets/requests";
 	}
@@ -261,7 +293,7 @@ public class PetController {
 	public String showMyPetRequests(ModelMap model) {
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		Owner owner = this.ownerService.findOwnerByUsername(username);
-		List<Pet> myPetsRequests = this.petService.findMyPetsRequests(pending, rejected, owner.getId());
+		List<Pet> myPetsRequests = this.petService.findMyPetsRequests(PENDING, REJECTED, owner.getId());
 		model.addAttribute("pets", myPetsRequests);
 		return "pets/myRequests";
 	}
@@ -298,8 +330,8 @@ public class PetController {
 	public String showMyPetsActive(ModelMap model) {
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		Owner owner = this.ownerService.findOwnerByUsername(username);
-		List<Pet> myPets = this.petService.findMyPetsAcceptedByActive(accepted, true, owner.getId());
-		model.addAttribute("disabled", this.petService.countMyPetsAcceptedByActive(accepted, false, owner.getId()) != 0);
+		List<Pet> myPets = this.petService.findMyPetsAcceptedByActive(ACCEPTED, true, owner.getId());
+		model.addAttribute("disabled", this.petService.countMyPetsAcceptedByActive(ACCEPTED, false, owner.getId()) != 0);
 		model.addAttribute("owner", owner);
 		model.addAttribute("pets", myPets);
 		return "pets/myPetsActive";
@@ -308,12 +340,12 @@ public class PetController {
 	@GetMapping(value = "/owners/{ownerId}/pets/disabled")
 	public String showMyPetsDisabled(@PathVariable("ownerId") int ownerId, ModelMap model) {
 		
-		Boolean havePetDisabled = this.petService.countMyPetsAcceptedByActive(accepted, false, ownerId) !=0;
+		Boolean havePetDisabled = this.petService.countMyPetsAcceptedByActive(ACCEPTED, false, ownerId) !=0;
 		
 		if (securityAccessPetRequestAndProfile(ownerId, true) && havePetDisabled) {
 
 			Owner owner = this.ownerService.findOwnerById(ownerId);
-			List<Pet> myPets = this.petService.findMyPetsAcceptedByActive(accepted, false, ownerId);
+			List<Pet> myPets = this.petService.findMyPetsAcceptedByActive(ACCEPTED, false, ownerId);
 			model.put("owner", owner);
 			model.put("pets", myPets);
 			return "pets/myPetsDisabled";
@@ -360,6 +392,38 @@ public class PetController {
 
 		return authority.equals("admin") && edit
 				|| authority.equals("owner") && username.equals(owner.getUser().getUsername());
+	}
+	
+	
+	private PetType petType(String type) {
+		PetType petType= new PetType();
+		if (!this.petTypeService.typeNameDontExists(type.toLowerCase())) {
+			PetType p= this.petTypeService.findByName(type.toLowerCase());
+			petType = p;
+		}else{
+			petType.setName(type.toLowerCase());
+			try {
+				this.petTypeService.addPetType(petType);
+			} catch (DuplicatedPetNameException e) {
+				PetType p= this.petTypeService.findByName(type.toLowerCase());
+				petType = p;
+			}
+		}
+		return petType;
+	}
+	
+	private LocalDate birtdate(String age) {
+		LocalDate birthdate= LocalDate.now();
+		if (age.equals("Baby")) {
+			birthdate=birthdate.minusMonths(2);
+		}else if (age.equals("Young")) {
+			birthdate=birthdate.minusYears(2);
+		}else if (age.equals("Adult")) {
+			birthdate=birthdate.minusYears(5);
+		}else {
+			birthdate=birthdate.minusYears(8);
+		}		
+		return birthdate;
 	}
 
 }
