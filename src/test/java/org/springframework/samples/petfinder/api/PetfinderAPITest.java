@@ -12,7 +12,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import org.junit.jupiter.api.Test;
 import org.springframework.samples.petclinic.petfinderapi.web.PetfinderAPIController;
 
-public class PetfinderAPITests {
+public class PetfinderAPITest {
 	
 	private static final String URL_BASE = "https://api.petfinder.com/v2";
 	private static final int petId = 48030239;

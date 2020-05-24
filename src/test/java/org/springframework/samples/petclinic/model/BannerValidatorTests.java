@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 
 @DataJpaTest(includeFilters = @ComponentScan.Filter(Service.class))
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class BannerValidatorTest {
+public class BannerValidatorTests {
 
 	@Autowired
 	private BannerService bannerService;

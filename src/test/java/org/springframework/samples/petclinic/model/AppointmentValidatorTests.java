@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @DataJpaTest(includeFilters = @ComponentScan.Filter(Service.class))
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class AppointmentValidatorTest {
+public class AppointmentValidatorTests {
 	
 	@Autowired
 	private AppointmentService appointmentService;
