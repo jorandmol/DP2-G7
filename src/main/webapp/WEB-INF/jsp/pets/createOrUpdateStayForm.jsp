@@ -44,7 +44,7 @@
 						value="${stay.pet.owner.firstName} ${stay.pet.owner.lastName}" /></td>
             </tr>
         </table>
-        <sec:authorize access="hasAuthority('owner')"> 	
+        <sec:authorize access="hasAuthority('owner') || hasAuthority('admin')"> 	
         <form:form modelAttribute="stay" class="form-horizontal">
             <div class="form-group has-feedback">
                 <petclinic:inputField label="Register date"

@@ -95,7 +95,7 @@ public class MedicalTestUITest {
 
 	private void iClickManagementMedicalTestAndThereAreMedicalsTests() {
 		driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
-	    driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/ul/li/div/div/p[2]/strong/a")).click();		
+	    driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/ul/li/div/div/p[3]/strong/a")).click();		
 	}
 
 	private void logOut() {

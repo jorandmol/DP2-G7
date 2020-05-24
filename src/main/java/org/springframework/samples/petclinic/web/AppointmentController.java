@@ -33,7 +33,8 @@ public class AppointmentController {
 	private static final String	VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM = "pets/createOrUpdateAppointmentForm";	
 	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
 	private static final String REDIRECT_TO_PETS_DETAILS = "redirect:/owner/pets";
-	private static final PetRegistrationStatus ACCEPTED= PetRegistrationStatus.ACCEPTED;
+	private static final String REDIRECT_TO_PETS_DETAILS_ADMIN = "redirect:/owner/{ownerId}/pets";
+	private static final PetRegistrationStatus accepted= PetRegistrationStatus.ACCEPTED;
 
 	@Autowired
 	private AppointmentService	appointmentService;
@@ -68,7 +69,7 @@ public class AppointmentController {
 
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/appointments/new")
 	public String initNewAppointmentForm(@PathVariable("ownerId") final int ownerId, @PathVariable("petId") final int petId) {
-		if (securityAccessRequestAppointment(ownerId, petId)) {
+		if (securityAccessRequestAppointment(ownerId, petId) || isAdmin()) {
 			return VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
 		} else {
 			return REDIRECT_TO_OUPS;
@@ -79,12 +80,12 @@ public class AppointmentController {
 	public String initAppointmentEditForm(@PathVariable("appointmentId") final int appointmentId, @PathVariable("petId") final int petId, @PathVariable("ownerId") final int ownerId, final ModelMap modelMap) {		
 		Appointment appointment = this.appointmentService.getAppointmentById(appointmentId);
 		boolean isYourAppointment = appointment.getOwner().getId().equals(ownerId);
-		if (securityAccessRequestAppointment(ownerId, petId) && isYourAppointment) {
+		if ((securityAccessRequestAppointment(ownerId, petId) && isYourAppointment) || isAdmin()) {
 			modelMap.put("appointment", appointment);
 			modelMap.put("edit", true);
 			if(appointment.getAppointmentDate().minusDays(2).isEqual(LocalDate.now()) || appointment.getAppointmentDate().minusDays(2).isBefore(LocalDate.now())) {
 				modelMap.addAttribute("errors", "You cannot edit an appointment two or less days in advance");
-				return petController.showMyPetsActive(modelMap);
+				return isAdmin()?petController.showMyPetsActiveSuperUser(ownerId, modelMap):petController.showMyPetsActive(modelMap);
 			}
 			return VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;			
 		} else {
@@ -95,7 +96,7 @@ public class AppointmentController {
 	@PostMapping(value = "/owners/{ownerId}/pets/{petId}/appointments/new")
 	public String processNewAppointmentForm(@Valid final Appointment appointment, final BindingResult result, @PathVariable("petId") final int petId, @PathVariable("ownerId") final int ownerId,
 			@ModelAttribute("vet") final Integer vetId, final ModelMap modelMap) {	
-		if (securityAccessRequestAppointment(ownerId, petId)) {
+		if (securityAccessRequestAppointment(ownerId, petId) || isAdmin()) {
 			if (result.hasErrors()) {
 				return VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
 			} else {
@@ -105,7 +106,7 @@ public class AppointmentController {
 					modelMap.put("vetError", "Impossible to register an appointment with this fields");
 					return VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
 				}
-				return REDIRECT_TO_PETS_DETAILS;
+				return isAdmin()?REDIRECT_TO_PETS_DETAILS_ADMIN:REDIRECT_TO_PETS_DETAILS;
 			}	
 		} else {
 			return REDIRECT_TO_OUPS;
@@ -116,7 +117,7 @@ public class AppointmentController {
 	public String processAppointmentEditForm(@Valid final Appointment appointment, final BindingResult result, @PathVariable("petId") final int petId, @PathVariable("ownerId") final int ownerId,
 			@PathVariable("appointmentId") final int appointmentId, final ModelMap modelMap) {
 		boolean isYourAppointment = appointment.getOwner().getId().equals(ownerId);
-		if (securityAccessRequestAppointment(ownerId, petId) && isYourAppointment) {
+		if ((securityAccessRequestAppointment(ownerId, petId) && isYourAppointment) || isAdmin()) {
 			modelMap.put("edit", true);
 			if (result.hasErrors()) {
 				return VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
@@ -128,7 +129,7 @@ public class AppointmentController {
 					return VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM;
 				}
 			}
-			return REDIRECT_TO_PETS_DETAILS;			
+			return isAdmin()?REDIRECT_TO_PETS_DETAILS_ADMIN:REDIRECT_TO_PETS_DETAILS;		
 		} else {
 			return REDIRECT_TO_OUPS;
 		}
@@ -139,16 +140,16 @@ public class AppointmentController {
 		Appointment appointment = this.appointmentService.getAppointmentById(appointmentId);
 		boolean isYourAppointment = appointment.getOwner().getId().equals(ownerId);
 		
-		if (this.securityAccessRequestAppointment(ownerId, petId) && isYourAppointment) {
+		if ((this.securityAccessRequestAppointment(ownerId, petId) && isYourAppointment) || isAdmin()) {
 			Pet pet = this.petService.findPetById(petId);
 			
 			if (appointment.getAppointmentDate().minusDays(2).isEqual(LocalDate.now()) || appointment.getAppointmentDate().minusDays(2).isBefore(LocalDate.now())) {
 				model.addAttribute("errors", "You cannot cancel an appointment two or less days in advance");
-				return petController.showMyPetsActive(model);
+				return isAdmin()?petController.showMyPetsActiveSuperUser(ownerId, model):petController.showMyPetsActive(model);
 			} else {
 				pet.deleteAppointment(appointment);
 				this.appointmentService.deleteAppointment(appointment);
-				return REDIRECT_TO_PETS_DETAILS;
+				return isAdmin()?REDIRECT_TO_PETS_DETAILS_ADMIN:REDIRECT_TO_PETS_DETAILS;
 			}
 			
 		} else {
@@ -171,6 +172,12 @@ public class AppointmentController {
 		}
 
 		return authority.equals("owner") && username.equals(ownerUsername) && isHisPetAcceptedAndActive;
+	}
+	
+	private boolean isAdmin() {
+		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+				.collect(Collectors.toList()).get(0).toString();
+		return authority.equals("admin");
 	}
 	
 }

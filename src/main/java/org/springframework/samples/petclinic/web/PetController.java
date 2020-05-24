@@ -89,7 +89,7 @@ public class PetController {
 
 	@GetMapping(value = "/owners/{ownerId}/pets/new")
 	public String initCreationForm(@PathVariable("ownerId") int ownerId, ModelMap model) {
-		if (securityAccessPetRequestAndProfile(ownerId, false)) {
+		if (securityAccessPetRequestAndProfile(ownerId, false) || isAdmin()) {
 			Pet pet = new Pet();
 			Owner owner = this.ownerService.findOwnerById(ownerId);
 			model.addAttribute("owner", owner);
@@ -129,7 +129,7 @@ public class PetController {
 	@PostMapping(value = "/owners/{ownerId}/pets/new")
 	public String processCreationForm(@PathVariable("ownerId") int ownerId, @Valid Pet pet, BindingResult result,
 			ModelMap model) {
-		if (securityAccessPetRequestAndProfile(ownerId, false)) {
+		if (securityAccessPetRequestAndProfile(ownerId, false) || isAdmin()) {
 
 			Owner owner = this.ownerService.findOwnerById(ownerId);
 			model.addAttribute("owner", owner);
@@ -147,7 +147,7 @@ public class PetController {
 					result.rejectValue("name", "duplicate", "already exists");
 					return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 				}
-				return "redirect:/owner/requests";
+				return isAdmin()?"redirect:/owner/{ownerId}/requests":"redirect:/owner/requests";
 			}
 
 		} else {
@@ -297,6 +297,34 @@ public class PetController {
 		model.addAttribute("pets", myPetsRequests);
 		return "pets/myRequests";
 	}
+	
+	// MÉTODO PARA EL SUPERUSUARIO
+	@GetMapping(value = "/owner/{ownerId}/requests")
+	public String showMyPetRequestsSuperUser(@PathVariable("ownerId") int ownerId, ModelMap model) {
+		if(isAdmin()) {	
+			Owner owner = this.ownerService.findOwnerById(ownerId);
+			List<Pet> myPetsRequests = this.petService.findMyPetsRequests(pending, rejected, owner.getId());
+			model.addAttribute("pets", myPetsRequests);
+			return "pets/myRequests";
+		} else {
+			return REDIRECT_TO_OUPS;
+		}
+	}
+	
+	// MÉTODO PARA EL SUPERUSUARIO
+		@GetMapping(value = "/owner/{ownerId}/pets")
+		public String showMyPetsActiveSuperUser(@PathVariable("ownerId") int ownerId, ModelMap model) {
+			if(isAdmin()) {	
+				Owner owner = this.ownerService.findOwnerById(ownerId);
+				List<Pet> myPets = this.petService.findMyPetsAcceptedByActive(accepted, true, owner.getId());
+				model.addAttribute("disabled", this.petService.countMyPetsAcceptedByActive(accepted, false, owner.getId()) != 0);
+				model.addAttribute("owner", owner);
+				model.addAttribute("pets", myPets);
+				return "pets/myPetsActive";
+			} else {
+				return REDIRECT_TO_OUPS;
+			}
+		}
 
 	@GetMapping(value = "/owner/pets")
 	public String showMyPetsActive(ModelMap model) {
@@ -340,7 +368,7 @@ public class PetController {
 				updatePet.setActive(false);
 				this.petService.savePet(updatePet);
 			}
-			return showMyPetsActive(model);
+			return isAdmin()?this.showMyPetsActiveSuperUser(ownerId, model):this.showMyPetsActive(model);
 		} else {
 			return REDIRECT_TO_OUPS;
 		}

@@ -89,6 +89,12 @@ public class VisitController {
 	public Collection<MedicalTest> populateMedicalTests() {
 		return this.medicalTestService.findMedicalTests();
 	}
+	
+	private boolean isAdmin() {
+		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+				.collect(Collectors.toList()).get(0).toString();
+		return authority.equals("admin");
+	}
 
 	private Boolean securityAccessRequestProfile(int ownerId) {
 		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
@@ -154,7 +160,7 @@ public class VisitController {
 				return "pets/createOrUpdateVisitForm";
 			} else {
 				this.visitService.saveVisit(visit);
-				return "redirect:/appointments";
+				return isAdmin()?"redirect:/appointments/"+vetId:"redirect:/appointments";
 			}
 		} else {
 			return REDIRECT_TO_OUPS;
