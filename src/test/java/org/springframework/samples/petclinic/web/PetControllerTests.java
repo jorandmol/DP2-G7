@@ -50,6 +50,7 @@ import org.springframework.samples.petclinic.service.AuthoritiesService;
 import org.springframework.samples.petclinic.service.BannerService;
 import org.springframework.samples.petclinic.service.OwnerService;
 import org.springframework.samples.petclinic.service.PetService;
+import org.springframework.samples.petclinic.service.PetTypeService;
 import org.springframework.samples.petclinic.service.exceptions.DuplicatedPetNameException;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -81,17 +82,20 @@ class PetControllerTests {
 	
 	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
 	
-	private static final PetRegistrationStatus accepted = PetRegistrationStatus.ACCEPTED;
+	private static final PetRegistrationStatus ACCEPTED = PetRegistrationStatus.ACCEPTED;
 	
-	private static final PetRegistrationStatus pending = PetRegistrationStatus.PENDING;
+	private static final PetRegistrationStatus PENDING = PetRegistrationStatus.PENDING;
 	
-	private static final PetRegistrationStatus rejected = PetRegistrationStatus.REJECTED;
+	private static final PetRegistrationStatus REJECTED = PetRegistrationStatus.REJECTED;
 
 	@MockBean
 	private PetService petService;
 
 	@MockBean
 	private OwnerService ownerService;
+	
+	@MockBean
+	private PetTypeService petTypeService;
 	
 	@MockBean
 	private AuthoritiesService authoritiesService;
@@ -158,7 +162,7 @@ class PetControllerTests {
 		rosy.setName("Rosy");
 		rosy.setType(dog);
 		rosy.setActive(false);
-		rosy.setStatus(pending);
+		rosy.setStatus(PENDING);
 		
 		//PET
 		nina = new Pet();
@@ -167,7 +171,7 @@ class PetControllerTests {
 		nina.setName("Nina");
 		nina.setType(dog);
 		nina.setActive(true);
-		nina.setStatus(rejected);
+		nina.setStatus(REJECTED);
 		nina.setJustification("It is impossible to accept it because the hamster quota has been exceeded");
 		
 		//PET
@@ -177,7 +181,7 @@ class PetControllerTests {
 		sara.setName("Sara");
 		sara.setType(dog);
 		sara.setActive(false);
-		sara.setStatus(accepted);
+		sara.setStatus(ACCEPTED);
 		
 		//PET
 		gufy = new Pet();
@@ -186,7 +190,7 @@ class PetControllerTests {
 		gufy.setName("Gufy");
 		gufy.setType(dog);
 		gufy.setActive(true);
-		gufy.setStatus(accepted);
+		gufy.setStatus(ACCEPTED);
 		
 		//PET With same name 
 		petWithSameName = new Pet();
@@ -195,7 +199,7 @@ class PetControllerTests {
 		petWithSameName.setName("Rosy");
 		petWithSameName.setType(dog);
 		petWithSameName.setActive(true);
-		petWithSameName.setStatus(accepted);
+		petWithSameName.setStatus(ACCEPTED);
 		
 		//LIST of PET
 		List<Pet> petStatusPending= new ArrayList<>();
@@ -223,14 +227,14 @@ class PetControllerTests {
 		given(this.petService.findPetById(TEST_PET_ID_3)).willReturn(sara);
 		given(this.petService.findPetById(TEST_PET_ID_4)).willReturn(gufy);
 		given(this.petService.findPetById(TEST_PET_ID_5)).willReturn(petWithSameName);
-		given(this.petService.findPetsRequests(pending)).willReturn(petStatusPending);
-		given(this.petService.findMyPetsRequests(pending, rejected, TEST_OWNER_ID1)).willReturn(petStatusPendingAndRejected);
-		given(this.petService.findMyPetsAcceptedByActive(accepted, true, TEST_OWNER_ID1)).willReturn(petStatusAcceptedAndActive);
-		given(this.petService.findMyPetsAcceptedByActive(accepted, false, TEST_OWNER_ID1)).willReturn(petStatusAcceptedAndDisable);
+		given(this.petService.findPetsRequests(PENDING)).willReturn(petStatusPending);
+		given(this.petService.findMyPetsRequests(PENDING, REJECTED, TEST_OWNER_ID1)).willReturn(petStatusPendingAndRejected);
+		given(this.petService.findMyPetsAcceptedByActive(ACCEPTED, true, TEST_OWNER_ID1)).willReturn(petStatusAcceptedAndActive);
+		given(this.petService.findMyPetsAcceptedByActive(ACCEPTED, false, TEST_OWNER_ID1)).willReturn(petStatusAcceptedAndDisable);
 		given(this.ownerService.findOwnerByUsername("owner1")).willReturn(owner1);
 		given(this.ownerService.findOwnerByUsername("owner2")).willReturn(owner2);
-		given(this.petService.countMyPetsAcceptedByActive(accepted, false, TEST_OWNER_ID1)).willReturn(1);
-		given(this.petService.countMyPetsAcceptedByActive(accepted, false, TEST_OWNER_ID2)).willReturn(0);
+		given(this.petService.countMyPetsAcceptedByActive(ACCEPTED, false, TEST_OWNER_ID1)).willReturn(1);
+		given(this.petService.countMyPetsAcceptedByActive(ACCEPTED, false, TEST_OWNER_ID2)).willReturn(0);
 		given(this.petService.petHasStaysOrAppointmentsActive(TEST_PET_ID_4)).willReturn(false);
 		given(this.petService.petHasStaysOrAppointmentsActive(TEST_PET_ID_5)).willReturn(true);
 		
