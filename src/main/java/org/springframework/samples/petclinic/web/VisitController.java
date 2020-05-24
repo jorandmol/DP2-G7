@@ -137,7 +137,7 @@ public class VisitController {
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/visits/new")
 	public String initNewVisitForm(@PathVariable("petId") final int petId, @PathVariable("ownerId") final int ownerId,
 			final ModelMap model) {
-		if (securityAccessRequestVisit(ownerId, petId)) {
+		if (securityAccessRequestVisit(ownerId, petId) || isAdmin()) {
 			Pet pet = this.petService.findPetById(petId);
 			Visit visit = new Visit();
 			model.put("visit", visit);
@@ -153,7 +153,8 @@ public class VisitController {
 	@PostMapping(value = "/owners/{ownerId}/pets/{petId}/visits/new")
 	public String processNewVisitForm(@PathVariable("petId") final int petId,
 			@PathVariable("ownerId") final int ownerId, @Valid final Visit visit, final BindingResult result) {
-		if (securityAccessRequestVisit(ownerId, petId)) {
+		int vetId = this.appointmentService.findAppointmentByDate(petId, visit.getDate()).getVet().getId();
+		if (securityAccessRequestVisit(ownerId, petId) || isAdmin()) {
 			Pet pet = this.petService.findPetById(petId);
 			pet.addVisit(visit);
 			if (result.hasErrors()) {
@@ -196,7 +197,7 @@ public class VisitController {
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/visits/{visitId}")
 	public String showVisit(@PathVariable final int ownerId, @PathVariable final int visitId,
 			final Map<String, Object> model) {
-		if (securityAccessRequestProfile(ownerId)) {
+		if (securityAccessRequestProfile(ownerId) || isAdmin()) {
 			Visit visit = this.visitService.findVisitById(visitId);
 			model.put("visit", visit);
 			return "visits/visitDetails";
