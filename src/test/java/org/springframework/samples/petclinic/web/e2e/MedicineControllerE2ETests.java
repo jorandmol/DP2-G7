@@ -15,6 +15,8 @@ import javax.transaction.Transactional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -70,28 +72,20 @@ class MedicineControllerE2ETests {
 	}
 
 	@WithMockUser(username="admin1",authorities= {"admin"})
-    @Test
-	void testProcessCreationFormHasErrors() throws Exception {
+    @ParameterizedTest
+    @CsvSource({
+    	"Virbaninte,123-123,2022/03/12,desparasitante",
+    	"Virbaninte,ATN-674,2022/03/12,desparasitante",
+    	"Virbaninte,GTN-999,'',desparasitante",
+    	"Virbaninte,HUB-232,2022/03/12,''"
+    })
+	void testProcessCreationFormHasErrors(String name, String code, String expirationDate, String description) throws Exception {
 		mockMvc.perform(post("/medicines/new")
 							.with(csrf())
-							.param("name", "Virbaninte")
-							.param("code", "123-123")
-							.param("expirationDate", "2022/03/12")
-							.param("description", "desparasitante"))
-				.andExpect(model().attributeHasErrors("medicine"))
-				.andExpect(status().isOk())
-				.andExpect(view().name("medicines/createOrUpdateMedicineForm"));
-	}
-	
-	@WithMockUser(username="admin1",authorities= {"admin"})
-    @Test
-	void testProcessCreationFormHasErrorsCodeRepeated() throws Exception {
-		mockMvc.perform(post("/medicines/new")
-							.with(csrf())
-							.param("name", "Virbaninte")
-							.param("code", "ATN-674")
-							.param("expirationDate", "2022/03/12")
-							.param("description", "desparasitante"))
+							.param("name", name)
+							.param("code", code)
+							.param("expirationDate", expirationDate)
+							.param("description", description))
 				.andExpect(model().attributeHasErrors("medicine"))
 				.andExpect(status().isOk())
 				.andExpect(view().name("medicines/createOrUpdateMedicineForm"));
@@ -128,32 +122,24 @@ class MedicineControllerE2ETests {
 	            .andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:/medicines"));
 	}
-	
 		
 	@WithMockUser(username="admin1",authorities= {"admin"})
-	@Test
-	void testProcessEditMedicineFormHasErrors() throws Exception {
-		mockMvc.perform(post("/medicines/{medicineId}/edit", TEST_MED_ID)
+	@ParameterizedTest
+	@CsvSource({
+		"1,'',TET-111,2022/03/12,desparasitante",
+    	"1,Virbaninte,123-123,2022/03/12,desparasitante",
+    	"1,Virbaninte,GTN-999,'',desparasitante",
+    	"1,Virbaninte,HUB-232,2022/03/12,''"
+	})
+	void testProcessEditMedicineFormHasErrors(int medicineId, String name, String code, String expirationDate, String description) throws Exception {
+		mockMvc.perform(post("/medicines/{medicineId}/edit", medicineId)
 							.with(csrf())
-							.param("name", "")    
-	                        .param("code", "TET-111")
-							.param("expirationDate", "2022/03/12")
-							.param("description", "Testing controller"))
-				.andExpect(model().attributeHasErrors("medicine")).andExpect(status().isOk())
+							.param("name", name)    
+	                        .param("code", code)
+							.param("expirationDate", expirationDate)
+							.param("description", description))
+				.andExpect(model().attributeHasErrors("medicine"))
+				.andExpect(status().isOk())
 				.andExpect(view().name("medicines/createOrUpdateMedicineForm"));
-	}
-	
-	@WithMockUser(username="admin1",authorities= {"admin"})
-	@Test
-	void testProcessEditMedicineFormHasErrorsCodeRepeated() throws Exception {
-		mockMvc.perform(post("/medicines/{medicineId}/edit", TEST_MED_ID)
-							.with(csrf())
-							.param("name", "Name 1")    
-	                        .param("code", "ATN-674")
-							.param("expirationDate", "2022/03/12")
-							.param("description", "Testing controller"))
-				.andExpect(model().attributeHasErrors("medicine")).andExpect(status().isOk())
-				.andExpect(view().name("medicines/createOrUpdateMedicineForm"));
-	}
-	
+	}	
 }

@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.Collection;
 
+import javax.transaction.Transactional;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -33,7 +35,8 @@ public class BannerServiceTests {
 		assertThat(banner).isNotNull();
 	}
 
-	@Test
+    @Test
+    @Transactional
 	void shouldInsertBanner() {
 		Collection<Banner> banners = this.bannerService.findBanners();
 		int found = banners.size();
@@ -54,7 +57,8 @@ public class BannerServiceTests {
 		assertThat(banners.size()).isEqualTo(found + 1);
 	}
 
-	@Test
+    @Test
+    @Transactional
 	void shouldDeleteBanner() {
 		Collection<Banner> banners = this.bannerService.findBanners();
 		int found = banners.size();

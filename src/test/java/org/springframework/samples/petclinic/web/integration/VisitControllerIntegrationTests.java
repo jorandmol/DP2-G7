@@ -17,6 +17,7 @@ import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.Visit;
 import org.springframework.samples.petclinic.service.MedicalTestService;
 import org.springframework.samples.petclinic.service.PetService;
+import org.springframework.samples.petclinic.service.VisitService;
 import org.springframework.samples.petclinic.web.VisitController;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -36,47 +37,50 @@ public class VisitControllerIntegrationTests {
 
 	private static final int TEST_PET_ID_1 = 1;
 	
-	private static final int TEST_PET_ID_2 = 15;
+	private static final int TEST_PET_ID_12 = 12;
 	
-	private static final int TEST_PET_ID_3 = 18;
+	private static final int TEST_PET_ID_15 = 15;
+	
+	private static final int TEST_PET_ID_18 = 18;
 
 	private static final int TEST_OWNER_ID_1 = 1;
 	
 	private static final int TEST_VISIT_ID_1 = 1;
 
-	private static final int TEST_VISIT_ID_2 = 5;
+	private static final int TEST_VISIT_ID_5 = 5;
+	
+	private static final int TEST_VISIT_ID_7 = 7;
+
 
 	@Autowired
 	private VisitController visitController;
 		
 	@Autowired
 	private PetService petService;
+
+	@Autowired
+	private VisitService visitService;
 	
 	@Autowired
 	private MedicalTestService medicalTestService;
-	
-	private ModelMap modelMap = new ModelMap();
 
+	private ModelMap modelMap = new ModelMap();
+	
 	private BindingResult result = new MapBindingResult(Collections.emptyMap(), "");
 	
     @WithMockUser(username="vet1", password="v3terinarian_1", authorities="veterinarian")
     @Test
 	void testInitNewVisitFormSuccess() throws Exception {
-    	String view = visitController.initNewVisitForm(TEST_PET_ID_2, modelMap);
+    	ModelMap modelMap = new ModelMap();
+    	String view = visitController.initNewVisitForm(TEST_PET_ID_15, 4, modelMap);
 		Assert.assertEquals(view, VIEWS_CREATE_OR_UPDATE_VISIT_FORM);
     	assertNotNull(modelMap.get("visit"));
-	}
-    
-    @WithMockUser(username="vet1", password="v3terinarian_1", authorities="veterinarian")
-    @Test
-	void testInitNewVisitFormDuplicated() throws Exception {
-		String view = visitController.initNewVisitForm(TEST_PET_ID_3, modelMap);
-		Assert.assertEquals(view, REDIRECT_TO_OUPS);
 	}
 
 	@WithMockUser(username="vet2", password="v3terinarian_2", authorities="veterinarian")
     @Test
 	void testProcessNewVisitFormSuccess() throws Exception {
+		BindingResult result = new MapBindingResult(Collections.emptyMap(), "");
 		Pet pet = this.petService.findPetById(TEST_PET_ID_1);
 		Visit visit = new Visit();
 		visit.setDate(LocalDate.now());
@@ -85,21 +89,8 @@ public class VisitControllerIntegrationTests {
 		tests.add(medicalTestService.findMedicalTestById(1));
 		visit.setMedicalTests(tests);
 		visit.setPet(pet);
-		String view = visitController.processNewVisitForm(TEST_PET_ID_1, visit, result);
+		String view = visitController.processNewVisitForm(TEST_PET_ID_1, 1, visit, result);
 		Assert.assertEquals(view, "redirect:/appointments");
-	}
-	
-	@WithMockUser(username="vet1", password="v3terinarian_1", authorities="veterinarian")
-    @Test
-	void testProcessNewVisitFormWithWrongVet() throws Exception {
-		Pet pet = this.petService.findPetById(TEST_PET_ID_1);
-		Visit visit = new Visit();
-		visit.setDate(LocalDate.now());
-		visit.setDescription("Emergency surgery");
-		visit.setMedicalTests(new ArrayList<>());
-		visit.setPet(pet);
-		String view = visitController.processNewVisitForm(TEST_PET_ID_1, visit, result);
-		Assert.assertEquals(view, REDIRECT_TO_OUPS);
 	}
 
 	@WithMockUser(username="vet2", password="v3terinarian_2", authorities="veterinarian")
@@ -112,7 +103,7 @@ public class VisitControllerIntegrationTests {
 		visit.setMedicalTests(new ArrayList<>());
 		visit.setPet(pet);
 		result.reject("description", "no puede estar vacío");
-		String view = visitController.processNewVisitForm(TEST_PET_ID_1, visit, result);
+		String view = visitController.processNewVisitForm(TEST_PET_ID_1, 1, visit, result);
 		Assert.assertEquals(view, VIEWS_CREATE_OR_UPDATE_VISIT_FORM);
 	}
 
@@ -135,14 +126,14 @@ public class VisitControllerIntegrationTests {
 	@WithMockUser(username="owner1", password="0wn3333r_1", authorities="veterinarian")
     @Test
 	void testShowVisitWithoutAuthorities() throws Exception {
-		String view = visitController.showVisit(TEST_OWNER_ID_1, TEST_VISIT_ID_2, modelMap);
+		String view = visitController.showVisit(TEST_OWNER_ID_1, TEST_VISIT_ID_5, modelMap);
 		Assert.assertEquals(view, REDIRECT_TO_OUPS);
 	}
 	
 	@WithMockUser(username="vet1", password="v3terinarian_1", authorities="veterinarian")
     @Test
 	void testShowVisitWithoutAuthoritiesOrUsername() throws Exception {
-		String view = visitController.showVisit(TEST_OWNER_ID_1, TEST_VISIT_ID_2, modelMap);
+		String view = visitController.showVisit(TEST_OWNER_ID_1, TEST_VISIT_ID_5, modelMap);
 		Assert.assertEquals(view, REDIRECT_TO_OUPS);
 	}
 	
@@ -152,4 +143,39 @@ public class VisitControllerIntegrationTests {
 		String view = visitController.showVisit(TEST_OWNER_ID_1, TEST_VISIT_ID_1, modelMap);
 		Assert.assertEquals(view, REDIRECT_TO_OUPS);
 	}
+	
+	@WithMockUser(username="vet1", password="v3terinarian_1", authorities="veterinarian")
+    @Test
+	void testInitUpdateVisitFormSuccess() throws Exception {
+		String view = visitController.initUpdateVisitForm(TEST_PET_ID_12, TEST_VISIT_ID_7, modelMap);
+		Assert.assertEquals(view, VIEWS_CREATE_OR_UPDATE_VISIT_FORM);
+    	assertNotNull(modelMap.get("visit"));
+	}
+	
+	@WithMockUser(username="vet1", password="v3terinarian_1", authorities="veterinarian")
+    @Test
+	void testProcessUpdateVisitFormSuccess() throws Exception {
+		Visit visit = this.visitService.findVisitById(TEST_VISIT_ID_7);
+		visit.setDescription("Emergency surgery");
+		List<MedicalTest> tests = new ArrayList<>();
+		tests.add(medicalTestService.findMedicalTestById(1));
+		visit.setMedicalTests(tests);
+		String view = visitController.processUpdateVisitForm(TEST_PET_ID_12, TEST_VISIT_ID_7, visit,  result, modelMap);
+		Assert.assertEquals(view, "redirect:/vets/pets/"+TEST_PET_ID_12+"/visits");
+	}
+	
+	@WithMockUser(username="vet1", password="v3terinarian_1", authorities="veterinarian")
+    @Test
+	void testProcessUpdateVisitFormHasErrors() throws Exception {
+		Visit visit = this.visitService.findVisitById(TEST_VISIT_ID_7);
+		visit.setDescription("");
+		List<MedicalTest> tests = new ArrayList<>();
+		tests.add(medicalTestService.findMedicalTestById(2));
+		visit.setMedicalTests(tests);
+		result.reject("description", "no puede estar vacío");
+		String view = visitController.processUpdateVisitForm(TEST_PET_ID_12, TEST_VISIT_ID_7, visit,  result, modelMap);
+		Assert.assertEquals(view, VIEWS_CREATE_OR_UPDATE_VISIT_FORM);
+	}
+	
+	
 }

@@ -16,6 +16,8 @@ import java.time.format.DateTimeFormatter;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -234,36 +236,27 @@ public class AppointmentControllerTests {
 			.andExpect(view().name(VIEWS_PETS_CREATE_OR_UPDATE_APPOINTMENT_FORM));
 	}
 
-	@Test
+	@ParameterizedTest
+	@CsvSource({
+		"1,1,4",
+		"1,1,3"
+	})
 	@WithMockUser(username="owner1", password="0wn3333r_1", authorities=OWNER_ROLE)
-	void testInitAppointmentEditFormErrorsBefore() throws Exception{
-		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/edit", TEST_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID_4))
+	void testInitAppointmentEditFormErrors(int ownerId, int petId, int appointmentId) throws Exception{
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/edit", ownerId, petId, appointmentId))
 			.andExpect(model().attributeExists("errors"))
 			.andExpect(status().isOk())
-			.andExpect(view().name("owners/"+TEST_OWNER_ID+"/pets/"+TEST_PET_ID+"/appointments/"+TEST_APPOINTMENT_ID_4+"/edit"));
+			.andExpect(view().name("owners/"+ownerId+"/pets/"+petId+"/appointments/"+appointmentId+"/edit"));
 	}
 	
-	@Test
-	@WithMockUser(username="owner1", password="0wn3333r_1", authorities=OWNER_ROLE)
-	void testInitAppointmentEditFormErrorsNow() throws Exception{
-		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/edit", TEST_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID_3))
-			.andExpect(model().attributeExists("errors"))
-			.andExpect(status().isOk())
-			.andExpect(view().name("owners/"+TEST_OWNER_ID+"/pets/"+TEST_PET_ID+"/appointments/"+TEST_APPOINTMENT_ID_3+"/edit"));
-	}
-	
-	@Test
+	@ParameterizedTest
+	@CsvSource({
+		"1,1,5",
+		"2,1,1"
+	})
 	@WithMockUser(username="owner1", password="0wn3333_1", authorities=OWNER_ROLE)
-	void testNotInitAppointmentEditFormAppointmentNotYours() throws Exception{
-		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/edit", TEST_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID_5))
-			.andExpect(status().is3xxRedirection())
-			.andExpect(view().name(REDIRECT_TO_OUPS));
-	}
-
-	@Test
-	@WithMockUser(username="owner1", password="0wn3333r_1", authorities=OWNER_ROLE)
-	void testNotInitAppointmentEditForm() throws Exception{
-		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/edit", TEST_WRONG_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID_1))
+	void testNotInitAppointmentEditForm(int ownerId, int petId, int appointmentId) throws Exception{
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/edit", ownerId, petId, appointmentId))
 			.andExpect(status().is3xxRedirection())
 			.andExpect(view().name(REDIRECT_TO_OUPS));
 	}
@@ -325,21 +318,16 @@ public class AppointmentControllerTests {
 			.andExpect(view().name(REDIRECT_TO_PETS_DETAILS));
 	}
 	
-	@Test
+	@ParameterizedTest
+	@CsvSource({
+		"1,1,4",
+		"1,1,3"
+	})
 	@WithMockUser(username="owner1", password="0wn3333r_1", authorities=OWNER_ROLE)
-	void testProcessDeleteAppointmentErrorsBefore() throws Exception {
-		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete", TEST_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID_4))
+	void testProcessDeleteAppointmentErrors(int ownerId, int petId, int appointmentId) throws Exception {
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete", ownerId, petId, appointmentId))
 			.andExpect(model().attributeExists("errors"))
 			.andExpect(status().isOk())
-			.andExpect(view().name("owners/"+TEST_OWNER_ID+"/pets/"+TEST_PET_ID+"/appointments/"+TEST_APPOINTMENT_ID_4+"/delete"));
-	}
-
-	@Test
-	@WithMockUser(username="owner1", password="0wn3333r_1", authorities=OWNER_ROLE)
-	void testProcessDeleteAppointmentErrorsNow() throws Exception {
-		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete", TEST_OWNER_ID, TEST_PET_ID, TEST_APPOINTMENT_ID_3))
-			.andExpect(model().attributeExists("errors"))
-			.andExpect(status().isOk())
-			.andExpect(view().name("owners/"+TEST_OWNER_ID+"/pets/"+TEST_PET_ID+"/appointments/"+TEST_APPOINTMENT_ID_3+"/delete"));
+			.andExpect(view().name("owners/"+ownerId+"/pets/"+petId+"/appointments/"+appointmentId+"/delete"));
 	}
 }
