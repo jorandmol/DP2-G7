@@ -21,9 +21,9 @@
 	</div>
 	<br/>
     <br/>
-    <table class="table table-striped">
+    <table id="petsTable" class="table table-striped">
         <c:forEach var="pet" items="${pets}">
-            <tr>
+            <tr id="pet">
                 <td valign="top">
                     <dl class="dl-horizontal">
                         <dt>Name</dt>
