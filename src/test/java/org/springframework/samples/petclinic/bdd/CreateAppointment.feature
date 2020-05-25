@@ -11,4 +11,4 @@ Feature: Create appointment
   	Given I am not logged in the system
     When Im logged in the system as "owner1"
     And I try to create an appointment with errors
-    Then An error message appears
+    Then An error message will appear

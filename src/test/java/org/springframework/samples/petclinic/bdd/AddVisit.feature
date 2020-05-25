@@ -11,4 +11,4 @@ Feature: Add visit
   	Given I am not logged in the system
     When Im logged in the system as "vet1"
     And I try to add a visit with errors
-    Then An error message appears
+    Then Error message appears

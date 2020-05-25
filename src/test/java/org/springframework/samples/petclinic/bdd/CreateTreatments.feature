@@ -5,10 +5,10 @@ Feature: Create treatment
     Given I am not logged in the system
     When Im logged in the system as "vet1"
     And I create a new treatment
-    Then 
+    Then A new treatment appears
 
-  Scenario: Fail adding a visit (negative)
+  Scenario: Fail creating a treatment (negative)
   	Given I am not logged in the system
     When Im logged in the system as "vet1"
     And I try to create a new treatment with errors
-    Then 
+    Then An error appears
