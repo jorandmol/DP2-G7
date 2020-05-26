@@ -126,7 +126,12 @@ class ConcertarCita extends Simulation {
 	)
 
 	setUp(
-		createAppointmentScn.inject(atOnceUsers(1)),
-		errorCreateAppointmentScn.inject(atOnceUsers(1))
-	).protocols(httpProtocol)
+		createAppointmentScn.inject(rampUsers(1550) during (100 seconds)),
+		errorCreateAppointmentScn.inject(rampUsers(1550) during (100 seconds)))
+	.protocols(httpProtocol)
+	.assertions(
+		global.responseTime.max.lt(5000),
+		global.responseTime.mean.lt(1000),
+		global.successfulRequests.percent.gt(95)
+	)
 }

@@ -118,7 +118,12 @@ class CambiarFechaCita extends Simulation {
 	)
 
 	setUp(
-		editAppointmentScn.inject(atOnceUsers(1)),
-		errorEditAppointmentScn.inject(atOnceUsers(1))
-	).protocols(httpProtocol)
+		editAppointmentScn.inject(rampUsers(1500) during (100 seconds)),
+		errorEditAppointmentScn.inject(rampUsers(1500) during (100 seconds)))
+	.protocols(httpProtocol)
+	.assertions(
+		global.responseTime.max.lt(5000),
+		global.responseTime.mean.lt(1000),
+		global.successfulRequests.percent.gt(95)
+	)
 }

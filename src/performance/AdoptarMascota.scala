@@ -92,5 +92,12 @@ class AdoptarMascota extends Simulation {
 		AdoptionPet.adoptionPet
 	)
 
-	setUp(adoptionPet.inject(atOnceUsers(1))).protocols(httpProtocol)
+	setUp(
+		adoptionPet.inject(rampUsers(45) during (100 seconds)))
+	.protocols(httpProtocol)
+	.assertions(
+		global.responseTime.max.lt(5000),
+		global.responseTime.mean.lt(1500),
+		global.successfulRequests.percent.gt(95)
+	)
 }
