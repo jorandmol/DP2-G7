@@ -110,7 +110,12 @@ class BajaMascota extends Simulation {
 
 
 	setUp(
-		disablePetScn.inject(atOnceUsers(3)),
-		cantDisablePetScn.inject(atOnceUsers(3))
-	).protocols(httpProtocol)
+		disablePetScn.inject(rampUsers(2600) during (100 seconds)),
+		cantDisablePetScn.inject(rampUsers(2600) during (100 seconds)))
+	.protocols(httpProtocol)
+	.assertions(
+		global.responseTime.max.lt(5000),
+		global.responseTime.mean.lt(1000),
+		global.successfulRequests.percent.gt(95)
+	)
 }

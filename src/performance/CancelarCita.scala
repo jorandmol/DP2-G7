@@ -109,8 +109,8 @@ class CancelarCita extends Simulation {
 	)
 
 	setUp(
-		deleteAppointmentScn.inject(rampUsers(1550) during (100 seconds)),
-		errorDeleteAppointmentScn.inject(rampUsers(1550) during (100 seconds)))
+		deleteAppointmentScn.inject(rampUsers(1500) during (100 seconds)),
+		errorDeleteAppointmentScn.inject(rampUsers(1500) during (100 seconds)))
 	.protocols(httpProtocol)
 	.assertions(
 		global.responseTime.max.lt(5000),

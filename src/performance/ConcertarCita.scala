@@ -91,13 +91,13 @@ class ConcertarCita extends Simulation {
 		.pause(18)
 	}
 
-		object ErrorCreateAppointment {
+	object ErrorCreateAppointment {
 		val errorCreateAppointment = exec(http("NewAppointmentForm")
 			.get("/owners/1/pets/1/appointments/new")
 			.headers(headers_0)
 			.check(css("input[name=_csrf]", "value").saveAs("stoken"))
 		).pause(33)
-		exec(http("ErrorCreateAppointment")
+		.exec(http("ErrorCreateAppointment")
 			.post("/owners/1/pets/1/appointments/new")
 			.headers(headers_3)
 			.formParam("appointmentDate", "2020/05/26")
@@ -126,8 +126,8 @@ class ConcertarCita extends Simulation {
 	)
 
 	setUp(
-		createAppointmentScn.inject(rampUsers(1550) during (100 seconds)),
-		errorCreateAppointmentScn.inject(rampUsers(1550) during (100 seconds)))
+		createAppointmentScn.inject(rampUsers(1500) during (100 seconds)),
+		errorCreateAppointmentScn.inject(rampUsers(1500) during (100 seconds)))
 	.protocols(httpProtocol)
 	.assertions(
 		global.responseTime.max.lt(5000),

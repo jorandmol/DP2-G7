@@ -46,15 +46,18 @@ class SolicitarEstancia extends Simulation {
 		val login = exec(http("Login")
 			.get("/login")
 			.headers(headers_0)
+			.resources(http("request_2")
+			.get("/login")
+			.headers(headers_2))
 			.check(css("input[name=_csrf]", "value").saveAs("stoken"))
-		).pause(10)
+		).pause(12)
 		.exec(http("Logged")
-				.post("/login")
-				.headers(headers_4)
-				.formParam("username", "admin1")
-				.formParam("password", "4dm1n")
-				.formParam("_csrf", "${stoken}"))
-			.pause(6)
+			.post("/login")
+			.headers(headers_3)
+			.formParam("username", "admin1")
+			.formParam("password", "4dm1n")
+			.formParam("_csrf", "${stoken}"))
+		.pause(6)
 	}
 	object FindOwners {
 		val findOwners = exec(http("FindOWners")
@@ -142,7 +145,12 @@ class SolicitarEstancia extends Simulation {
 
 
 	setUp(
-		newStayCreatedScn.inject(atOnceUsers(1)),
-		newStayNotCreatedScn.inject(atOnceUsers(1))
-	).protocols(httpProtocol)
+		newStayCreatedScn.inject(rampUsers(2800) during (100 seconds)),
+		newStayNotCreatedScn.inject(rampUsers(2800) during (100 seconds)))
+	.protocols(httpProtocol)
+	.assertions(
+		global.responseTime.max.lt(5000),
+		global.responseTime.mean.lt(1000),
+		global.successfulRequests.percent.gt(95)
+	)
 }

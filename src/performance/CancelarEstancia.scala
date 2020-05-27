@@ -113,5 +113,12 @@ class CancelarEstancia extends Simulation {
 																	CancelStay.cancelStay)
 
 
-	setUp(cancelStayScn.inject(atOnceUsers(1))).protocols(httpProtocol)
+	setUp(
+		cancelStayScn.inject(rampUsers(4800) during (100 seconds)))
+	.protocols(httpProtocol)
+	.assertions(
+		global.responseTime.max.lt(5000),
+		global.responseTime.mean.lt(1000),
+		global.successfulRequests.percent.gt(95)
+	)
 }

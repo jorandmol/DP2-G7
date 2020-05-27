@@ -125,7 +125,12 @@ class ActualizarEstancia extends Simulation {
 
 
 	setUp(
-		stayUpdatedScn.inject(atOnceUsers(1)),
-		stayNotUpdatedScn.inject(atOnceUsers(1))
-	).protocols(httpProtocol)
+		stayUpdatedScn.inject(rampUsers(3000) during (100 seconds)),
+		stayNotUpdatedScn.inject(rampUsers(3000) during (100 seconds)))
+	.protocols(httpProtocol)
+	.assertions(
+		global.responseTime.max.lt(5000),
+		global.responseTime.mean.lt(1000),
+		global.successfulRequests.percent.gt(95)
+	)
 }
