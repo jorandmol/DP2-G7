@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.support.ui.Select;
+import org.xmlunit.builder.Input;
 
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
@@ -12,7 +13,7 @@ public class AddVisitStepDefinitions extends AbstractStep{
 
 	@Then("Error message appears")
     public void canNotAddVisit() {
-		assertEquals("must not be empty", getDriver().findElement(By.xpath("//form[@id='visit']/div/div[2]/div/span[2]")).getText());
+		assertEquals("no puede estar vacío", getDriver().findElement(By.xpath("//form[@id='visit']/div/div[2]/div/span[2]")).getText());
 	}
 	
 	@And("I try to add a visit with errors")
@@ -34,8 +35,8 @@ public class AddVisitStepDefinitions extends AbstractStep{
 		getDriver().findElement(By.id("description")).click();
 		getDriver().findElement(By.id("description")).clear();
 		getDriver().findElement(By.id("description")).sendKeys("Clinical examination of the pet");
-	    new Select(getDriver().findElement(By.name("medicalTests"))).selectByVisibleText("Complete Blood Count (CBC)");
-	    new Select(getDriver().findElement(By.name("medicalTests"))).selectByVisibleText("Fluid Analysis");
+		getDriver().findElement(By.id("medicalTests1")).click();
+		getDriver().findElement(By.id("medicalTests2")).click();
 	    getDriver().findElement(By.xpath("//button[@type='submit']")).click();
 	}
 }

@@ -67,6 +67,8 @@ class PetControllerTests {
 	private static final int TEST_OWNER_ID1 = 1;
 	
 	private static final int TEST_OWNER_ID2 = 2;
+	
+	private static final int TEST_OWNER_ID3 = 3;
 
 	private static final int TEST_PET_ID_1 = 1;
 	
@@ -87,6 +89,8 @@ class PetControllerTests {
 	private static final PetRegistrationStatus PENDING = PetRegistrationStatus.PENDING;
 	
 	private static final PetRegistrationStatus REJECTED = PetRegistrationStatus.REJECTED;
+
+	
 
 	@MockBean
 	private PetService petService;
@@ -617,8 +621,8 @@ class PetControllerTests {
 	void testDisablePetStaysOrAppointmentsInactive() throws Exception{
 		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/disable", TEST_OWNER_ID1, TEST_PET_ID_4))
 				.andExpect(model().attributeDoesNotExist("errorDisabled"))	
-				.andExpect(status().isOk())
-				.andExpect(view().name("pets/myPetsActive"));
+				.andExpect(status().is3xxRedirection())
+				.andExpect(view().name("redirect:/owners/{ownerId}/pets/disabled"));
 	}
 	
 	// TEST para usuarios que SI cumplen la seguridad
@@ -638,5 +642,29 @@ class PetControllerTests {
 		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/disable", TEST_OWNER_ID1, TEST_PET_ID_1))	
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name(REDIRECT_TO_OUPS));
+	}
+	
+	@WithMockUser(username = "owner3", password = "0wn3333r_3", authorities = "owner")
+	@Test
+	void testEnablePetWithoutAccess() throws Exception{
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/enable", TEST_OWNER_ID1, TEST_PET_ID_1))	
+				.andExpect(status().is3xxRedirection())
+				.andExpect(view().name(REDIRECT_TO_OUPS));
+	}
+	
+	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
+	@Test
+	void testEnablePet() throws Exception{
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/enable", TEST_OWNER_ID1, TEST_PET_ID_3))	
+				.andExpect(status().is3xxRedirection())
+				.andExpect(view().name("redirect:/owner/pets"));
+	}
+	
+	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
+	@Test
+	void testEnablePetAdmin() throws Exception{
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/enable", TEST_OWNER_ID1, TEST_PET_ID_3))	
+				.andExpect(status().is3xxRedirection())
+				.andExpect(view().name("redirect:/owner/{ownerId}/pets"));
 	}
 }

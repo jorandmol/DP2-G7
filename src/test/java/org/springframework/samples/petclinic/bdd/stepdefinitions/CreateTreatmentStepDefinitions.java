@@ -16,7 +16,7 @@ public class CreateTreatmentStepDefinitions extends AbstractStep{
 
 	@Then("An error appears")
     public void canNotCreateTreatment() {
-		Assert.assertEquals("must not be empty", getDriver().findElement(By.xpath("//form[@id='treatment']/div/div[2]/div/span[2]")).getText().trim());
+		Assert.assertEquals("no puede estar vacío", getDriver().findElement(By.xpath("//form[@id='treatment']/div/div[2]/div/span[2]")).getText().trim());
     }
 	
 	@And("I try to create a new treatment with errors")

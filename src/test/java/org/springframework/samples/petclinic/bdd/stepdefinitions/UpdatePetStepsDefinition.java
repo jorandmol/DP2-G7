@@ -1,12 +1,14 @@
 package org.springframework.samples.petclinic.bdd.stepdefinitions;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import org.springframework.boot.web.server.LocalServerPort;
 
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
@@ -16,13 +18,9 @@ import lombok.extern.java.Log;
 public class UpdatePetStepsDefinition extends AbstractStep {
 
 
-
-	private int contarMascotas() {
-		WebElement tablaMascotas = getDriver().findElement(By.id("petsTable"));
-		List<WebElement> filasDeTablaMascotas = tablaMascotas.findElements(By.id("pet"));
-		return filasDeTablaMascotas.size();
-	}
-
+	@LocalServerPort
+	private int port;
+	
 	@And("Disable my pet")
 	public void disablePet() {
 		getDriver().findElement(By.linkText("MY PETS")).click();
@@ -32,7 +30,10 @@ public class UpdatePetStepsDefinition extends AbstractStep {
 
 	@Then("My pet dissapears")
 	public void petDissapears() {
-		assertTrue(contarMascotas() == 1 );
+		getDriver().findElement(By.linkText("Return")).click();
+		WebElement tablaMascotas = getDriver().findElement(By.id("petsTable"));
+		List<WebElement> filasDeTablaMascotas = tablaMascotas.findElements(By.id("pet"));
+		assertEquals(filasDeTablaMascotas.size(), 2);
 	}
 
 	@And("Disable my pet with events")
@@ -45,8 +46,9 @@ public class UpdatePetStepsDefinition extends AbstractStep {
 
 	@Then("My pet doesnt dissapears")
 	public void petDoesntDissapears() {
-		assertTrue(contarMascotas() == 1 );
-
+		WebElement tablaMascotas = getDriver().findElement(By.id("petsTable"));
+		List<WebElement> filasDeTablaMascotas = tablaMascotas.findElements(By.id("pet"));
+		assertEquals(filasDeTablaMascotas.size(), 2);
 	}
 
 }

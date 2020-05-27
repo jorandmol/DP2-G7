@@ -75,8 +75,26 @@
                         	</c:forEach>
                 	</table>
             	</td>
+            	<td>
+                    <spring:url value="/owners/{ownerId}/pets/{petId}/enable" var="enablePetUrl">
+			    		<spring:param name="ownerId" value="${owner.id}"/>
+			    		<spring:param name="petId" value="${pet.id}"/>
+   					</spring:url>
+   			<a href="${fn:escapeXml(enablePetUrl)}" class="btn btn-default" >Enable pet</a>
+              	</td>
             </tr>
 
         </c:forEach>
     </table>
+    <div>
+    	<sec:authorize access="hasAuthority('admin')">
+    	<spring:url value="/owner/{ownerId}/pets" var="returnMyPets">
+		   		<spring:param name="ownerId" value="${owner.id}"/>
+   		</spring:url>
+   		</sec:authorize>
+   		<sec:authorize access="hasAuthority('owner')">
+   		<spring:url value="/owner/pets" var="returnMyPets"></spring:url>
+   		</sec:authorize>
+   		<a href="${fn:escapeXml(returnMyPets)}" class="btn btn-default" >Return</a>
+    </div>
 </petclinic:layout>
