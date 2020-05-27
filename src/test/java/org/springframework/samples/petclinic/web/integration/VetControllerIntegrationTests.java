@@ -26,11 +26,13 @@ import org.springframework.web.servlet.ModelAndView;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class VetControllerIntegrationTests {
 
-	private static final int TEST_VET_ID1 = 1;
-	private static final int TEST_VET_ID2 = 2;
-	private static final int TEST_VET_ID3 = 3;
-	private static final int TEST_VET_ID4 = 4;
-	private static final int TEST_VET_ID5 = 5;
+	private static final int TEST_VET_ID_1 = 1;
+	private static final int TEST_VET_ID_2 = 2;
+	private static final int TEST_VET_ID_3 = 3;
+	private static final int TEST_VET_ID_4 = 4;
+	private static final int TEST_VET_ID_5 = 5;
+	
+	private static final int TEST_PET_ID_1 = 1;
 
 	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
 	private static final String VIEWS_VET_CREATE_OR_UPDATE_FORM = "vets/createOrUpdateVetForm";
@@ -193,7 +195,7 @@ public class VetControllerIntegrationTests {
 	@Test
 	void testInitUpdateProfileForm() throws Exception {
 		
-		String view = this.vetController.initUpdateVetForm(TEST_VET_ID1, model);
+		String view = this.vetController.initUpdateVetForm(TEST_VET_ID_1, model);
 		
 		assertEquals(view, VIEWS_VET_CREATE_OR_UPDATE_FORM);
 		assertNotNull(model.get("vet"));
@@ -202,7 +204,7 @@ public class VetControllerIntegrationTests {
 	@Test
 	void testInitUpdateForm() throws Exception {
 		
-		String view = this.vetController.initUpdateVetForm(TEST_VET_ID3, model);
+		String view = this.vetController.initUpdateVetForm(TEST_VET_ID_3, model);
 		
 		assertEquals(view, VIEWS_VET_CREATE_OR_UPDATE_FORM);
 		assertNotNull(model.get("vet"));
@@ -212,7 +214,7 @@ public class VetControllerIntegrationTests {
 	@Test
 	void testInitUpdateFormWithoutAccess() throws Exception {
 		
-		String view = this.vetController.initUpdateVetForm(TEST_VET_ID2, model);
+		String view = this.vetController.initUpdateVetForm(TEST_VET_ID_2, model);
 		
 		assertEquals(view, REDIRECT_TO_OUPS);
 		assertNull(model.get("vet"));
@@ -224,10 +226,10 @@ public class VetControllerIntegrationTests {
 	@WithMockUser(username = "vet2", password = "veter1n4ri0_2", authorities = "veterinarian")
 	@Test
 	void testProcessUpdateProfileFormSuccess() throws Exception {
-		Vet updateHelen= this.vetService.findVetById(TEST_VET_ID2);
+		Vet updateHelen= this.vetService.findVetById(TEST_VET_ID_2);
 		updateHelen.setTelephone("676522389");
 		updateHelen.addSpecialty(this.vetService.findSpecialties().iterator().next());
-		String view = this.vetController.processUpdateVetForm(updateHelen, result, TEST_VET_ID2, model);
+		String view = this.vetController.processUpdateVetForm(updateHelen, result, TEST_VET_ID_2, model);
 	
 		assertEquals(view, "redirect:/vets/{vetId}");
 	}
@@ -235,14 +237,14 @@ public class VetControllerIntegrationTests {
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
 	@Test
 	void testProcessUpdateVetFormSuccess() throws Exception {		
-		Vet updateHenry = this.vetService.findVetById(TEST_VET_ID5);
+		Vet updateHenry = this.vetService.findVetById(TEST_VET_ID_5);
 		updateHenry.addSpecialty(this.vetService.findSpecialties().iterator().next());
 		updateHenry.addSpecialty(this.vetService.findSpecialties().iterator().next());
 		updateHenry.addSpecialty(this.vetService.findSpecialties().iterator().next());
 		updateHenry.addSpecialty(this.vetService.findSpecialties().iterator().next());
 		updateHenry.setAddress("c/Santa Marta, 3");
 		
-		String view = this.vetController.processUpdateVetForm(updateHenry, result, TEST_VET_ID5, model);
+		String view = this.vetController.processUpdateVetForm(updateHenry, result, TEST_VET_ID_5, model);
 		
 		assertEquals(view, "redirect:/vets/{vetId}");
 	}
@@ -250,14 +252,14 @@ public class VetControllerIntegrationTests {
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
 	@Test
 	void testProcessUpdateVetFormHasErrors() throws Exception {		
-		Vet updateRafael = this.vetService.findVetById(TEST_VET_ID4);
+		Vet updateRafael = this.vetService.findVetById(TEST_VET_ID_4);
 		updateRafael.setFirstName("");
 		updateRafael.setAddress("");
 		
 		result.reject("firstName", "empty");
 		result.reject("address", "empty");
 		
-		String view = this.vetController.processUpdateVetForm(updateRafael, result, TEST_VET_ID4, model);
+		String view = this.vetController.processUpdateVetForm(updateRafael, result, TEST_VET_ID_4, model);
 		
 		assertEquals(view, VIEWS_VET_CREATE_OR_UPDATE_FORM);
 	}
@@ -266,10 +268,10 @@ public class VetControllerIntegrationTests {
 	@WithMockUser(username = "vet2", password = "veter1n4ri0_2", authorities = "veterinarian")
 	@Test
 	void testProcessUpdateVetFormSuccessWithoutAccess() throws Exception {
-		Vet updateLinda = this.vetService.findVetById(TEST_VET_ID3);
+		Vet updateLinda = this.vetService.findVetById(TEST_VET_ID_3);
 		updateLinda.setFirstName("Elena");
 		
-		String view = this.vetController.processUpdateVetForm(updateLinda, result, TEST_VET_ID3, model);
+		String view = this.vetController.processUpdateVetForm(updateLinda, result, TEST_VET_ID_3, model);
 	
 		assertEquals(view, REDIRECT_TO_OUPS);
 	}
@@ -296,7 +298,7 @@ public class VetControllerIntegrationTests {
 	@Test
 	void testShowVetProfile() throws Exception {
 
-		ModelAndView view = this.vetController.showVet(TEST_VET_ID4);
+		ModelAndView view = this.vetController.showVet(TEST_VET_ID_4);
 		
 		assertNotNull(view);
 	}
@@ -305,7 +307,7 @@ public class VetControllerIntegrationTests {
 	@Test
 	void testShowVet() throws Exception {
 
-		ModelAndView view = this.vetController.showVet(TEST_VET_ID4);
+		ModelAndView view = this.vetController.showVet(TEST_VET_ID_4);
 		
 		assertNotNull(view);
 	}
@@ -315,12 +317,10 @@ public class VetControllerIntegrationTests {
 	@Test
 	void testShowVetWithoutAccess() throws Exception {
 
-		ModelAndView view = this.vetController.showVet(TEST_VET_ID4);
+		ModelAndView view = this.vetController.showVet(TEST_VET_ID_4);
 		
 		assertNotNull(view);
-	}
-	
-		
+	}	
 	
 	@WithMockUser(username="vet1", password="veter1n4ri0_1", authorities="veterinarian")
 	@Test
@@ -329,5 +329,14 @@ public class VetControllerIntegrationTests {
 		String view = this.vetController.showPetsLit(model);
 		
 		assertEquals(view, "pets/petsList");
+	}
+	
+	@WithMockUser(username="vet1", password="veter1n4ri0_1", authorities="veterinarian")
+	@Test
+	void testShowVisitsList() throws Exception {
+		
+		String view = this.vetController.showVisitsList(TEST_PET_ID_1, model);
+		
+		assertEquals(view, "visits/visitsList");
 	}
 }

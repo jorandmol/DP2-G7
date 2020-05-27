@@ -55,7 +55,7 @@ public class TreatmentController {
 
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/treatments")
 	public String showTreatments(@PathVariable("ownerId") final int ownerId, @PathVariable("petId") final int petId, final ModelMap model) {
-	    if (securityAccessRequestTreatment(ownerId, petId)) {
+	    if (securityAccessRequestTreatment(ownerId, petId) || isAdmin()) {
             return getViewsTreatmentList(petId, model);
 		} else {
 			return REDIRECT_TO_OUPS;
@@ -64,7 +64,7 @@ public class TreatmentController {
 
 	@GetMapping(value = "/vets/pets/{petId}/treatments")
     public String showTreatments(@PathVariable("petId") final int petId, final ModelMap model) {
-	    if (getAuthority().equals("veterinarian")) {
+	    if (getAuthority().equals("veterinarian") || isAdmin()) {
 	        model.put("isVet", true);
 	        model.put("petId", petId);
 	        return getViewsTreatmentList(petId, model);
@@ -220,5 +220,9 @@ public class TreatmentController {
     		res.add(treatment);    		
     	}    	
     	return res;
+    }
+    
+    private boolean isAdmin() {
+    	return this.getAuthority().equals("admin");
     }
 }

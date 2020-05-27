@@ -38,12 +38,16 @@
     </spring:url>
     <a href="${fn:escapeXml(editUrl)}" class="btn btn-default">Edit Owner</a>
 
-	<sec:authorize access="hasAuthority('owner')">
-    	<spring:url value="{ownerId}/pets/new" var="addUrl">
-       		<spring:param name="ownerId" value="${owner.id}"/>
-    	</spring:url>
-    	<a href="${fn:escapeXml(addUrl)}" class="btn btn-default">Request pet</a>
-	</sec:authorize>
+   	<spring:url value="/owners/{ownerId}/pets/new" var="addUrl">
+      		<spring:param name="ownerId" value="${owner.id}"/>
+   	</spring:url>
+   	<a href="${fn:escapeXml(addUrl)}" class="btn btn-default">Request pet</a>
+   	<sec:authorize access="hasAuthority('admin')">
+   	<spring:url value="/adoptions/owner/{ownerId}" var="adoptUrl">
+   		<spring:param name="ownerId" value="${owner.id}"/>
+    </spring:url>
+    <a href="${fn:escapeXml(adoptUrl)}" class="btn btn-default">Adopt a pet</a>
+   	</sec:authorize>
 	
 	<sec:authorize access="hasAuthority('admin')">
     <br/>
@@ -131,5 +135,7 @@
 
         </c:forEach>
     </table>
+    <a href="/owner/${owner.id}/pets">Visit owner view</a><br>
+    <a href="/owner/${owner.id}/requests">Visit owner requests view</a>
     </sec:authorize>
 </petclinic:layout>

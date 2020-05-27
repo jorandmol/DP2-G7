@@ -146,7 +146,7 @@ public class PetRequestUITest {
 
 	private PetRequestUITest iClickManagementRequestsAndThereArePetsRequetsIncludingNina() {
 		driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a/strong")).click();
-	    driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/ul/li/div/div/p[4]/strong/a")).click();
+	    driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/ul/li/div/div/p[5]/strong/a")).click();
 		
 		WebElement petsTable = driver.findElement(By.id("petsTable"));
 		List<WebElement> petsList = petsTable.findElements(By.id("pet"));

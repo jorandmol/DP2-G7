@@ -13,6 +13,8 @@ import java.util.Collections;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataAccessException;
@@ -81,31 +83,23 @@ public class PetControllerIntegrationTests {
 	}
 
 	
+	
 	//Usuario que cumple la seguridad
 	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
-    @Test
-	void testProcessCreationFormSuccess() throws Exception {
+	@ParameterizedTest
+	@CsvSource({
+		"'Rositis','redirect:/owner/requests'",
+		"'Leo','pets/createOrUpdatePetForm'"
+	})
+	void testProcessCreationFormSuccessAndCatchException(String name, String view) throws Exception {
     	Pet newPet=new Pet();
-    	newPet.setName("Rositis");
+    	newPet.setName(name);
 		newPet.setType(petService.findPetTypes().iterator().next());
 		newPet.setBirthDate(LocalDate.now());    	
 		
-		String view=petController.processCreationForm(TEST_OWNER_ID1, newPet, result, model);
+		String expectedView=petController.processCreationForm(TEST_OWNER_ID1, newPet, result, model);
     	
-		assertEquals(view,"redirect:/owner/requests");
-	}
-	
-	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
-    @Test
-	void testProcessCreationFormCatchException() throws Exception {
-    	Pet newPet=new Pet();
-    	newPet.setName("Leo");
-		newPet.setType(petService.findPetTypes().iterator().next());
-		newPet.setBirthDate(LocalDate.now());    	
-		
-		String view=petController.processCreationForm(TEST_OWNER_ID1, newPet, result, model);
-    	
-		assertEquals(view, VIEWS_PETS_CREATE_OR_UPDATE_FORM);				
+		assertEquals(expectedView, view);				
 	}
 
 	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
@@ -166,31 +160,20 @@ public class PetControllerIntegrationTests {
 	
 	//Usuario que cumple la seguridad
 	@WithMockUser(username = "owner2", password = "0wn3333r_2", authorities = "owner")
-	@Test
-	void testProcessUpdateFormSuccess() throws Exception {
+	@ParameterizedTest
+	@CsvSource({
+		"'Mini','redirect:/owner/pets'",
+		"'Nina','pets/createOrUpdatePetForm'"
+	})
+	void testProcessUpdateFormSuccessAndCatchException(String name, String view) throws Exception {
     	Pet updateSara= new Pet();
-    	updateSara.setName("Mini");
+    	updateSara.setName(name);
     	updateSara.setType(petService.findPetTypes().iterator().next());
     	updateSara.setBirthDate(LocalDate.now());    	
 		
-		String view=petController.processUpdateForm(TEST_OWNER_ID2, updateSara, result, TEST_PET_ID_17, model);
+		String expectedView=petController.processUpdateForm(TEST_OWNER_ID2, updateSara, result, TEST_PET_ID_17, model);
 		
-		assertEquals(view, "redirect:/owner/pets");
-		assertNotNull(model.get("owner"));
-		assertNotNull(model.get("edit"));
-	}
-	
-	@WithMockUser(username = "owner2", password = "0wn3333r_2", authorities = "owner")
-	@Test
-	void testProcessUpdateFormCatchException() throws Exception {
-    	Pet updateSara= new Pet();
-    	updateSara.setName("Nina");
-    	updateSara.setType(petService.findPetTypes().iterator().next());
-    	updateSara.setBirthDate(LocalDate.now());    	
-		
-		String view=petController.processUpdateForm(TEST_OWNER_ID2, updateSara, result, TEST_PET_ID_17, model);
-		
-		assertEquals(view, VIEWS_PETS_CREATE_OR_UPDATE_FORM);
+		assertEquals(expectedView, view);
 		assertNotNull(model.get("owner"));
 		assertNotNull(model.get("edit"));
 	}

@@ -12,9 +12,10 @@ import static org.hamcrest.CoreMatchers.containsString;
 import org.junit.jupiter.api.Test;
 import org.springframework.samples.petclinic.petfinderapi.web.PetfinderAPIController;
 
-public class PetfinderAPITests {
+public class PetfinderAPITest {
 	
 	private static final String URL_BASE = "https://api.petfinder.com/v2";
+	private static final int petId = 48030239;
 	
 	@Test
 	public void shouldGetToken() {
@@ -60,5 +61,22 @@ public class PetfinderAPITests {
 		assertThat().body(containsString("types")).
 		and().
 			time(lessThan(5L), TimeUnit.SECONDS);
+	}
+	
+	@Test
+	public void shouldGetAnimal() {
+		String token = PetfinderAPIController.getToken();
+		given().
+			header("Authorization", "Bearer " + token).
+		when().
+			get(URL_BASE+"/animals/"+petId).
+		then().
+			statusCode(200).
+		and().
+			assertThat().body("animal.id", equalTo(petId)).
+		and()
+			.body("animal.name", equalTo("Bunny")).
+		and().
+			time(lessThan(6L), TimeUnit.SECONDS);
 	}
 }

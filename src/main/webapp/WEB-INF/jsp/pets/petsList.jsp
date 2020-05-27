@@ -15,7 +15,7 @@
             <th>Name</th>
             <th>Birth date</th>
             <th>Pet type</th>
-            <th></th>
+            <th>More info</th>
         </tr>
         </thead>
         <tbody>
@@ -34,6 +34,12 @@
                     <c:out value="${pet.type}"/>
                 </td>
                 <td>
+                	<spring:url value="/vets/pets/{petId}/visits" var="visitsUrl">
+                        <spring:param name="petId" value="${pet.id}"/>
+                    </spring:url>
+                    <a href="${fn:escapeXml(visitsUrl)}">Visits</a>
+                    <c:out value="/ "></c:out>
+                    
                     <spring:url value="/vets/pets/{petId}/treatments" var="treatmentsUrl">
                         <spring:param name="petId" value="${pet.id}"/>
                     </spring:url>

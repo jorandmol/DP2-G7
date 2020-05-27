@@ -9,4 +9,8 @@ cache:
   directories:
   - .autoconf
   - $HOME/.m2
-script: mvn test -Dspring.profiles.active=mysql-travis | grep "BUILD SUCCESS"
+jobs:
+  include:
+    - script: mvn test -Punit-tests -Dspring.profiles.active=mysql-travis
+    - script: mvn test -Pe2e-tests -Dspring.profiles.active=mysql-travis
+    - script: mvn test -Pintegration-tests -Dspring.profiles.active=mysql-travis

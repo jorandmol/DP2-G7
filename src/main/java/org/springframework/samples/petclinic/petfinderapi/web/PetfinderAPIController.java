@@ -8,7 +8,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.samples.petclinic.model.PetType;
+import org.springframework.samples.petclinic.petfinderapi.model.Animal;
 import org.springframework.samples.petclinic.petfinderapi.model.Animals;
+import org.springframework.samples.petclinic.petfinderapi.model.Pet;
 import org.springframework.samples.petclinic.petfinderapi.model.Type;
 import org.springframework.samples.petclinic.petfinderapi.model.Types;
 import org.springframework.stereotype.Controller;
@@ -17,6 +20,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 
@@ -50,7 +54,50 @@ public class PetfinderAPIController {
 
 	    return "adoptions/adoptionsSearchForm";
 	}
+	
+	//Método para superuser
+	@GetMapping(value = "/adoptions/owner/{ownerId}")
+	public String initAdoptionsSearchFormAdmin(@PathVariable("ownerId") Integer ownerId, ModelMap modelMap) {
+        HttpEntity req = setupRequest(modelMap);
 
+        try {
+            String url = URL_BASE+"/types";
+            String json = getResponse(url, HttpMethod.GET, req);
+
+            ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            Types results = mapper.readValue(json, Types.class);
+            List<Type> types = results.getTypes();
+            modelMap.put("types", types);
+            modelMap.put("ownerId", ownerId);
+        } catch (Exception e) {
+            modelMap.put("error", "No types have been found. There may be a problem connecting to the Petfinder API.");
+            modelMap.put("ownerId", ownerId);
+        }
+
+	    return "adoptions/adoptionsSearchForm";
+	}
+
+	@GetMapping(value = "/adoptions/owner/{ownerId}/find")
+	public String processAdoptionsSearchAdmin(@PathVariable("ownerId") Integer ownerId, @RequestParam String type, @RequestParam String size, @RequestParam String gender, ModelMap modelMap) {
+		HttpEntity req = setupRequest(modelMap);
+
+		try {
+			String url = URL_BASE+"/animals?"+"type="+type+"&size="+size+"&gender="+gender;
+			String json = getResponse(url, HttpMethod.GET, req);
+
+            ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            Animals results = mapper.readValue(json, Animals.class);
+
+            modelMap.put("animals", results.getAnimals());
+            modelMap.put("ownerId", ownerId);
+		} catch (Exception e) {
+			modelMap.put("notFound", "Pets not found with these parameters.");
+			modelMap.put("ownerId", ownerId);
+		}
+
+		return "adoptions/adoptionsListResult";
+	}
+	
 	@GetMapping(value = "/adoptions/find")
 	public String processAdoptionsSearch(@RequestParam String type, @RequestParam String size, @RequestParam String gender, ModelMap modelMap) {
 		HttpEntity req = setupRequest(modelMap);
@@ -70,6 +117,48 @@ public class PetfinderAPIController {
 		return "adoptions/adoptionsListResult";
 	}
 
+	@GetMapping(value = "/adoptions/pet/{petId}")
+	public String showPetToAdopt(@PathVariable("petId") final int petId, ModelMap modelMap) {
+		HttpEntity req = setupRequest(modelMap);
+
+		try {
+			String url = URL_BASE+"/animals/"+petId;
+			String json = getResponse(url, HttpMethod.GET, req);
+			
+			ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+	        Pet results = mapper.readValue(json, Pet.class);
+	        			
+	        modelMap.put("numPhotos", results.getAnimal().getPhotos().size());
+			modelMap.put("pet", results.getAnimal());
+		}catch (Exception e) {
+            modelMap.put("error", "No details of this pet have been found. There may be a problem connecting to the Petfinder API.");
+		}
+		
+		return "adoptions/adoptionsPetDetailsOwner";
+	}
+	
+	@GetMapping(value = "/adoptions/owner/{ownerId}/pet/{petId}")
+	public String showPetToAdoptAdmin(@PathVariable("ownerId") Integer ownerId, @PathVariable("petId") final int petId, ModelMap modelMap) {
+		HttpEntity req = setupRequest(modelMap);
+
+		try {
+			String url = URL_BASE+"/animals/"+petId;
+			String json = getResponse(url, HttpMethod.GET, req);
+			
+			ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+	        Pet results = mapper.readValue(json, Pet.class);
+	        			
+	        modelMap.put("numPhotos", results.getAnimal().getPhotos().size());
+			modelMap.put("pet", results.getAnimal());
+			modelMap.put("ownerId", ownerId);
+		}catch (Exception e) {
+            modelMap.put("error", "No details of this pet have been found. There may be a problem connecting to the Petfinder API.");
+            modelMap.put("ownerId", ownerId);
+		}
+		
+		return "adoptions/adoptionsPetDetailsAdmin";
+	}
+	
 	private String getResponse(String url, HttpMethod method, HttpEntity req) {
         ResponseEntity<String> res = new RestTemplate().exchange(url, method.GET, req, String.class);
         return res.getBody();

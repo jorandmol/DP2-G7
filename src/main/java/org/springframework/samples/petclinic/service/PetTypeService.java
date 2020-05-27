@@ -37,4 +37,10 @@ public class PetTypeService {
 		
 		return this.petTypeRepository.findById(petTypeId).get();
 	}
+
+	public PetType findByName(String petType) {
+		return this.petTypeRepository.findByName(petType);
+	}
+
+
 }

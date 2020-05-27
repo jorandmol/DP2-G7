@@ -11,6 +11,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -69,7 +71,6 @@ public class OwnerControllerE2ETests {
 				.param("user.password", "0wn333r_23"))
 				.andExpect(status().is3xxRedirection());
 	}
-		
 
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
 	@Test
@@ -87,20 +88,28 @@ public class OwnerControllerE2ETests {
 	}
 		
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
-	@Test
-	void testProcessCreationFormHasErrors() throws Exception {
+	@ParameterizedTest
+	@CsvSource({
+		"'','Llano','Avenida de la Paz,30','Madrid','636566789','juanito1','owner_juan1'",
+		"'Marta','','Avenida de la Constitucion,30','Badajoz','636988789','marta1','owner_marta1'",
+		"'Lucia','Belaire','','Madrid','636514437','lucia1','owner_lucia1'",
+		"'Marco','Ortiz','c/San Antonio,3','','636598701','marco1','owner_marco1'",
+		"'Rocio','Virues','c/America,10','Cordoba','','ro1','owner_rocio1'",
+		"'Maria','Ponce','c/Los naranjos,15','Madrid','63656','maria1','owner_maria1'",
+		"'Julia','Salgero','c/Real,20','Sevilla','636598789','julia1',''",
+		"'Antonio','Alberto','Avenida Reina Mercedes,1','Sevilla','621566789','antonio1','owner_'"
+	})
+	void testProcessCreationFormHasErrors(String firstname, String lastname, String address, String city, String telephone, String username, String password) throws Exception {
 		mockMvc.perform(post("/owners/new").with(csrf())
-				.param("firstName", "Joe")
-				.param("lastName", "Bloggs")
-				.param("address", "123 Caramel Street")
-				.param("city", "London")
-				.param("telephone", "013167")
-				.param("user.username", "owner1")
-				.param("user.password", "noNumbersPass_"))
+				.param("firstName", firstname)
+				.param("lastName", lastname)
+				.param("address", address)
+				.param("city", city)
+				.param("telephone", telephone)
+				.param("user.username", username)
+				.param("user.password", password))
 				.andExpect(status().isOk())
 				.andExpect(model().attributeHasErrors("owner"))
-				.andExpect(model().attributeHasFieldErrors("owner", "telephone"))
-				.andExpect(model().attributeHasFieldErrors("owner", "user.password"))
 				.andExpect(view().name(VIEWS_OWNER_CREATE_OR_UPDATE_FORM));
 	}
 	
@@ -260,21 +269,28 @@ public class OwnerControllerE2ETests {
 				.andExpect(view().name("redirect:/owners/{ownerId}"));
 	}
 		
-	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
-	@Test
-	void testProcessUpdateOwnerFormHasErrors() throws Exception {
-		mockMvc.perform(post("/owners/{ownerId}/edit", TEST_OWNER_ID1).with(csrf())
-				.param("firstName", "")
-				.param("lastName", "Bloggs")
-				.param("address", "123 Caramel Street")
-				.param("city", "London")
-				.param("telephone", "123456")
-				.param("user.password", "noNumbersPass_"))
+	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
+	@ParameterizedTest
+	@CsvSource({
+		"'','Llano','Avenida de la Paz,30','Madrid','636566789','owner_juan1'",
+		"'Marta','','Avenida de la Constitucion,30','Badajoz','636988789','owner_marta1'",
+		"'Lucia','Belaire','','Madrid','636514437','owner_lucia1'",
+		"'Marco','Ortiz','c/San Antonio,3','','636598701','owner_marco1'",
+		"'Rocio','Virues','c/America,10','Cordoba','','owner_rocio1'",
+		"'Maria','Ponce','c/Los naranjos,15','Madrid','63656','owner_maria1'",
+		"'Julia','Salgero','c/Real,20','Sevilla','636598789',''",
+		"'Antonio','Alberto','Avenida Reina Mercedes,1','Sevilla','621566789','owner_'"
+	})
+	void testProcessUpdateFormHasErrors(String firstname, String lastname, String address, String city, String telephone, String password) throws Exception {
+		mockMvc.perform(post("/owners/new").with(csrf())
+				.param("firstName", firstname)
+				.param("lastName", lastname)
+				.param("address", address)
+				.param("city", city)
+				.param("telephone", telephone)
+				.param("user.password", password))
 				.andExpect(status().isOk())
 				.andExpect(model().attributeHasErrors("owner"))
-				.andExpect(model().attributeHasFieldErrors("owner", "firstName"))
-				.andExpect(model().attributeHasFieldErrors("owner", "telephone"))
-				.andExpect(model().attributeHasFieldErrors("owner", "user.password"))
 				.andExpect(view().name(VIEWS_OWNER_CREATE_OR_UPDATE_FORM));
 	}
 		
@@ -310,7 +326,11 @@ public class OwnerControllerE2ETests {
 	// TEST para usuario que SI cumple la seguridad
 	// TEST para owner que tiene pets disabled
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
-	@Test
+	@ParameterizedTest
+	@CsvSource({
+		"1, true",
+		"2, false"
+	})
 	void testShowOwnerWithPetsDisabled() throws Exception {
 		mockMvc.perform(get("/owners/{ownerId}", TEST_OWNER_ID3)).andExpect(status().isOk())
 				.andExpect(model().attributeExists("owner"))

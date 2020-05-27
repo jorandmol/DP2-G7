@@ -32,6 +32,7 @@ import org.springframework.samples.petclinic.model.Specialty;
 import org.springframework.samples.petclinic.model.User;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.model.Vets;
+import org.springframework.samples.petclinic.model.Visit;
 import org.springframework.samples.petclinic.service.AppointmentService;
 import org.springframework.samples.petclinic.service.PetService;
 import org.springframework.samples.petclinic.service.VetService;
@@ -206,6 +207,24 @@ public class VetController {
 		
 		return "vets/appointmentsList";
 	}
+	
+	@GetMapping(value = { "/appointments/{vetId}" })
+	public String showAppoimentsByVetListSuperUser(@PathVariable("vetId") int vetId, ModelMap model) {
+		Vet veterinarian= this.vetService.findVetById(vetId);
+		LocalDate today= LocalDate.now();
+		
+		List<Appointment> appointmentsToday = this.appointmentService.getAppointmentsTodayByVetId(veterinarian.getId(), today);
+		model.addAttribute("appointmentsToday", appointmentsToday);
+		
+		List<Appointment> appointmentsWithVisit = appointmentsToday.stream()
+				.filter(a -> this.visitService.countVisitsByDate(a.getPet().getId(), today) > 0).collect(Collectors.toList());
+		model.addAttribute("appointmentsWithVisit", appointmentsWithVisit);
+		
+		List<Appointment>  nextAppointments = this.appointmentService.getNextAppointmentsByVetId(veterinarian.getId(), today);
+		model.addAttribute("nextAppointments", nextAppointments);
+		
+		return "vets/appointmentsList";
+	}
 
 	@GetMapping("/vets/{vetId}")
 	public ModelAndView showVet(@PathVariable("vetId") int vetId) {
@@ -226,24 +245,40 @@ public class VetController {
 		return "pets/petsList";
 	}
 
+	@GetMapping(value = "/vets/pets/{petId}/visits")
+	public String showVisitsList(@PathVariable final int petId, final Map<String, Object> model) {
+			
+			Pet pet = this.petService.findPetById(petId);
+			model.put("pet", pet);	
+				
+			List<Visit> visits = this.visitService.findVisitsByPetId(petId);
+			model.put("visits", visits);
+				
+			return "visits/visitsList";
+			
+	}
+
 	private boolean isAdmin() {
 		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
 				.collect(Collectors.toList()).get(0).toString();
 		return authority.equals("admin");
 	}
-
-	private boolean securityAccessRequestProfile(int vetId) {
+	
+	private Boolean isVet() {
 		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
 				.collect(Collectors.toList()).get(0).toString();
+		return authority.equals("veterinarian");
+	}
+
+	private boolean securityAccessRequestProfile(int vetId) {
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
 		Vet vet = new Vet();
-		if (authority.equals("veterinarian")) {
+		if (isVet()) {
 			vet = this.vetService.findVetById(vetId);
 		}
 
-		return authority.equals("admin")
-				|| authority.equals("veterinarian") && username.equals(vet.getUser().getUsername());
+		return isAdmin() || isVet() && username.equals(vet.getUser().getUsername());
 	}
 
 }

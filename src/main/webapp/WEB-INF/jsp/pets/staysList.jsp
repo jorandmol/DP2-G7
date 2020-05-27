@@ -40,7 +40,7 @@
 				<th>Register date</th>
 				<th>Release date</th>
 				<th>Status</th>
-				<sec:authorize access="hasAuthority('owner')">
+				<sec:authorize access="hasAuthority('owner') || hasAuthority('admin')">
 					<th>Actions</th>
 				</sec:authorize>
 			</tr>
@@ -52,7 +52,7 @@
 					<td><c:out value="${stay.releaseDate}" /></td>
 
 					<td><c:out value="${stay.status}" /></td>
-					<sec:authorize access="hasAuthority('owner')">
+					<sec:authorize access="hasAuthority('owner') || hasAuthority('admin')">
 						<td><spring:url
 								value="/owners/{ownerId}/pets/{petId}/stays/{stayId}/delete"
 								var="deleteUrl">
@@ -77,7 +77,7 @@
 	</table>
 	<div>
     <c:if test="${pet.active}">
-		<sec:authorize access="hasAuthority('owner')">
+		<sec:authorize access="hasAuthority('owner') || hasAuthority('admin')">
 			<a class="btn btn-default"
 				href='<spring:url value="/owners/${pet.owner.id}/pets/${pet.id}/stays/new" htmlEscape="true"/>'>New
 				stay</a>
