@@ -370,8 +370,10 @@ public class PetControllerIntegrationTests {
 	//Usuario que SI cumple la seguridad con pets disabled
 	@WithMockUser(username = "owner3", password = "0wn3333r_3", authorities = "owner")
 	@Test
-	void testShowMyPetsDisabled() {
+	void testShowMyPetsDisabled() throws DataAccessException, DuplicatedPetNameException {
 		
+		//Llamamos a este método primero porque se le deshabilita en el método de admin
+		String view1 = this.petController.processDisablePet(TEST_OWNER_ID3, TEST_PET_ID_5, model);
 		String view = this.petController.showMyPetsDisabled(TEST_OWNER_ID3, model);
 		
 		assertEquals(view, "pets/myPetsDisabled");	
@@ -398,7 +400,7 @@ public class PetControllerIntegrationTests {
 		
 		String view = this.petController.processDisablePet(TEST_OWNER_ID10, TEST_PET_ID_13, model);
 		
-		assertEquals(view,"pets/myPetsActive");
+		assertEquals(view,"redirect:/owners/{ownerId}/pets/disabled");
 		assertFalse(this.petService.findPetById(TEST_PET_ID_13).isActive());
 	}
 	
@@ -422,5 +424,39 @@ public class PetControllerIntegrationTests {
 		
 		assertEquals(view,REDIRECT_TO_OUPS);
 	}
+	
+	// TEST para usuarios que SI cumplen la seguridad
+		@WithMockUser(username = "owner3", password = "0wn3333r_3", authorities = "owner")
+		@Test
+		void testEnablePet() throws DataAccessException, DuplicatedPetNameException {
+			
+			//Llamamos a este método primero porque se le deshabilita en el método de admin
+			String view1 = this.petController.processDisablePet(TEST_OWNER_ID3, TEST_PET_ID_5, model);
+			String view = this.petController.processEnablePet(TEST_OWNER_ID3, TEST_PET_ID_5, model);
+			
+			assertEquals(view,"redirect:/owner/pets");
+			assertTrue(this.petService.findPetById(TEST_PET_ID_5).isActive());
+		}
+		
+		// TEST para usuarios que SI cumplen la seguridad
+		@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
+		@Test
+		void testEnablePetAdmin() throws DataAccessException, DuplicatedPetNameException {
+			
+			String view = this.petController.processEnablePet(TEST_OWNER_ID3, TEST_PET_ID_5, model);
+			
+			assertEquals(view,"redirect:/owner/{ownerId}/pets");
+			assertTrue(this.petService.findPetById(TEST_PET_ID_5).isActive());
+		}
+		
+		// TEST para usuarios que NO cumplen la seguridad
+		@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
+		@Test
+		void testEnablePetWithoutAccess() throws DataAccessException, DuplicatedPetNameException {
+
+			String view = this.petController.processEnablePet(TEST_OWNER_ID3, TEST_PET_ID_5, model);
+			
+			assertEquals(view,REDIRECT_TO_OUPS);
+		}
 }
 

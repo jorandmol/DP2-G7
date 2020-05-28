@@ -384,14 +384,30 @@ public class PetController {
 		Boolean petIsActive = this.petService.findPetById(petId).isActive();
 		Pet updatePet = this.petService.findPetById(petId);
 		boolean hasStaysOrAppointments= this.petService.petHasStaysOrAppointmentsActive(petId);
-		if (securityAccessPetRequestAndProfile(ownerId, true) && petIsActive) {
+		if (securityAccessPetRequestAndProfile(ownerId, true) && petIsActive && updatePet.getOwner().getId().equals(ownerId)) {
 			if(hasStaysOrAppointments) {
 				model.addAttribute("errorDisabled", "You can not disable a pet with appointments or stays active");
+				return isAdmin()?this.showMyPetsActiveSuperUser(ownerId, model):this.showMyPetsActive(model);
+
 			} else {
 				updatePet.setActive(false);
 				this.petService.savePet(updatePet);
+				return "redirect:/owners/{ownerId}/pets/disabled";
 			}
-			return isAdmin()?this.showMyPetsActiveSuperUser(ownerId, model):this.showMyPetsActive(model);
+		} else {
+			return REDIRECT_TO_OUPS;
+		}
+	}
+	
+	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/enable")
+	public String processEnablePet(@PathVariable("ownerId") int ownerId, @PathVariable("petId") int petId, ModelMap model) throws DataAccessException, DuplicatedPetNameException {
+		
+		Pet updatePet = this.petService.findPetById(petId);
+		Boolean petIsActive = !updatePet.isActive();
+		if (securityAccessPetRequestAndProfile(ownerId, true) && petIsActive && updatePet.getOwner().getId().equals(ownerId)) {
+			updatePet.setActive(true);
+			this.petService.savePet(updatePet);
+			return isAdmin()?"redirect:/owner/{ownerId}/pets":"redirect:/owner/pets";
 		} else {
 			return REDIRECT_TO_OUPS;
 		}

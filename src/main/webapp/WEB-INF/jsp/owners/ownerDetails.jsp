@@ -62,7 +62,7 @@
     	<a href="${fn:escapeXml(disabledPetsUrl)}" class="btn btn-default" >Disabled Pets</a>
 	</c:if>
 	
-    <table class="table table-striped">
+    <table id="petsTable" class="table table-striped">
         <c:forEach var="pet" items="${pets}">
 
             <tr>
