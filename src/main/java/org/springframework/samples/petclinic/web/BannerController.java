@@ -12,10 +12,8 @@ import org.springframework.samples.petclinic.service.BannerService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,11 +33,6 @@ public class BannerController {
 		this.bannerService = bannerService;
 	}
 
-	@InitBinder("banner")
-	public void initBannerBinder(WebDataBinder dataBinder) {
-		dataBinder.setValidator(new BannerValidator());
-	}
-
 	@GetMapping(value = { "/banners" })
 	public String showBannersList(Map<String, Object> model) {
 		Collection<Banner> banners = this.bannerService.findBanners();
@@ -56,6 +49,9 @@ public class BannerController {
 
 	@PostMapping(value = "/banners/new")
 	public String processCreationFrom(@Valid Banner banner, BindingResult result, ModelMap model) {
+		if (banner.getEndColabDate() != null && !banner.getEndColabDate().isAfter(LocalDate.now())) {
+			result.rejectValue("endColabDate", "end colaboration date must be in future", "end colaboration date must be in future");
+		}
 		if (result.hasErrors()) {
 			model.put("banner", banner);
 			return VIEWS_BANNER_CREATE_FORM;
