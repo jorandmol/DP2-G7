@@ -1,0 +1,102 @@
+package dp2
+
+import scala.concurrent.duration._
+
+import io.gatling.core.Predef._
+import io.gatling.http.Predef._
+import io.gatling.jdbc.Predef._
+
+class EliminarBanners extends Simulation {
+
+	val httpProtocol = http
+		.baseUrl("http://www.dp2.com")
+		.inferHtmlResources(BlackList(""".*\.js""", """.*\.css""", """.*\.gif""", """.*\.jpeg""", """.*\.jpg""", """.*\.ico""", """.*\.woff""", """.*\.woff2""", """.*\.(t|o)tf""", """.*\.png""", """.*detectportal\.firefox\.com.*"""), WhiteList())
+		.acceptHeader("text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
+		.acceptEncodingHeader("gzip, deflate")
+		.acceptLanguageHeader("es-ES,es;q=0.8,en-US;q=0.5,en;q=0.3")
+		.upgradeInsecureRequestsHeader("1")
+		.userAgentHeader("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:76.0) Gecko/20100101 Firefox/76.0")
+
+	val headers_0 = Map(
+		"Proxy-Connection" -> "keep-alive",
+		"Upgrade-Insecure-Requests" -> "1")
+
+	val headers_2 = Map(
+		"Accept" -> "image/webp,image/apng,image/*,*/*;q=0.8",
+		"Proxy-Connection" -> "keep-alive")
+
+	val headers_3 = Map(
+		"Origin" -> "http://www.dp2.com",
+		"Proxy-Connection" -> "keep-alive",
+		"Upgrade-Insecure-Requests" -> "1")
+
+	object Home {
+		val home = exec(http("Home")
+			.get("/")
+			.headers(headers_0))
+		.pause(5)
+	}
+
+	object Login {
+		val login = exec(http("Login")
+			.get("/login")
+			.headers(headers_0)
+			.resources(http("request_2")
+			.get("/login")
+			.headers(headers_2))
+			.check(css("input[name=_csrf]", "value").saveAs("stoken"))
+		).pause(12)
+		.exec(http("Logged")
+			.post("/login")
+			.headers(headers_3)
+			.formParam("username", "admin1")
+			.formParam("password", "4dm1n")
+			.formParam("_csrf", "${stoken}"))
+		.pause(6)
+	}
+
+	object Banners{
+		val banners = exec(http("Banners")
+			.get("/banners")
+			.headers(headers_0))
+		.pause(24)
+	}
+
+	object ErrorDeleteBanner {
+		val errorDeleteBanner = exec(http("ErrorDeleteBanner")
+			.get("/banners/2/delete")
+			.headers(headers_0))
+		.pause(35)
+	}
+
+	object DeleteBanner {
+		val deleteBanner = exec(http("DeleteBanner")
+			.get("/banners/3/delete")
+			.headers(headers_0))
+		.pause(12)
+	}
+
+	val deleteBannerSnc = scenario("deleteBanner").exec(
+		Home.home,
+		Login.login,
+		Banners.banners,
+		DeleteBanner.deleteBanner
+	)
+
+	val errorDeleteBannerSnc = scenario("errorDeleteBanner").exec(
+		Home.home,
+		Login.login,
+		Banners.banners,
+		ErrorDeleteBanner.errorDeleteBanner
+	)
+
+	setUp(
+		deleteBannerSnc.inject(rampUsers(300) during (100 seconds)),
+		errorDeleteBannerSnc.inject(rampUsers(300) during (100 seconds)))
+	.protocols(httpProtocol)
+	.assertions(
+		global.responseTime.max.lt(5000),
+		global.responseTime.mean.lt(1000),
+		global.successfulRequests.percent.gt(95)
+	)
+}
