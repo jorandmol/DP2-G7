@@ -28,7 +28,7 @@ public class BannerService {
 	}
 
 	@Cacheable("cacheFindRandomBanner")
-	@Transactional
+	@Transactional(readOnly = true)
 	public Banner findRandomBanner() {
 		return this.bannerRepository.findRandomBanner();
 	}
