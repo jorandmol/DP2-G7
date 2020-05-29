@@ -18,4 +18,7 @@ public interface SpringDataTreatmentRepository extends TreatmentRepository, Repo
 	@Query("SELECT t FROM Treatment t WHERE t.pet.id=:petId AND timeLimit < CURRENT_DATE ORDER BY timeLimit DESC")
 	public List<Treatment> findExpiredTreatmentsByPet(@Param("petId") Integer petId);
 	
+	@Query("SELECT DISTINCT t FROM Treatment t LEFT JOIN FETCH t.medicines m WHERE t.pet.id=:petId AND t.timeLimit >= CURRENT_DATE ORDER BY t.timeLimit ASC")
+	public List<Treatment> findCurrenTreatmenttWithMedicineByPet(@Param("petId") Integer petId);
+	
 }

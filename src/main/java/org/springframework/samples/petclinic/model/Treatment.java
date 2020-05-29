@@ -30,7 +30,7 @@ import lombok.Data;
 @Table(name = "treatments")
 public class Treatment extends NamedEntity{
 
-	@ManyToMany(fetch = FetchType.EAGER)
+	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "treatment_medicines", joinColumns = @JoinColumn(name = "treatment_id"), inverseJoinColumns = @JoinColumn(name = "medicine_id"))
 	private Set<Medicine> medicines;
 
