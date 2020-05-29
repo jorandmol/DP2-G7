@@ -20,6 +20,8 @@ import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.PetRegistrationStatus;
@@ -57,6 +59,7 @@ public class PetService {
 	}
 
 	@Transactional(rollbackFor = DuplicatedPetNameException.class)
+	@CacheEvict(cacheNames = "allPets",allEntries = true)
 	public void savePet(Pet pet) throws DataAccessException, DuplicatedPetNameException {	
 		if (existOtherPetWithSameName(pet)) {
 			throw new DuplicatedPetNameException();
@@ -77,6 +80,7 @@ public class PetService {
 		return res;
 	}
 
+@Cacheable("allPets")
 	public List<Pet> findAll() {
 		return this.petRepository.findAll();
 	}
