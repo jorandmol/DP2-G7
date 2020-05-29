@@ -5,6 +5,8 @@ import java.util.Collection;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.samples.petclinic.model.Banner;
 import org.springframework.samples.petclinic.repository.BannerRepository;
 import org.springframework.stereotype.Service;
@@ -25,16 +27,19 @@ public class BannerService {
 		return bannerRepository.findAll();
 	}
 
-	@Transactional
+	@Cacheable("cacheFindRandomBanner")
+	@Transactional(readOnly = true)
 	public Banner findRandomBanner() {
 		return this.bannerRepository.findRandomBanner();
 	}
 
+	@CacheEvict(cacheNames="cacheFindRandomBanner", allEntries = true)
 	@Transactional
 	public void saveBanner(@Valid Banner banner) {
 		bannerRepository.save(banner);
 	}
-
+	
+	@CacheEvict(cacheNames="cacheFindRandomBanner", allEntries = true)
 	@Transactional
 	public void deleteBannerById(int bannerId) {
 		this.bannerRepository.deleteById(bannerId);
