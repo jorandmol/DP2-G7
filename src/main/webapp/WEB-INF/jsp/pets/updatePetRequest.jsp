@@ -28,37 +28,44 @@
             </tr>
         </table>
         
-    <c:if test="${rejected}">
    	<sec:authorize access="hasAuthority('owner')">
-   		<br>
-   		<br>
-   		<h3>Justification:</h3>
-   		<tr>
-   		<td><c:out value="${petRequest.justification}"></c:out><td/>
-   		<tr>
+	    <c:if test="${readonly}">
+	   		<br>
+	   		<br>
+	   		<h3>Justification:</h3>
+	   		<tr>
+	   		<td><c:out value="${petRequest.justification}"></c:out><td/>
+	   		<tr>
+	    </c:if>
    	</sec:authorize>
-    </c:if>
         
 	<sec:authorize access="hasAuthority('admin')">
          <form:form modelAttribute="pet" class="form-horizontal">
             <div class="form-group has-feedback">
             	<div class="form-group">
-                    <label class="col-sm-2 control-label">Status</label>
-                   	<div class="col-sm-10">
-            			<select name="status" class="form-control">
-            				<c:forEach items="${status}" var="status">
-                            	<option value="${status}">${status}</option>
-                            </c:forEach>
-            			</select>
-            		</div>
-                </div>
-            	<petclinic:inputField label="Justification" name="justification"/>
+	                <c:choose>	
+                   		<c:when test="${!readonly}">
+		                    <label class="col-sm-2 control-label">Status</label>
+		                   	<div class="col-sm-10">
+		                   		<select name="status" class="form-control">
+		            				<option value="REJECTED">REJECTED</option>
+		            				<option value="ACCEPTED">ACCEPTED</option>
+		            			</select>
+		            		</div>
+                   		</c:when>
+                   		<c:otherwise>
+                   			<petclinic:inputField label="Status" name="status" readonly="true" />
+                   		</c:otherwise>
+	            	</c:choose>
+            	</div>
+            	<petclinic:inputField label="Justification" name="justification" readonly="${readonly}"/>
             </div>
             
             <div class="form-group">
                 <div class="col-sm-offset-2 col-sm-10">
                     <button class="btn btn-default" type="submit">
-                    Answer Request
+                    	<c:if test="${!readonly}">Answer Request</c:if>
+                    	<c:if test="${readonly}">Return</c:if>
                     </button>
                 </div>
            	</div>

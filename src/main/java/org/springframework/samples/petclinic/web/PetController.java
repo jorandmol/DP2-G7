@@ -89,7 +89,7 @@ public class PetController {
 
 	@GetMapping(value = "/owners/{ownerId}/pets/new")
 	public String initCreationForm(@PathVariable("ownerId") int ownerId, ModelMap model) {
-		if (securityAccessPetRequestAndProfile(ownerId, false) || isAdmin()) {
+		if (securityAccessPetRequestAndProfile(ownerId)) {
 			Pet pet = new Pet();
 			Owner owner = this.ownerService.findOwnerById(ownerId);
 			model.addAttribute("owner", owner);
@@ -152,7 +152,7 @@ public class PetController {
 	@PostMapping(value = "/owners/{ownerId}/pets/new")
 	public String processCreationForm(@PathVariable("ownerId") int ownerId, @Valid Pet pet, BindingResult result,
 			ModelMap model) {
-		if (securityAccessPetRequestAndProfile(ownerId, false) || isAdmin()) {
+		if (securityAccessPetRequestAndProfile(ownerId)) {
 
 			Owner owner = this.ownerService.findOwnerById(ownerId);
 			model.addAttribute("owner", owner);
@@ -181,16 +181,15 @@ public class PetController {
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/edit")
 	public String initUpdateForm(@PathVariable("ownerId") int ownerId, @PathVariable("petId") int petId,
 			ModelMap model) {
-		boolean edit = true;
 		Owner owner = this.ownerService.findOwnerById(ownerId);
 		Pet petToUpdate = this.petService.findPetById(petId);
 		Boolean isHisPetAcceptedAndAcctive = petToUpdate.getOwner().getId().equals(owner.getId()) && petToUpdate.isActive()
 				&& petToUpdate.getStatus().equals(ACCEPTED);
-		if (securityAccessPetRequestAndProfile(ownerId, edit) && isHisPetAcceptedAndAcctive) {
+		if (securityAccessPetRequestAndProfile(ownerId) && isHisPetAcceptedAndAcctive) {
 			Pet pet = this.petService.findPetById(petId);
 			model.addAttribute("pet", pet);
 			model.addAttribute("owner", pet.getOwner());
-			model.addAttribute("edit", edit);
+			model.addAttribute("edit", true);
 			return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 
 		} else {
@@ -214,23 +213,22 @@ public class PetController {
 		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
 				.collect(Collectors.toList()).get(0).toString();
 
-		Owner owner = this.ownerService.findOwnerById(ownerId);
 		Pet petToUpdate = this.petService.findPetById(petId);
 
-		boolean edit = true;
-		Boolean isHisPetAcceptedAndAcctive = petToUpdate.getOwner().getId().equals(owner.getId()) && petToUpdate.isActive()
+		Boolean isHisPetAcceptedAndAcctive = petToUpdate.getOwner().getId().equals(ownerId) && petToUpdate.isActive()
 				&& petToUpdate.getStatus().equals(ACCEPTED);
-		if (securityAccessPetRequestAndProfile(ownerId, edit) && isHisPetAcceptedAndAcctive) {
+		if (securityAccessPetRequestAndProfile(ownerId) && isHisPetAcceptedAndAcctive) {
+			Owner owner = this.ownerService.findOwnerById(ownerId);
 
 			model.addAttribute("owner", owner);
-			model.addAttribute("edit", edit);
+			model.addAttribute("edit", true);
 
 			if (result.hasErrors()) {
 				model.put("pet", pet);
 				return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 			} else {
-				BeanUtils.copyProperties(pet, petToUpdate, "id", "owner", "stays", "appointments", "visits", "status", "justification",
-						"active");
+				BeanUtils.copyProperties(pet, petToUpdate, "id", "owner", "stays", "appointments", "visits", "status",
+						"justification", "active");
 				try {
 					this.petService.savePet(petToUpdate);
 				} catch (DuplicatedPetNameException ex) {
@@ -254,14 +252,10 @@ public class PetController {
 			ModelMap model) {
 		
 		Pet pet = this.petService.findPetById(petId);
-		if (securityAccessPetRequestAndProfile(ownerId, false) || isAdmin() && pet.getStatus().equals(PENDING)) {
-			if (pet.getStatus().equals(REJECTED)) {
-				model.addAttribute("rejected", true);
-			}
-			List<PetRegistrationStatus> status = new ArrayList<>();
-			status.add(REJECTED);
-			status.add(ACCEPTED);
-			model.addAttribute("status", status);
+		if (securityAccessPetRequestAndProfile(ownerId)) {
+			if (!pet.getStatus().equals(PENDING)) {
+				model.addAttribute("readonly", true);
+			}	
 			model.addAttribute("pet", pet);
 			model.addAttribute("petRequest", pet);
 			return "pets/updatePetRequest";
@@ -275,21 +269,15 @@ public class PetController {
 			@PathVariable("petId") int petId, ModelMap model) {
 
 		Pet petToUpdate = this.petService.findPetById(petId);
-		Owner owner = this.ownerService.findOwnerById(ownerId);
-		if (isAdmin() && petToUpdate.getStatus().equals(PENDING) && petToUpdate.getOwner().getId().equals(owner.getId())) {
-
-			List<PetRegistrationStatus> status = new ArrayList<>();
-			status.add(REJECTED);
-			status.add(ACCEPTED);
-			model.addAttribute("status", status);
-
+		if (isAdmin() && petToUpdate.getStatus().equals(PENDING)
+				&& petToUpdate.getOwner().getId().equals(ownerId)) {
 			model.addAttribute("petRequest", petToUpdate);
 			if (result.hasErrors()) {
 				model.put("pet", pet);
 				return "pets/updatePetRequest";
 			} else {
-				BeanUtils.copyProperties(pet, petToUpdate, "id", "owner", "visits", "name", "birthDate", "type",
-						"active", "stays", "appointments");
+				petToUpdate.setStatus(pet.getStatus());
+				petToUpdate.setJustification(pet.getJustification());
 				try {
 					this.petService.savePet(petToUpdate);
 				} catch (DuplicatedPetNameException ex) {
@@ -300,7 +288,7 @@ public class PetController {
 			}
 
 		} else {
-			return REDIRECT_TO_OUPS;
+			return isAdmin() ? "redirect:/requests" : REDIRECT_TO_OUPS;
 		}
 	}
 
@@ -365,7 +353,7 @@ public class PetController {
 		
 		Boolean havePetDisabled = this.petService.countMyPetsAcceptedByActive(ACCEPTED, false, ownerId) !=0;
 		
-		if (securityAccessPetRequestAndProfile(ownerId, true) && havePetDisabled) {
+		if (securityAccessPetRequestAndProfile(ownerId) && havePetDisabled) {
 
 			Owner owner = this.ownerService.findOwnerById(ownerId);
 			List<Pet> myPets = this.petService.findMyPetsAcceptedByActive(ACCEPTED, false, ownerId);
@@ -384,7 +372,7 @@ public class PetController {
 		Boolean petIsActive = this.petService.findPetById(petId).isActive();
 		Pet updatePet = this.petService.findPetById(petId);
 		boolean hasStaysOrAppointments= this.petService.petHasStaysOrAppointmentsActive(petId);
-		if (securityAccessPetRequestAndProfile(ownerId, true) && petIsActive && updatePet.getOwner().getId().equals(ownerId)) {
+		if (securityAccessPetRequestAndProfile(ownerId) && petIsActive && updatePet.getOwner().getId().equals(ownerId)) {
 			if(hasStaysOrAppointments) {
 				model.addAttribute("errorDisabled", "You can not disable a pet with appointments or stays active");
 				return isAdmin()?this.showMyPetsActiveSuperUser(ownerId, model):this.showMyPetsActive(model);
@@ -404,7 +392,7 @@ public class PetController {
 		
 		Pet updatePet = this.petService.findPetById(petId);
 		Boolean petIsActive = !updatePet.isActive();
-		if (securityAccessPetRequestAndProfile(ownerId, true) && petIsActive && updatePet.getOwner().getId().equals(ownerId)) {
+		if (securityAccessPetRequestAndProfile(ownerId) && petIsActive && updatePet.getOwner().getId().equals(ownerId)) {
 			updatePet.setActive(true);
 			this.petService.savePet(updatePet);
 			return isAdmin()?"redirect:/owner/{ownerId}/pets":"redirect:/owner/pets";
@@ -419,7 +407,7 @@ public class PetController {
 		return authority.equals("admin");
 	}
 
-	private boolean securityAccessPetRequestAndProfile(int ownerId, boolean edit) {
+	private boolean securityAccessPetRequestAndProfile(int ownerId) {
 		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
 				.collect(Collectors.toList()).get(0).toString();
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -429,7 +417,7 @@ public class PetController {
 			owner = this.ownerService.findOwnerById(ownerId);
 		}
 
-		return authority.equals("admin") && edit
+		return authority.equals("admin")
 				|| authority.equals("owner") && username.equals(owner.getUser().getUsername());
 	}
 	

@@ -229,8 +229,6 @@ public class PetControllerIntegrationTests {
 		String view = this.petController.showAndUpdatePetRequest(TEST_OWNER_ID1, TEST_PET_ID_2, model);
 		
 		assertEquals(view, "pets/updatePetRequest");
-		assertNotNull(model.get("rejected"));
-		assertNotNull(model.get("status"));
 		assertNotNull(model.get("pet"));
 		assertNotNull(model.get("petRequest"));
 	}
@@ -242,7 +240,6 @@ public class PetControllerIntegrationTests {
 		String view = this.petController.showAndUpdatePetRequest(TEST_OWNER_ID1, TEST_PET_ID_3, model);
 		
 		assertEquals(view, "pets/updatePetRequest");
-		assertNotNull(model.get("status"));
 		assertNotNull(model.get("pet"));
 		assertNotNull(model.get("petRequest"));
 	}
@@ -254,18 +251,17 @@ public class PetControllerIntegrationTests {
 		String view = this.petController.showAndUpdatePetRequest(TEST_OWNER_ID3, TEST_PET_ID_4, model);
 		
 		assertEquals(view, "pets/updatePetRequest");
-		assertNotNull(model.get("status"));
 		assertNotNull(model.get("pet"));
 		assertNotNull(model.get("petRequest"));
 	}
-	//Usuario que NO cumple la seguridad
+
 	@WithMockUser(username = "admin", password = "4dm1n", authorities = "admin")
 	@Test
 	void testUpdatePetRequestNotPending() {
 		
 		String view = this.petController.showAndUpdatePetRequest(TEST_OWNER_ID3, TEST_PET_ID_5, model);
 		
-		assertEquals(view, REDIRECT_TO_OUPS);
+		assertEquals(view, "pets/updatePetRequest");
 	}
 	
 

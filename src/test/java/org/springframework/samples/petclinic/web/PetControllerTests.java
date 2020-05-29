@@ -67,8 +67,6 @@ class PetControllerTests {
 	private static final int TEST_OWNER_ID1 = 1;
 	
 	private static final int TEST_OWNER_ID2 = 2;
-	
-	private static final int TEST_OWNER_ID3 = 3;
 
 	private static final int TEST_PET_ID_1 = 1;
 	
@@ -462,7 +460,6 @@ class PetControllerTests {
 	@Test
 	void testShowPetRequestPending() throws Exception{
 		mockMvc.perform(get("/owners/{ownerId}/pet/{petId}", TEST_OWNER_ID1, TEST_PET_ID_1))
-				.andExpect(model().attributeExists("status"))
 				.andExpect(model().attributeExists("pet"))
 				.andExpect(model().attributeExists("petRequest"))
 				.andExpect(status().isOk())
@@ -473,7 +470,6 @@ class PetControllerTests {
 	@Test
 	void testUpdatePetRequestPending() throws Exception{
 		mockMvc.perform(get("/owners/{ownerId}/pet/{petId}", TEST_OWNER_ID1, TEST_PET_ID_1))
-				.andExpect(model().attributeExists("status"))
 				.andExpect(model().attributeExists("pet"))
 				.andExpect(model().attributeExists("petRequest"))
 				.andExpect(status().isOk())
@@ -484,8 +480,6 @@ class PetControllerTests {
 	@Test
 	void testShowPetRequestRejected() throws Exception{
 		mockMvc.perform(get("/owners/{ownerId}/pet/{petId}", TEST_OWNER_ID1, TEST_PET_ID_2))
-				.andExpect(model().attributeExists("rejected"))
-				.andExpect(model().attributeExists("status"))
 				.andExpect(model().attributeExists("pet"))
 				.andExpect(model().attributeExists("petRequest"))
 				.andExpect(status().isOk())
@@ -521,7 +515,6 @@ class PetControllerTests {
 		mockMvc.perform(post("/owners/{ownerId}/pet/{petId}", TEST_OWNER_ID1, TEST_PET_ID_1).with(csrf())
 				.param("status",PetRegistrationStatus.REJECTED.toString())
 				.param("justification", ""))
-				.andExpect(model().attributeExists("status"))
 				.andExpect(model().attributeExists("petRequest"))
 				.andExpect(status().isOk())
 				.andExpect(view().name("pets/updatePetRequest"));
