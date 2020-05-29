@@ -25,7 +25,7 @@ public class TreatmentService {
 	}
 
 	public List<Treatment> findCurrentTreatmentsByPet(int petId) {
-		return this.treatmentRepository.findCurrentTreatmentsByPet(petId);
+		return this.treatmentRepository.findCurrenTreatmenttWithMedicineByPet(petId);
 	}
 
 	public List<Treatment> findExpiredTreatmentsByPet(int petId) {
