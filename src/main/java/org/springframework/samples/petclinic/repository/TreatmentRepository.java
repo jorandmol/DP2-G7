@@ -16,5 +16,7 @@ public interface TreatmentRepository {
     Treatment findById(Integer id);
 
     void save(Treatment treatment);
+    
+	List<Treatment> findCurrenTreatmenttWithMedicineByPet(@Param("petId") Integer petId);
 
 }

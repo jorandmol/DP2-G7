@@ -32,4 +32,14 @@
 	        <key-type>java.lang.Integer</key-type>
 	        <value-type>org.springframework.samples.petclinic.model.Pet</value-type>
 	    </cache>        
-    </config>
+
+	    <cache alias="cacheFindRandomBanner" uses-template="default">
+	        <key-type>org.springframework.cache.interceptor.SimpleKey</key-type>
+	        <value-type>org.springframework.samples.petclinic.model.Banner</value-type>
+        </cache>
+  
+	    <cache alias="allPets" uses-template="default">
+	        <key-type>org.springframework.cache.interceptor.SimpleKey</key-type>
+	        <value-type>java.util.List</value-type>
+	    </cache>        
+</config>

@@ -246,7 +246,6 @@ public class PetControllerE2ETests {
 	@Test
 	void testShowPetRequestPending() throws Exception{
 		mockMvc.perform(get("/owners/{ownerId}/pet/{petId}", TEST_OWNER_ID1, TEST_PET_ID_3))
-				.andExpect(model().attributeExists("status"))
 				.andExpect(model().attributeExists("pet"))
 				.andExpect(model().attributeExists("petRequest"))
 				.andExpect(status().isOk())
@@ -257,7 +256,6 @@ public class PetControllerE2ETests {
 	@Test
 	void testUpdatePetRequestPending() throws Exception{
 		mockMvc.perform(get("/owners/{ownerId}/pet/{petId}", 10, 12))
-                .andExpect(model().attributeExists("status"))
 				.andExpect(model().attributeExists("pet"))
 				.andExpect(model().attributeExists("petRequest"))
 				.andExpect(status().isOk())
@@ -268,8 +266,6 @@ public class PetControllerE2ETests {
 	@Test
 	void testShowPetRequestRejected() throws Exception{
 		mockMvc.perform(get("/owners/{ownerId}/pet/{petId}", TEST_OWNER_ID1, TEST_PET_ID_2))
-				.andExpect(model().attributeExists("rejected"))
-				.andExpect(model().attributeExists("status"))
 				.andExpect(model().attributeExists("pet"))
 				.andExpect(model().attributeExists("petRequest"))
 				.andExpect(status().isOk())
@@ -305,10 +301,19 @@ public class PetControllerE2ETests {
 		mockMvc.perform(post("/owners/{ownerId}/pet/{petId}", TEST_OWNER_ID3, TEST_PET_ID_4).with(csrf())
 				.param("status",PetRegistrationStatus.REJECTED.toString())
 				.param("justification", ""))
-				.andExpect(model().attributeExists("status"))
 				.andExpect(model().attributeExists("petRequest"))
 				.andExpect(status().isOk())
 				.andExpect(view().name("pets/updatePetRequest"));
+	}
+	
+	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
+	@Test
+	void testAnswerPetRequestNotPendingToAdmin() throws Exception{
+		mockMvc.perform(post("/owners/{ownerId}/pet/{petId}", TEST_OWNER_ID1, TEST_PET_ID_2).with(csrf())
+				.param("status",PetRegistrationStatus.REJECTED.toString())
+				.param("justification", "OK"))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(view().name("redirect:/requests"));
 	}
 
 	// TEST para usuario que NO cumple la seguridad
@@ -321,18 +326,6 @@ public class PetControllerE2ETests {
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name(REDIRECT_TO_OUPS));
 	}
-
-	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
-	@Test
-	void testAnswerPetRequestWithoutAccessNotPending() throws Exception{
-		mockMvc.perform(post("/owners/{ownerId}/pet/{petId}", TEST_OWNER_ID1, TEST_PET_ID_2).with(csrf())
-				.param("status",PetRegistrationStatus.ACCEPTED.toString())
-				.param("justification", ""))
-				.andExpect(status().is3xxRedirection())
-				.andExpect(view().name(REDIRECT_TO_OUPS));
-	}
-
-
 
 	// TEST para usuario que SI cumple la seguridad
 	@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
