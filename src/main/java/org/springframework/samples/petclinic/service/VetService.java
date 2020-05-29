@@ -71,7 +71,8 @@ public class VetService {
 	public Vet findVetById(int vetId) {
 		return vetRepository.findById(vetId);
 	}
-
+	
+	@Transactional(readOnly = true)
 	public Vet findVetByUsername(String username) {
 		return vetRepository.findByUsername(username);
 	}
