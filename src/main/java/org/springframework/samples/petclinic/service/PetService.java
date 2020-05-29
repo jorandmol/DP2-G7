@@ -60,7 +60,7 @@ public class PetService {
 	}
 	
 	@Transactional(rollbackFor = DuplicatedPetNameException.class)
-	@CacheEvict(cacheNames = "allPets, petById",allEntries = true)
+	@CacheEvict(cacheNames = {"allPets", "petById"},allEntries = true)
 	public void savePet(Pet pet) throws DataAccessException, DuplicatedPetNameException {	
 		if (existOtherPetWithSameName(pet)) {
 			throw new DuplicatedPetNameException();
@@ -81,7 +81,7 @@ public class PetService {
 		return res;
 	}
 
-@Cacheable("allPets")
+	@Cacheable("allPets")
 	public List<Pet> findAll() {
 		return this.petRepository.findAll();
 	}

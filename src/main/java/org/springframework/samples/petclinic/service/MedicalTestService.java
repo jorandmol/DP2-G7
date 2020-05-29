@@ -3,6 +3,8 @@ package org.springframework.samples.petclinic.service;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.samples.petclinic.model.MedicalTest;
 import org.springframework.samples.petclinic.repository.MedicalTestRepository;
 import org.springframework.stereotype.Service;
@@ -19,11 +21,13 @@ private MedicalTestRepository medicalTestRepository;
 	}
 
 	@Transactional(readOnly = true)	
+	@Cacheable("medicalTests")
 	public Collection<MedicalTest> findMedicalTests() {
 		return this.medicalTestRepository.findAll();
 	}
 
 	@Transactional
+	@CacheEvict(cacheNames="medicalTests", allEntries=true)
 	public void saveMedicalTest(MedicalTest medicalTest) {
 		this.medicalTestRepository.save(medicalTest);
 	}
