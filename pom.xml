@@ -136,7 +136,7 @@
     		<artifactId>rest-assured</artifactId>
     		<version>${rest-assured.version}</version>
     		<scope>test</scope>
-		</dependency>		
+		</dependency>
 		<dependency>
     		<groupId>io.rest-assured</groupId>
     		<artifactId>json-path</artifactId>
@@ -217,6 +217,33 @@
 
     <build>
         <plugins>
+            <!-- PIT Mutation Testing -->
+            <plugin>
+                <groupId>org.pitest</groupId>
+                <artifactId>pitest-maven</artifactId>
+                <version>1.5.2</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.pitest</groupId>
+                        <artifactId>pitest-junit5-plugin</artifactId>
+                        <version>0.12</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <targetClasses>
+                        <param>org.springframework.samples.petclinic.service.StayService</param>
+                        <param>org.springframework.samples.petclinic.web.StayController</param>
+                        <param>org.springframework.samples.petclinic.service.AppointmentService</param>
+                        <param>org.springframework.samples.petclinic.web.AppointmentController</param>
+                    </targetClasses>
+                    <targetTests>
+                        <param>org.springframework.samples.petclinic.service.StayServiceTests</param>
+                        <param>org.springframework.samples.petclinic.web.StayControllerTests</param>
+                        <param>org.springframework.samples.petclinic.service.AppointmentServiceTests</param>
+                        <param>org.springframework.samples.petclinic.web.AppointmentControllerTests</param>
+                    </targetTests>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -333,7 +360,7 @@
             <url>https://www.apache.org/licenses/LICENSE-2.0</url>
         </license>
     </licenses>
-    
+
 	<profiles>
 		<profile>
       		<id>unit-tests</id>
@@ -353,7 +380,7 @@
 	      		</plugins>
 	      	</build>
     	</profile>
-    	
+
     	<profile>
       		<id>e2e-tests</id>
 	      	<build>
@@ -371,7 +398,7 @@
 	      		</plugins>
 	      	</build>
     	</profile>
-		
+
 		<profile>
       		<id>integration-tests</id>
 	      	<build>
@@ -388,7 +415,7 @@
 	      		</plugins>
 	      	</build>
     	</profile>
-	
+
 		<profile>
 			<id>AcceptanceTests</id>
 			<build>
@@ -440,6 +467,6 @@
 				</plugins>
 			</build>
 		</profile>
-	</profiles>	
+	</profiles>
 
 </project>
