@@ -28,10 +28,40 @@
             </resources>
         </cache-template>
         
+		<cache alias="medicalTests" uses-template="default">
+	        <key-type>org.springframework.cache.interceptor.SimpleKey</key-type>
+	        <value-type>java.util.Collection</value-type>
+	    </cache>
+		
+		<cache alias="vetById" uses-template="default">
+	        <key-type>java.lang.Integer</key-type>
+	        <value-type>org.springframework.samples.petclinic.model.Vet</value-type>
+	    </cache>
+
 	    <cache alias="petById" uses-template="default">
 	        <key-type>java.lang.Integer</key-type>
 	        <value-type>org.springframework.samples.petclinic.model.Pet</value-type>
-	    </cache>        
+	    </cache>    
+
+		<cache alias="appointmentsByVetAndDate" uses-template="default">
+	        <key-type>org.springframework.cache.interceptor.SimpleKey</key-type>
+	        <value-type>java.util.ArrayList</value-type>
+	    </cache> 
+		
+		<cache alias="nextAppointmentsByVetAndDate" uses-template="default">
+	        <key-type>org.springframework.cache.interceptor.SimpleKey</key-type>
+	        <value-type>java.util.ArrayList</value-type>
+	    </cache> 
+
+		<cache alias="countVisitsByPetAndDate" uses-template="default">
+	        <key-type>org.springframework.cache.interceptor.SimpleKey</key-type>
+	        <value-type>java.lang.Integer</value-type>
+	    </cache>    
+		
+		<cache alias="specialties" uses-template="default">
+	        <key-type>org.springframework.cache.interceptor.SimpleKey</key-type>
+	        <value-type>java.util.Collection</value-type>
+        </cache>  
 
 	    <cache alias="cacheFindRandomBanner" uses-template="default">
 	        <key-type>org.springframework.cache.interceptor.SimpleKey</key-type>

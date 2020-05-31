@@ -96,14 +96,14 @@ class RegistrarVisita extends Simulation {
 	}
 
 
-	val inserVisitScn = scenario("inserVisit").exec(
+	val insertVisitScn = scenario("insertVisit").exec(
 		Home.home,
 		Login.login,
 		Appointments.appointments,
 		NewVisit.newVisit
 	)
 
-	val errorInserVisitScn = scenario("errorInserVisit").exec(
+	val errorInsertVisitScn = scenario("errorInsertVisit").exec(
 		Home.home,
 		Login.login,
 		Appointments.appointments,
@@ -111,8 +111,8 @@ class RegistrarVisita extends Simulation {
 	)
 
 	setUp(
-		inserVisitScn.inject(rampUsers(150) during (100 seconds)),
-		errorInserVisitScn.inject(rampUsers(150) during (100 seconds)))
+		insertVisitScn.inject(rampUsers(150) during (100 seconds)),
+		errorInsertVisitScn.inject(rampUsers(150) during (100 seconds)))
 	.protocols(httpProtocol)
 	.assertions(
 		global.responseTime.max.lt(5000),
