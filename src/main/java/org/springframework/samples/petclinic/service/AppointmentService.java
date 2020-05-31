@@ -63,10 +63,12 @@ public class AppointmentService {
         }
     }
     
+	@Transactional(readOnly = true)
     public Appointment getAppointmentById(int appointmentId) {
         return this.appointmentRepository.findById(appointmentId);
     }
 
+	@Transactional(readOnly = true)
     public Collection<Appointment> getAllAppointments() {
     	return this.appointmentRepository.findAll();
     	
@@ -85,14 +87,17 @@ public class AppointmentService {
 	    return res;
     }
 
+	@Transactional(readOnly = true)
 	public List<Appointment> getAppointmentsTodayByVetId(Integer vetId, LocalDate date) {
 		return this.appointmentRepository.getAppointmentsTodayByVetId(vetId, date);
 	}
 
+	@Transactional(readOnly = true)
 	public List<Appointment> getNextAppointmentsByVetId(Integer vetId, LocalDate date) {
 		return this.appointmentRepository.getNextAppointmentsByVetId(vetId, date);
 	}
 	
+	@Transactional(readOnly = true)
 	public Appointment findAppointmentByDate(Integer petId, LocalDate date) {
 		return this.appointmentRepository.findByDate(petId, date);
 	}

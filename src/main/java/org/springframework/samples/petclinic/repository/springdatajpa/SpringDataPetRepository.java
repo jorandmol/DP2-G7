@@ -44,9 +44,10 @@ public interface SpringDataPetRepository extends PetRepository, Repository<Pet, 
 	List<Pet> findPetsRequests(@Param("pending") PetRegistrationStatus pending);
 	
 	@Query("SELECT p FROM Pet p WHERE (p.status=:pending OR p.status=:rejected) AND p.owner.id=:ownerId")
-	List<Pet> findPetsRequests(@Param("pending") PetRegistrationStatus pending, @Param("rejected") PetRegistrationStatus rejected, @Param("ownerId") Integer ownerId);
+	List<Pet> findMyPetsRequests(@Param("pending") PetRegistrationStatus pending, @Param("rejected") PetRegistrationStatus rejected, @Param("ownerId") Integer ownerId);
 	
-	@Query("SELECT p FROM Pet p WHERE p.status=:accepted AND p.active=:active AND p.owner.id=:ownerId")
+	@Query("SELECT DISTINCT p FROM Pet p LEFT JOIN FETCH p.visits v LEFT JOIN FETCH p.appointments a LEFT JOIN FETCH p.stays s"
+			+ " WHERE p.status=:accepted AND p.active=:active AND p.owner.id=:ownerId")
 	List<Pet> findMyPetsAcceptedByActive(@Param("accepted") PetRegistrationStatus accepted, @Param("active") boolean active, @Param("ownerId") Integer ownerId);
 
 	@Query("SELECT COUNT(p) FROM Pet p WHERE p.status=:accepted AND p.active=:active AND p.owner.id=:ownerId")
@@ -60,5 +61,9 @@ public interface SpringDataPetRepository extends PetRepository, Repository<Pet, 
 	
 	@Query("SELECT COUNT(a) FROM Appointment a WHERE a.pet.id=:petId AND a.appointmentDate>=:date")
 	int countMyPetActiveAppointments(@Param("petId") int petId, @Param("date") LocalDate date);
+	
+	@Query("SELECT DISTINCT p FROM Pet p LEFT JOIN FETCH p.visits v LEFT JOIN FETCH p.appointments a LEFT JOIN FETCH p.stays s WHERE p.id=:petId")
+	Pet findPetByIdWithVisitsAppoimentsStays(@Param("petId") Integer petId);
 
+	
 }

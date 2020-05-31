@@ -98,7 +98,7 @@ public class StayController {
 		if (authority.equals("owner")) {
 			Owner owner = this.ownerService.findOwnerById(ownerId);
 			Pet pet = this.petService.findPetById(petId);
-
+						
 			isHisPetAcceptedAndActive = pet.getOwner().getId().equals(owner.getId()) && pet.isActive()
 					&& pet.getStatus().equals(PetRegistrationStatus.ACCEPTED);
 			ownerUsername = owner.getUser().getUsername();
@@ -192,8 +192,8 @@ public class StayController {
 		Pet pet = petService.findPetById(petId);
 		Stay stay = stayService.findStayById(stayId);
 		ModelAndView mav = new ModelAndView("pets/staysList");
-		mav.addObject("stays", this.petService.findPetById(petId).getStays());
-		mav.addObject("pet", this.petService.findPetById(petId));
+		mav.addObject("stays", pet.getStays());
+		mav.addObject("pet", pet);
 
 		Boolean isYourStay = stay.getPet().getOwner().getId().equals(ownerId);
 		if ((this.securityAccessRequest(ownerId, petId) && isYourStay) || isAdmin()) {
@@ -203,7 +203,7 @@ public class StayController {
 			} catch (StayAlreadyConfirmed ex) {
 				mav.addObject("errors", "This stay is already confirmed");
 			}
-			mav.addObject("stays", this.petService.findPetById(petId).getStays());
+			mav.addObject("stays", pet.getStays());
 			return mav;
 		} else {
 			return new ModelAndView("exception");

@@ -16,7 +16,6 @@
 
 package org.springframework.samples.petclinic.web;
 
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -24,7 +23,6 @@ import java.util.stream.Collectors;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.samples.petclinic.model.Appointment;
 import org.springframework.samples.petclinic.model.MedicalTest;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;

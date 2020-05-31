@@ -63,7 +63,7 @@ public interface PetRepository {
 
 	List<Pet> findPetsRequests(PetRegistrationStatus pending);
 
-	List<Pet> findPetsRequests(PetRegistrationStatus pending, PetRegistrationStatus rejected, Integer ownerId);
+	List<Pet> findMyPetsRequests(PetRegistrationStatus pending, PetRegistrationStatus rejected, Integer ownerId);
 
 	List<Pet> findMyPetsAcceptedByActive(PetRegistrationStatus accepted, boolean active, Integer ownerId);
 
@@ -74,5 +74,7 @@ public interface PetRepository {
 	int countMyPetActiveStays(int petId, LocalDate date, Status status);
 	
 	int countMyPetActiveAppointments(int petId, LocalDate date);
+	
+	Pet findPetByIdWithVisitsAppoimentsStays(Integer petId);
 
 }
