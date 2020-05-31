@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.PetRegistrationStatus;
@@ -47,13 +48,14 @@ public class PetService {
 	}
 
 	@Transactional(readOnly = true)
+	@Cacheable("petTypes")
 	public Collection<PetType> findPetTypes() throws DataAccessException {
 		return petRepository.findPetTypes();
 	}
 	
 	@Transactional(readOnly = true)
 	public Pet findPetById(int id) throws DataAccessException {
-		return petRepository.findById(id);
+		return petRepository.findPetByIdWithVisitsAppoimentsStays(id);
 	}
 
 	@Transactional(rollbackFor = DuplicatedPetNameException.class)
@@ -77,26 +79,32 @@ public class PetService {
 		return res;
 	}
 
+	@Transactional(readOnly = true)
 	public List<Pet> findAll() {
 		return this.petRepository.findAll();
 	}
 
+	@Transactional(readOnly = true)
 	public List<Pet> findPetsRequests(PetRegistrationStatus pending) {
 		return this.petRepository.findPetsRequests(pending);
 	}
 
+	@Transactional(readOnly = true)
 	public List<Pet> findMyPetsRequests(PetRegistrationStatus pending, PetRegistrationStatus rejected, Integer ownerId) {
-		return this.petRepository.findPetsRequests(pending, rejected, ownerId);
+		return this.petRepository.findMyPetsRequests(pending, rejected, ownerId);
 	}
 
+	@Transactional(readOnly = true)
 	public List<Pet> findMyPetsAcceptedByActive(PetRegistrationStatus accepted, boolean active, Integer ownerId) {
 		return this.petRepository.findMyPetsAcceptedByActive(accepted, active, ownerId);
 	}
 
+	@Transactional(readOnly = true)
 	public Integer countMyPetsAcceptedByActive(PetRegistrationStatus accepted, boolean active, int ownerId) {
 		return this.petRepository.countMyPetsAcceptedByActive(accepted, active, ownerId);
 	}
 	
+	@Transactional(readOnly = true)
 	public Boolean petHasStaysOrAppointmentsActive(int petId) {
 		return this.petRepository.countMyPetActiveStays(petId,LocalDate.now(),Status.ACCEPTED)>0 || this.petRepository.countMyPetActiveAppointments(petId,LocalDate.now())>0; 
 	}

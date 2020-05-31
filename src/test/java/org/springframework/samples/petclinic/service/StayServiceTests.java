@@ -163,6 +163,7 @@ class StayServiceTests {
 		Pet pet = this.petService.findPetById(7);
 		int numStays = pet.getStays().size();
 		try {
+			pet.deleteStay(stay);
 			this.stayService.deleteStay(stay);
 		} catch (StayAlreadyConfirmed e) {
 			e.printStackTrace();

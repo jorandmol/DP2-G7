@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.Status;
 import org.springframework.samples.petclinic.model.Stay;
 import org.springframework.samples.petclinic.repository.StayRepository;
@@ -50,8 +49,6 @@ public class StayService {
 		if (stay.getStatus() != Status.PENDING) {
 			throw new StayAlreadyConfirmed();
 		} else {
-			Pet pet = stay.getPet();
-			pet.deleteStay(stay);
 			stayRepository.delete(stay);
 		}
 	}
