@@ -18,6 +18,8 @@ package org.springframework.samples.petclinic.service;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.repository.OwnerRepository;
@@ -47,7 +49,8 @@ public class OwnerService {
 	}	
 
 	@Transactional(readOnly = true)
-	public Owner findOwnerById(int id) throws DataAccessException {
+	@Cacheable("ownerById")
+	public Owner findOwnerById(Integer id) throws DataAccessException {
 		return ownerRepository.findById(id);
 	}
 
@@ -57,6 +60,7 @@ public class OwnerService {
 	}
 
 	@Transactional
+	@CacheEvict(cacheNames = "ownerById", allEntries = true)
 	public void saveOwner(Owner owner) throws DataAccessException {
 		//creating owner
 		ownerRepository.save(owner);		
@@ -66,7 +70,7 @@ public class OwnerService {
 		authoritiesService.saveAuthorities(owner.getUser().getUsername(), "owner");
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public Owner findOwnerByUsername(String username) {
 		return ownerRepository.findByUsername(username);
 	}			

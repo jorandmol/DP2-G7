@@ -40,7 +40,7 @@ public class PetTypeService {
 
 	@Transactional(readOnly = true)
 	public PetType findById(Integer petTypeId) {
-		
+
 		return this.petTypeRepository.findById(petTypeId).get();
 	}
 
