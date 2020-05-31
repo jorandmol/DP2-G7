@@ -211,12 +211,12 @@ class VisitControllerTests {
 		
 		given(this.vetService.findVetByUsername("vet1")).willReturn(vet1);
 		given(this.petService.findPetById(TEST_PET_ID_1)).willReturn(pet1);
-		given(this.appointmentService.findAppointmentByDate(TEST_PET_ID_1, date)).willReturn(appointment1);
+		given(this.appointmentService.findAppointmentByPetAndDate(TEST_PET_ID_1, date)).willReturn(appointment1);
 		given(this.visitService.countVisitsByDate(TEST_PET_ID_1, date)).willReturn(0);
 		
 		given(this.vetService.findVetByUsername("vet2")).willReturn(vet2);
 		given(this.petService.findPetById(TEST_PET_ID_2)).willReturn(pet2);
-		given(this.appointmentService.findAppointmentByDate(TEST_PET_ID_2, date)).willReturn(appointment2);
+		given(this.appointmentService.findAppointmentByPetAndDate(TEST_PET_ID_2, date)).willReturn(appointment2);
 		given(this.visitService.countVisitsByDate(TEST_PET_ID_2, date)).willReturn(1);
 		
 		given(this.visitService.findVisitById(TEST_VISIT_ID_1)).willReturn(visit1);		
@@ -224,7 +224,7 @@ class VisitControllerTests {
 		given(this.ownerService.findOwnerById(TEST_OWNER_ID_2)).willReturn(owner2);
 		
 		given(this.visitService.findVisitById(TEST_VISIT_ID_2)).willReturn(visit2);
-		given(this.appointmentService.findAppointmentByDate(TEST_PET_ID_1, date.minusDays(7))).willReturn(appointment3);
+		given(this.appointmentService.findAppointmentByPetAndDate(TEST_PET_ID_1, date.minusDays(7))).willReturn(appointment3);
 		
 	}
 

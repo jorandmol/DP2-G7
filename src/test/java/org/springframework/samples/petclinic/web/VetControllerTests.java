@@ -284,11 +284,11 @@ class VetControllerTests {
 		given(this.vetService.findVetById(TEST_VET_ID_1)).willReturn(vet1);
         given(this.vetService.findVets()).willReturn(Lists.newArrayList(james, helen));
         given(this.vetService.findSpecialties()).willReturn(specialties1);
-        given(this.appointmentService.getAppointmentsTodayByVetId(TEST_VET_ID_1, LocalDate.now())).willReturn(appointmentsToday1);
+        given(this.appointmentService.getAppointmentsByVetAndDate(TEST_VET_ID_1, LocalDate.now())).willReturn(appointmentsToday1);
         given(this.appointmentService.getNextAppointmentsByVetId(TEST_VET_ID_1, LocalDate.now())).willReturn(nextAppointments1);
-        given(this.appointmentService.getAppointmentsTodayByVetId(TEST_VET_ID_2, LocalDate.now())).willReturn(appointmentsToday2);
+        given(this.appointmentService.getAppointmentsByVetAndDate(TEST_VET_ID_2, LocalDate.now())).willReturn(appointmentsToday2);
         given(this.appointmentService.getNextAppointmentsByVetId(TEST_VET_ID_2, LocalDate.now())).willReturn(nextAppointments2);
-        given(this.appointmentService.getAppointmentsTodayByVetId(TEST_VET_ID_3, LocalDate.now())).willReturn(appointments);
+        given(this.appointmentService.getAppointmentsByVetAndDate(TEST_VET_ID_3, LocalDate.now())).willReturn(appointments);
         given(this.appointmentService.getNextAppointmentsByVetId(TEST_VET_ID_3, LocalDate.now())).willReturn(appointments);
         given(this.vetService.findVetByUsername("vet1")).willReturn(vet1);
         given(this.vetService.findVetByUsername("vet2")).willReturn(vet2);

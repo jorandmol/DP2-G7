@@ -18,6 +18,8 @@ package org.springframework.samples.petclinic.service;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Specialty;
 import org.springframework.samples.petclinic.model.Vet;
@@ -53,11 +55,13 @@ public class VetService {
 	}
 	
 	@Transactional(readOnly = true)	
+	@Cacheable("specialties")
 	public Collection<Specialty> findSpecialties() {
 		return vetRepository.findSpecialties();
 	}
 
 	@Transactional
+	@CacheEvict(cacheNames = "vetById", allEntries = true)
 	public void saveVet(Vet vet) throws DataAccessException {
 		//creating vet
 		vetRepository.save(vet);		
@@ -68,10 +72,12 @@ public class VetService {
 	}
 
 	@Transactional(readOnly = true)
-	public Vet findVetById(int vetId) {
+	@Cacheable("vetById")
+	public Vet findVetById(Integer vetId) {
 		return vetRepository.findById(vetId);
 	}
-
+	
+	@Transactional(readOnly = true)
 	public Vet findVetByUsername(String username) {
 		return vetRepository.findByUsername(username);
 	}

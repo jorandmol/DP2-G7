@@ -7,6 +7,8 @@ import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.samples.petclinic.model.Appointment;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.repository.AppointmentRepository;
@@ -29,6 +31,7 @@ public class AppointmentService {
 	}
 
 	@Transactional
+	@CacheEvict(cacheNames = {"appointmentsByVetAndDate", "appointmentByPetAndDate", "nextAppointmentsByVetAndDate"}, allEntries = true)
 	public void saveAppointment(final Appointment appointment, Integer vetId) throws VeterinarianNotAvailableException {
 		if (!isPossibleAppointment(appointment, vetId)) {
 		    throw new VeterinarianNotAvailableException();
@@ -42,11 +45,13 @@ public class AppointmentService {
 	}
 
 	@Transactional
+	@CacheEvict(cacheNames = {"appointmentsByVetAndDate", "appointmentByPetAndDate", "nextAppointmentsByVetAndDate"}, allEntries = true)
 	public void deleteAppointment(final Appointment appointment) {
 		this.appointmentRepository.delete(appointment);
 	}
 
     @Transactional
+	@CacheEvict(cacheNames = {"appointmentsByVetAndDate", "appointmentByPetAndDate", "nextAppointmentsByVetAndDate"}, allEntries = true)
     public void editAppointment(final Appointment appointment) throws VeterinarianNotAvailableException {
 	    int vetId = appointment.getVet().getId();
 	    Appointment appointmentToUpdate = this.appointmentRepository.findById(appointment.getId());
@@ -63,10 +68,12 @@ public class AppointmentService {
         }
     }
     
+    @Transactional(readOnly=true)
     public Appointment getAppointmentById(int appointmentId) {
         return this.appointmentRepository.findById(appointmentId);
     }
 
+    @Transactional(readOnly=true)
     public Collection<Appointment> getAllAppointments() {
     	return this.appointmentRepository.findAll();
     	
@@ -85,15 +92,20 @@ public class AppointmentService {
 	    return res;
     }
 
-	public List<Appointment> getAppointmentsTodayByVetId(Integer vetId, LocalDate date) {
-		return this.appointmentRepository.getAppointmentsTodayByVetId(vetId, date);
+    @Transactional(readOnly=true)
+    @Cacheable("appointmentsByVetAndDate")
+	public List<Appointment> getAppointmentsByVetAndDate(Integer vetId, LocalDate date) {
+		return this.appointmentRepository.getAppointmentsByVetAndDate(vetId, date);
 	}
 
+    @Transactional(readOnly=true)
+    @Cacheable("nextAppointmentsByVetAndDate")
 	public List<Appointment> getNextAppointmentsByVetId(Integer vetId, LocalDate date) {
 		return this.appointmentRepository.getNextAppointmentsByVetId(vetId, date);
 	}
 	
-	public Appointment findAppointmentByDate(Integer petId, LocalDate date) {
-		return this.appointmentRepository.findByDate(petId, date);
+    @Transactional(readOnly=true)
+	public Appointment findAppointmentByPetAndDate(Integer id, LocalDate date) {
+		return this.appointmentRepository.findByDate(id, date);
 	}
 }

@@ -195,7 +195,7 @@ public class VetController {
 		Vet veterinarian= this.vetService.findVetByUsername(username);
 		LocalDate today= LocalDate.now();
 		
-		List<Appointment> appointmentsToday = this.appointmentService.getAppointmentsTodayByVetId(veterinarian.getId(), today);
+		List<Appointment> appointmentsToday = this.appointmentService.getAppointmentsByVetAndDate(veterinarian.getId(), today);
 		model.addAttribute("appointmentsToday", appointmentsToday);
 		
 		List<Appointment> appointmentsWithVisit = appointmentsToday.stream()
@@ -213,7 +213,7 @@ public class VetController {
 		Vet veterinarian= this.vetService.findVetById(vetId);
 		LocalDate today= LocalDate.now();
 		
-		List<Appointment> appointmentsToday = this.appointmentService.getAppointmentsTodayByVetId(veterinarian.getId(), today);
+		List<Appointment> appointmentsToday = this.appointmentService.getAppointmentsByVetAndDate(veterinarian.getId(), today);
 		model.addAttribute("appointmentsToday", appointmentsToday);
 		
 		List<Appointment> appointmentsWithVisit = appointmentsToday.stream()
