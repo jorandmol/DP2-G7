@@ -172,7 +172,7 @@ public class AppointmentControllerIntegrationTests {
 	@WithMockUser(username="owner1", password="0wn3333r_1", authorities=OWNER_ROLE)
 	void testProcessDeleteAppointment() throws Exception {
 		ModelMap modelMap = new ModelMap();
-		String view =appointmentController.deleteAppointment(TEST_OWNER_ID, 7, TEST_PET_ID, modelMap);
+		String view =appointmentController.deleteAppointment(TEST_OWNER_ID, 8, TEST_PET_ID, modelMap);
 		assertEquals(view, REDIRECT_TO_PETS_DETAILS);
 	}
 
