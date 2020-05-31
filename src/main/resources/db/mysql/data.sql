@@ -111,7 +111,7 @@ INSERT INTO appointments(id,appointment_date,appointment_request_date,descriptio
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (5,'2020-04-20','2020-03-27','Medical appointment',1,1,1);
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (6,'2020-06-30','2020-03-27','Radiographic study',1,1,1);
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (7,'2020-08-30','2020-03-27','Fracture treatment',1,1,1);
-INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (8,'2020-05-01','2020-03-27','Dental checkup',1,2,1);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (8,'2020-08-30','2020-03-27','Dental checkup',1,2,1);
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (9,'2020-05-01','2020-03-27','Medical appointment',10,12,1);
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (10,ADDDATE(CURRENT_DATE, 2),'2020-03-27','Radiographic study',1,1,2);
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (11,CURRENT_DATE,'2020-03-27','Fracture treatment',1,1,2);
